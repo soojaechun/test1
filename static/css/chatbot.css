@@ -22,7 +22,7 @@
 .axchat-message { max-width:92%; white-space:pre-wrap; overflow-wrap:anywhere; padding:12px 14px; border-radius:15px; font-size:15px; line-height:1.75; }
 .axchat-user { align-self:flex-end; background:#2458cf; color:#fff; border-bottom-right-radius:4px; }
 .axchat-answer { align-self:flex-start; background:#f1f4f9; border-bottom-left-radius:4px; }
-.axchat-answer small { display:block; color:#596a83; font-size:11px; margin-bottom:5px; }
+.axchat-answer small { display:block; color:#48525f; font-size:11px; margin-bottom:5px; }
 .axchat-loading { display:flex; align-items:center; gap:9px; color:#53637b; }
 .axchat-spinner { flex-shrink:0; width:18px; height:18px; border:2px solid #cbd2dc; border-top-color:#19395f; border-radius:50%; animation:axchat-spin .9s linear infinite; }
 @keyframes axchat-spin { to { transform:rotate(360deg); } }
@@ -86,12 +86,12 @@
 .axchat-suggestions .axchat-question-icon { color:#537faa; }
 .axchat-suggestions button:nth-of-type(2) .axchat-question-icon { color:#65849f; }
 .axchat-suggestions button:nth-of-type(3) .axchat-question-icon { color:#355d80; }
-.axchat-user { background:linear-gradient(135deg,rgba(92,161,230,.38) 0%,rgba(55,126,207,.44) 55%,rgba(39,100,180,.50) 100%); color:#102f50; border:1px solid rgba(255,255,255,.42); box-shadow:0 3px 10px rgba(26,67,108,.06),inset 0 1px 0 rgba(255,255,255,.24); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-radius:18px 18px 5px 18px; }
-.axchat-answer { background:rgba(255,255,255,.34); border:1px solid rgba(255,255,255,.48); box-shadow:0 3px 12px rgba(34,65,96,.025); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-radius:18px 18px 18px 5px; }
+.axchat-user { background:linear-gradient(135deg,rgba(125,145,173,.43),rgba(104,127,158,.47)); color:#142438; border:1px solid rgba(85,108,140,.22); box-shadow:0 4px 7px rgba(30,49,65,.14),inset 0 1px 0 rgba(255,255,255,.40); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-radius:18px 18px 6px 18px; }
+.axchat-answer { background:linear-gradient(145deg,rgba(222,226,231,.66),rgba(209,213,219,.56)); color:#15191f; border:1px solid rgba(157,166,177,.20); box-shadow:0 4px 8px rgba(30,42,56,.13),inset 0 1px 0 rgba(255,255,255,.35); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-radius:20px; }
 .axchat-form { background:rgba(255,255,255,.42); border-top-color:rgba(127,157,186,.13); }
 .axchat-form textarea { background:rgba(255,255,255,.84); border-color:rgba(144,170,195,.23); border-radius:17px; box-shadow:inset 0 1px 3px rgba(34,65,96,.025); }
 .axchat-form textarea::placeholder { color:#63788b; }
-.axchat-form button { background:linear-gradient(145deg,#326eaa,#1b466f); border-radius:14px; box-shadow:0 4px 12px rgba(27,70,111,.16); }
+.axchat-form button { background:linear-gradient(145deg,#388bd5,#2877c2); border-radius:14px; box-shadow:0 3px 8px rgba(27,70,111,.16),inset 0 1px 0 rgba(255,255,255,.20); }
 .axchat-body { scrollbar-width:thin; scrollbar-color:rgba(89,125,158,.28) transparent; }
 @media (hover:hover) and (pointer:fine) { .axchat-suggestions button:hover { background:rgba(255,255,255,.95); border-color:rgba(149,184,215,.5); } .axchat-header button:hover { background:rgba(255,255,255,.84); } }
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) { .axchat-panel { background:linear-gradient(150deg,#edf5fc,#fbfdff 48%,#e8f1f9); } }

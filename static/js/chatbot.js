@@ -20,7 +20,7 @@
     locale = i18n.normalize(value); root.lang = locale;
     root.querySelectorAll('[data-chat-text]').forEach(node => {
       node.textContent = t(node.dataset.chatText);
-      // Pending/error controls follow the UI language; completed messages keep theirs.
+      // All interface states follow the current site language.
       node.closest('.axchat-answer')?.setAttribute('lang', locale);
     });
     [[$('.axchat-minimize'),'minimize'],[$('.axchat-close'),'close'],[handle,'resize'],[body,'body'],[suggestions,'suggestions'],[input,'input'],[send,'sendLabel']].forEach(([node,key]) => node.setAttribute('aria-label',t(key)));
@@ -40,7 +40,15 @@
       const label = document.createElement('span'); label.textContent = question; button.append(icon, label);
       button.addEventListener('click', () => submit(question)); suggestions.append(button);
     });
+    messages.querySelectorAll('[data-demo-complete]').forEach(answer => renderAnswer(answer));
     layout();
+  }
+  function renderAnswer(answer) {
+    answer.lang = locale;
+    const label = document.createElement('small'); label.textContent = t('replyLabel');
+    const content = document.createElement('div');
+    content.textContent = provider.getResponse(answer.dataset.question, locale);
+    answer.replaceChildren(label, content);
   }
   const safe = document.createElement('span'); safe.className = 'axchat-safe'; root.append(safe);
   let generation = 0, pending = false, composing = false, opened = false;
@@ -108,8 +116,8 @@
     if (pending) return;
     pending = true; sync();
     const token = generation;
-    const responseLocale = answer.dataset.responseLocale || locale;
-    answer.dataset.responseLocale = responseLocale;
+    answer.dataset.question = question;
+    delete answer.dataset.demoComplete;
     answer.lang = locale;
     answer.replaceChildren();
     const loading = document.createElement('div'); loading.className = 'axchat-loading';
@@ -119,12 +127,10 @@
     if (opened && following) bottom();
     let failed = false;
     try {
-      const text = await provider.respond(question, responseLocale);
+      await provider.respond(question, locale);
       if (token !== generation) return;
-      answer.replaceChildren();
-      answer.lang = responseLocale;
-      const label = document.createElement('small'); label.textContent = i18n.catalog[responseLocale].ui.replyLabel;
-      const content = document.createElement('div'); content.textContent = text; answer.append(label, content);
+      answer.dataset.demoComplete = 'true';
+      renderAnswer(answer);
     } catch {
       if (token !== generation) return;
       failed = true; answer.replaceChildren(localized(document.createElement('span'), 'error'));
@@ -191,8 +197,14 @@
   window.addEventListener('resize', layout);
   window.visualViewport?.addEventListener('resize', layout);
   window.visualViewport?.addEventListener('scroll', layout);
-  // Shared site switchers may update <html lang> or call this chat-only adapter.
-  new MutationObserver(() => setLanguage(document.documentElement.lang)).observe(document.documentElement, {attributes:true, attributeFilter:['lang']});
+  // Site events update open/minimized chats; the observer also supports other switchers.
+  window.addEventListener('axp:language-changed', event => {
+    const next = event.detail?.language || document.documentElement.lang;
+    if (i18n.normalize(next) !== locale) setLanguage(next);
+  });
+  new MutationObserver(() => {
+    if (i18n.normalize(document.documentElement.lang) !== locale) setLanguage(document.documentElement.lang);
+  }).observe(document.documentElement, {attributes:true, attributeFilter:['lang']});
   window.AXPORTChat = Object.freeze({ setLanguage, getLanguage: () => locale });
   setLanguage(locale);
 })();
