@@ -195,7 +195,25 @@
   if (criteriaSection && criteriaStage) {
     const panes = Array.from(criteriaStage.querySelectorAll("[data-criteria]"));
     const images = Array.from(criteriaStage.querySelectorAll("[data-criteria-image]"));
+    const defaultImage = criteriaStage.querySelector("[data-criteria-default]");
     const supportsHover = window.matchMedia("(hover:hover) and (pointer:fine)");
+
+    // Use the provided asset directly. Never substitute the hero poster here.
+    // The matching CSS background covers the stage before JS is ready.
+    if (defaultImage) {
+      criteriaStage.dataset.defaultImageFilename = "feature-default.jpg";
+      criteriaStage.dataset.defaultImageStatus = "loading";
+      defaultImage.addEventListener("load", () => {
+        criteriaStage.dataset.defaultImageStatus = "ready";
+      });
+      defaultImage.addEventListener("error", () => {
+        criteriaStage.dataset.defaultImageStatus = "missing";
+        // Check static/assets/feature-default.jpg if the image cannot load.
+      });
+      if (defaultImage.complete) {
+        criteriaStage.dataset.defaultImageStatus = defaultImage.naturalWidth ? "ready" : "missing";
+      }
+    }
 
     function setCriterion(index) {
       const hasSelection = Number.isInteger(index) && index >= 0 && index < panes.length;
@@ -216,15 +234,17 @@
       pane.addEventListener("click", () => setCriterion(index));
     });
     criteriaStage.addEventListener("pointerleave", () => {
-      if (supportsHover.matches && !criteriaStage.contains(document.activeElement)) setCriterion(-1);
+      // Clicking a panel can leave it focused: mouse exit still restores the
+      // image-default background (keyboard :focus-visible remains accessible).
+      if (supportsHover.matches && !criteriaStage.querySelector(".criteria-pane:focus-visible")) setCriterion(-1);
     });
     criteriaStage.addEventListener("focusout", (event) => {
       if (!criteriaStage.contains(event.relatedTarget) && !criteriaStage.matches(":hover")) setCriterion(-1);
     });
     setCriterion(-1);
 
-    // Heading rises first, the single rectangle unfolds from its center,
-    // then five text panels reveal in order. Never hide content without JS.
+    // Heading rises first; a rounded clipping mask reveals the unscaled
+    // photograph from center to edges, then the five text panels fade in.
     if ("IntersectionObserver" in window && !reducedMotion.matches) {
       document.documentElement.classList.add("criteria-motion-ready");
       const criteriaObserver = new IntersectionObserver((entries) => {
