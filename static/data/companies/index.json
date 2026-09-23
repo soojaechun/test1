@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-09-23T17:45:09",
+  "data_class": "가상 데이터 · 시연용 산식",
+  "scoring_rule": "junhee/rules/demo_scoring.md",
+  "companies": [
+    {
+      "company_id": "hanbit",
+      "company_name": "한빛반도체",
+      "company_name_en": "Hanbit Semiconductor",
+      "file_name": "한빛반도체_수출데이터_v0.1.xlsx",
+      "file_sha256": "80788fd1cfb58160adc084cb859a3ccf785dd01fc2e73dc19276d0de67c53024",
+      "as_of": "2026-09-30",
+      "hs": "854232",
+      "country": "미국",
+      "country_iso2": "US",
+      "overall_score": 83.5
+    },
+    {
+      "company_id": "daesung",
+      "company_name": "대성일렉트로닉스",
+      "company_name_en": "Daesung Electronics",
+      "file_name": "대성일렉트로닉스_수출데이터_v0.1.xlsx",
+      "file_sha256": "57854c56b671b1bcbb4d73c1514eb13ffc4fc55797148cbe5b5cec9a7bb51323",
+      "as_of": "2026-09-30",
+      "hs": "854232",
+      "country": "중국",
+      "country_iso2": "CN",
+      "overall_score": 65.2
+    }
+  ]
+}

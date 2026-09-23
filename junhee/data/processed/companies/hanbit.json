@@ -1,0 +1,283 @@
+{
+  "company_id": "hanbit",
+  "company_name": "한빛반도체",
+  "company_name_en": "Hanbit Semiconductor",
+  "file_name": "한빛반도체_수출데이터_v0.1.xlsx",
+  "file_sha256": "80788fd1cfb58160adc084cb859a3ccf785dd01fc2e73dc19276d0de67c53024",
+  "as_of": "2026-09-30",
+  "as_of_month": "2026-09",
+  "data_class": "가상 데이터 · 시연용 산식",
+  "scoring_rule": "junhee/rules/demo_scoring.md (demo_scoring v0.1)",
+  "generated_at": "2026-09-23T17:45:10",
+  "hs": "854232",
+  "country": "미국",
+  "country_iso2": "US",
+  "hs_share": {
+    "854232": 0.789,
+    "854231": 0.211
+  },
+  "country_share": {
+    "영국": 0.147,
+    "미국": 0.322,
+    "인도": 0.119,
+    "중국": 0.216,
+    "멕시코": 0.092,
+    "캐나다": 0.104
+  },
+  "rows": {
+    "actuals_total": 107,
+    "actuals_valid": 104,
+    "logistics": 77
+  },
+  "overall": {
+    "score": 83.5,
+    "state": "ok",
+    "delta_vs_prev_month": 2.6,
+    "series": [
+      81.6,
+      83.7,
+      82.7,
+      81.8,
+      81.0,
+      83.5
+    ],
+    "weights": {
+      "market": 35,
+      "price": 30,
+      "logistics": 20,
+      "stability": 15
+    },
+    "regulation_gate": "excluded",
+    "needs_regulation_review": true
+  },
+  "factors": [
+    {
+      "key": "regulation",
+      "label_ko": "규제 관문",
+      "label_en": "Regulation",
+      "weight": null,
+      "score": 80.0,
+      "state": "ok",
+      "delta": 0.0,
+      "series": [
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0,
+        80.0
+      ],
+      "series_months": [
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "note": "수입규제 해당 없음 · CSL 일치 없음 · 통제번호 후보 품목 비중 100% (검토 필요, 해당 확정 아님)",
+      "inputs": {
+        "hs6": [
+          "854231",
+          "854232"
+        ],
+        "countries": [
+          "멕시코",
+          "미국",
+          "영국",
+          "인도",
+          "중국",
+          "캐나다"
+        ],
+        "kotra_hits": [],
+        "csl_hits": [],
+        "hsk_candidate_share": 1.0,
+        "hsk_codes_per_hs6": {
+          "854231": 4,
+          "854232": 7
+        },
+        "penalties": {
+          "P1_kotra": 0,
+          "P2_csl": 0,
+          "P3_hsk": 20.0
+        },
+        "sources": [
+          "대한무역투자진흥공사_국별 대세계 수입규제 현황_20260603.csv",
+          "ITA_consolidated_screening_list.csv",
+          "HSK연계표_20260901.xlsx"
+        ]
+      },
+      "gate": true,
+      "needs_review": true
+    },
+    {
+      "key": "market",
+      "label_ko": "시장성",
+      "label_en": "Marketability",
+      "weight": 35,
+      "score": 73.1,
+      "state": "ok",
+      "delta": -0.3,
+      "series": [
+        77.8,
+        83.2,
+        79.8,
+        76.4,
+        73.4,
+        73.1
+      ],
+      "series_months": [
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "note": "세계 출하 전년동월비 +129.4%(2026-07) · 최근 3개월 수출액 -3.7%",
+      "inputs": {
+        "wsts_yoy_pct": 129.43,
+        "wsts_month": "2026-07",
+        "company_growth_3m_pct": -3.72,
+        "recent_3m_usd": 155391988.0,
+        "prev_3m_usd": 161395041.0,
+        "f": 100.0,
+        "g": 46.3,
+        "sources": [
+          "WSTS-Historical-Billings-Report-Jul_2026.xlsx",
+          "수출실적 시트"
+        ]
+      }
+    },
+    {
+      "key": "price",
+      "label_ko": "가격",
+      "label_en": "Price & Tariff",
+      "weight": 30,
+      "score": 88.9,
+      "state": "ok",
+      "delta": -0.1,
+      "series": [
+        89.0,
+        89.0,
+        88.9,
+        88.9,
+        89.0,
+        88.9
+      ],
+      "series_months": [
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "note": "가중 관세율 0.0% · 마진율 31.1%",
+      "inputs": {
+        "weighted_tariff_pct": 0.0,
+        "margin_pct": 31.15,
+        "t": 100.0,
+        "m": 77.9,
+        "tariff_by_channel": {
+          "영국/854232": 0.0,
+          "미국/854232": 0.0,
+          "인도/854231": 0.0,
+          "중국/854232": 0.0,
+          "멕시코/854231": 0.0,
+          "캐나다/854232": 0.0
+        },
+        "excluded_products": [],
+        "sources": [
+          "C826_C410.csv",
+          "C840_C410.csv",
+          "C356_C410.csv",
+          "C156_C410.csv",
+          "C484_C410.csv",
+          "C124_C410.csv",
+          "수출실적 시트",
+          "원가·비용 시트"
+        ]
+      }
+    },
+    {
+      "key": "logistics",
+      "label_ko": "물류",
+      "label_en": "Logistics",
+      "weight": 20,
+      "score": 94.4,
+      "state": "ok",
+      "delta": 0.1,
+      "series": [
+        93.7,
+        93.9,
+        94.1,
+        94.2,
+        94.3,
+        94.4
+      ],
+      "series_months": [
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "note": "납기 준수율 99% (67/68) · 운송비 비중 1.5%",
+      "inputs": {
+        "ontime_pct": 98.5,
+        "shipments": 68,
+        "ontime": 67,
+        "freight_usd": 7611096.61,
+        "linked_amount_usd": 501966382.0,
+        "freight_share_pct": 1.52,
+        "c": 84.8,
+        "sources": [
+          "물류 시트",
+          "수출실적 시트"
+        ]
+      }
+    },
+    {
+      "key": "stability",
+      "label_ko": "안정성",
+      "label_en": "Stability",
+      "weight": 15,
+      "score": 82.6,
+      "state": "ok",
+      "delta": 17.8,
+      "series": [
+        59.4,
+        60.8,
+        62.1,
+        63.6,
+        64.8,
+        82.6
+      ],
+      "series_months": [
+        "2026-04",
+        "2026-05",
+        "2026-06",
+        "2026-07",
+        "2026-08",
+        "2026-09"
+      ],
+      "note": "거래처·목적국 집중도 HHI 0.21 · 월별 수출액 변동계수 7% (기업 내부 거래 안정성, 국가위험 아님)",
+      "inputs": {
+        "hhi_customer": 0.2053,
+        "hhi_country": 0.2053,
+        "hhi_mean": 0.2053,
+        "cv_pct": 7.18,
+        "months_with_sales": 12,
+        "conc": 79.5,
+        "cv_score": 85.6,
+        "sources": [
+          "수출실적 시트",
+          "거래처 시트"
+        ]
+      }
+    }
+  ],
+  "highlights": "물류(94점)이 가장 강하고 시장성(73점)이 가장 약합니다. 종합 점수는 전월 대비 +2.6점 상승했습니다. 규제 관문은 통제번호 후보 품목이 있어 원문 대조 검토가 필요합니다(해당 확정 아님). 가상 데이터에 시연용 산식을 적용한 결과이며 실제 판정이 아닙니다."
+}

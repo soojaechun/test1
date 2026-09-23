@@ -34,12 +34,57 @@ def validate(doc):
             assert "자료 부족" in it["headline"], f"{it['key']}: 자료 부족 문구 없음"
 
 
+COMPANIES_SRC = ROOT / "data" / "processed" / "companies"
+COMPANIES_DST = DST_DIR / "companies"
+SAMPLES_SRC = ROOT / "data" / "samples"
+SAMPLES_DST = PROJECT / "static" / "samples"
+
+
+def copy_tree(src, dst, pattern):
+    """src 의 pattern 파일을 dst 로 복사한다 (dst 의 다른 파일은 건드리지 않음)."""
+    if not src.exists():
+        print(f"skip: {src.relative_to(PROJECT)} 없음")
+        return 0
+    dst.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for p in sorted(src.glob(pattern)):
+        if p.is_file():
+            shutil.copyfile(p, dst / p.name)
+            n += 1
+    print(f"copied {n} files {src.relative_to(PROJECT)} -> {dst.relative_to(PROJECT)}")
+    return n
+
+
+def validate_companies():
+    idx = COMPANIES_SRC / "index.json"
+    if not idx.exists():
+        return
+    doc = json.loads(idx.read_text(encoding="utf-8"))
+    for c in doc["companies"]:
+        f = COMPANIES_SRC / f"{c['company_id']}.json"
+        assert f.exists(), f"{f.name} 없음"
+        d = json.loads(f.read_text(encoding="utf-8"))
+        assert d["file_sha256"] == c["file_sha256"], f"{c['company_id']}: sha 불일치"
+        sample = SAMPLES_SRC / c["file_name"]
+        if sample.exists():
+            import hashlib
+            assert hashlib.sha256(sample.read_bytes()).hexdigest() == c["file_sha256"], f"{c['file_name']}: 엑셀이 바뀌었는데 점수가 갱신되지 않음 (score_companies.py 재실행)"
+        assert d["data_class"] == "가상 데이터 · 시연용 산식"
+        for fct in d["factors"]:
+            assert fct["state"] in ("ok", "insufficient")
+            if fct["state"] == "insufficient":
+                assert fct["score"] is None, f"{c['company_id']}/{fct['key']}: 자료 부족인데 점수가 있음"
+
+
 def main():
     doc = json.loads(SRC.read_text(encoding="utf-8"))
     validate(doc)
     DST_DIR.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(SRC, DST)
     print(f"copied {SRC.relative_to(PROJECT)} -> {DST.relative_to(PROJECT)} ({DST.stat().st_size} bytes)")
+    validate_companies()
+    copy_tree(COMPANIES_SRC, COMPANIES_DST, "*.json")
+    copy_tree(SAMPLES_SRC, SAMPLES_DST, "*.xlsx")
 
 
 if __name__ == "__main__":

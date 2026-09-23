@@ -221,6 +221,11 @@ def extract_market():
             "yoy_pct": round(yoy, 2) if yoy is not None else None,
             "mom_pct": round(mom, 2) if mom is not None else None,
             "hs_breakdown_available": False,
+            # 종합 탭 스파크라인용 최근 13개월 (실제 값)
+            "monthly": [
+                {"month": f"{yy}-{mm:02d}", "value_thousand_usd": series[(yy, mm)]}
+                for (yy, mm) in sorted(series)[-13:]
+            ],
         },
     }
 
@@ -402,6 +407,11 @@ def extract_logistics():
             "unit": "천원/2TEU (40피트 컨테이너 1개당 평균 총 운송비용, 할증료·수수료 포함)",
             "unit_note_raw": unit_note,
             "routes": table,
+            # 종합 탭 스파크라인용 월별 운임 (보도자료 월별 표, 최근 13개월)
+            "monthly": {
+                route: [{"month": f"{yy}-{mm:02d}", "value": v} for yy, mm, v, *_ in (freight_monthly_series(lines, route) or [])[-13:]]
+                for route in ("미국서부", "미국동부")
+            },
             "parse_method": "hwpx(Contents/section0.xml) 문단 텍스트 정규식 추출",
         },
     }
