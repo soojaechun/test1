@@ -1,6 +1,10 @@
 "use strict";
 (() => {
   const $ = (s, root = document) => root.querySelector(s);
+  const t = (source) => window.AXPI18n?.t(source) || source;
+  const countryCodes = {US:"미국",JP:"일본",DE:"독일",VN:"베트남"};
+  const countryLabel = (code) => t(countryCodes[code] || code);
+  const displayDate = () => {$("#desktop-date").textContent = new Date().toLocaleDateString(window.AXPI18n?.locale || "ko-KR", {month:"long",day:"numeric",weekday:"short"});};
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
   const esc = (value) =>
     String(value).replace(
@@ -16,7 +20,9 @@
     );
   const icons = $("#desktop-icons"),
     desk = $("#desktop"),
-    win = $("#analysis-window");
+    win = $("#analysis-window"),
+    sidebar = $("#window-sidebar"),
+    sidebarToggle = $("#sidebar-toggle");
   const defaults = { market: 35, price: 30, logistics: 20, stability: 15 };
   let weights = { ...defaults },
     draft = { ...defaults },
@@ -24,7 +30,7 @@
   let context = {
     company: "AX 반도체",
     hs: "854231",
-    country: "미국",
+    country: "US",
     file: "AX_반도체_샘플.xlsx",
     fileId: "sample",
   };
@@ -32,8 +38,7 @@
     activeTab = "overview",
     chart = null,
     selected = null,
-    maximized = false,
-    previousRect = null;
+    maximized = false;
   let files = [
     {
       id: "sample",
@@ -43,6 +48,15 @@
       trash: false,
       cell: 1,
     },
+  ];
+  const systemIcons = [
+    {
+      id: "analysis",
+      name: "분석 대시보드",
+      icon: "chart-pie-slice",
+      cell: 0,
+    },
+    { id: "trash", name: "휴지통", icon: "trash", cell: 2 },
   ];
   const names = {
     overview: "종합",
@@ -59,6 +73,108 @@
     logistics: "#efa44d",
     stability: "#39ad96",
   };
+  // ---- 요약 카드 실제 데이터 연결 (junhee) ------------------------------
+  // static/data/dashboard_summary.json 을 읽어 종합 탭 5개 카드에 넣는다.
+  // 상태는 loading / ok / insufficient / error 를 문구로 구분한다 (색상만으로 구분하지 않음).
+  const SUMMARY_SRC =
+    ($("#tab-content") && $("#tab-content").dataset.summarySrc) ||
+    "/static/data/dashboard_summary.json";
+  let summary = { status: "loading", items: {}, context: null, error: "" };
+  function loadSummary() {
+    summary = { status: "loading", items: {}, context: null, error: "" };
+    fetch(SUMMARY_SRC, { cache: "no-store" })
+      .then((r) => {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then((doc) => {
+        if (!doc || !Array.isArray(doc.items)) throw new Error("형식 오류");
+        const items = {};
+        doc.items.forEach((it) => {
+          if (it && it.key) items[it.key] = it;
+        });
+        summary = {
+          status: "ok",
+          items,
+          context: doc.context || null,
+          error: "",
+          generatedAt: doc.generated_at || "",
+        };
+      })
+      .catch((e) => {
+        console.error("AXPORT summary:", e);
+        summary = {
+          status: "error",
+          items: {},
+          context: null,
+          error: String((e && e.message) || e),
+        };
+      })
+      .finally(() => {
+        if (activeTab === "overview") setTab("overview");
+      });
+  }
+  function summaryCard(key) {
+    let item = summary.items[key];
+    // 안정성은 목적국(결제통화)별 결과가 detail.per_country 에 있으면 현재 화면 조건의 나라 것을 쓴다
+    if (item && item.detail && item.detail.per_country && item.detail.per_country[context.country]) {
+      const pc = item.detail.per_country[context.country];
+      item = {
+        ...item,
+        headline: pc.headline,
+        note: pc.note,
+        state: pc.state,
+        as_of: pc.as_of !== undefined ? pc.as_of : item.as_of,
+        source: pc.source || item.source,
+      };
+    }
+    if (summary.status === "loading")
+      return {
+        state: "loading",
+        value: "불러오는 중",
+        desc: "실제 자료 요약을 불러오고 있습니다.",
+        meta: "",
+        foot: "상태: 로딩 중",
+      };
+    if (summary.status === "error")
+      return {
+        state: "error",
+        value: "조회 실패",
+        desc: "요약 자료를 불러오지 못했습니다. 파일 경로와 서버 상태를 확인하세요.",
+        meta: summary.error ? "오류: " + summary.error : "",
+        foot: "상태: 조회 실패 · 값 미표시",
+      };
+    if (!item)
+      return {
+        state: "error",
+        value: "조회 실패",
+        desc: "요약 자료에 이 항목이 없습니다.",
+        meta: "",
+        foot: "상태: 조회 실패 · 값 미표시",
+      };
+    const asOf = item.as_of
+      ? "기준일 " + item.as_of
+      : item.checked_on
+        ? "기준일 없음 (확인일 " + item.checked_on + ")"
+        : "기준일 없음";
+    const meta = "출처 " + (item.source || "-") + " · " + asOf;
+    const cls = item.data_class ? " · " + item.data_class : "";
+    if (item.state === "insufficient")
+      return {
+        state: "insufficient",
+        value: "자료 부족",
+        desc: item.note || "필요한 자료가 없습니다.",
+        meta,
+        foot: "상태: 자료 부족" + cls,
+      };
+    return {
+      state: "ok",
+      value: item.headline || "-",
+      desc: item.note || "",
+      meta,
+      foot: "상태: 정상" + cls,
+    };
+  }
   let toastTimer;
   const toast = (message) => {
     $("#toast").textContent = message;
@@ -94,15 +210,15 @@
   };
   // UI geometry only is persisted. User filenames, file contents and conditions stay in memory.
   function fitWindow() {
-    if (innerWidth <= 850) return;
-    win.style.minHeight =
-      Math.min(455, Math.max(220, desk.clientHeight - 90)) + "px";
+    if (maximized || innerWidth <= 850) return;
+    const bottomGap = 13,
+      availableHeight = desk.clientHeight - 26;
+    win.style.minHeight = Math.min(455, Math.max(220, availableHeight)) + "px";
     const width = Math.min(win.offsetWidth, desk.clientWidth - 83),
-      height = Math.min(win.offsetHeight, desk.clientHeight - 90);
+      height = Math.min(win.offsetHeight, availableHeight);
     win.style.width =
       Math.max(Math.min(690, desk.clientWidth - 83), width) + "px";
-    win.style.height =
-      Math.max(Math.min(455, desk.clientHeight - 90), height) + "px";
+    win.style.height = Math.max(Math.min(455, availableHeight), height) + "px";
     win.style.left =
       Math.max(
         8,
@@ -111,12 +227,16 @@
     win.style.top =
       Math.max(
         8,
-        Math.min(win.offsetTop, desk.clientHeight - win.offsetHeight - 77),
+        Math.min(
+          win.offsetTop,
+          desk.clientHeight - win.offsetHeight - bottomGap,
+        ),
       ) + "px";
   }
   function resetWindow() {
     win.style.cssText = "";
     maximized = false;
+    win.classList.remove("maximized");
     $("#maximize-btn").setAttribute("aria-label", "창 최대화");
     try {
       localStorage.removeItem("axport-ui-layout-v1");
@@ -125,12 +245,18 @@
   }
   function showWindow() {
     win.hidden = false;
-    $("#dock-analysis").classList.add("dock-active");
     fitWindow();
   }
   function hideWindow() {
     win.hidden = true;
-    $("#dock-analysis").classList.remove("dock-active");
+  }
+  function setSidebarOpen(open) {
+    sidebar.hidden = !open;
+    win.classList.toggle("sidebar-collapsed", !open);
+    const label = open ? "사이드바 접기" : "사이드바 펼치기";
+    sidebarToggle.setAttribute("aria-expanded", String(open));
+    sidebarToggle.setAttribute("aria-label", label);
+    sidebarToggle.title = label;
   }
   function grid() {
     return {
@@ -146,11 +272,16 @@
     };
   }
   function occupied(except) {
-    return new Set([
-      0,
-      2,
-      ...files.filter((f) => !f.trash && f.id !== except).map((f) => f.cell),
-    ]);
+    return new Set(
+      [...systemIcons, ...files]
+        .filter((f) => !f.trash && f.id !== except)
+        .map((f) => f.cell),
+    );
+  }
+  function desktopIcon(id) {
+    return (
+      systemIcons.find((f) => f.id === id) || files.find((f) => f.id === id)
+    );
   }
   function emptyCell(want, id) {
     const { rows, cols } = grid(),
@@ -171,16 +302,11 @@
   }
   function drawIcons() {
     const entries = [
-      {
-        id: "analysis",
-        name: "분석 대시보드",
-        icon: "chart-pie-slice",
-        cell: 0,
-      },
+      systemIcons[0],
       ...files
         .filter((f) => !f.trash)
         .map((f) => ({ ...f, icon: "microsoft-excel-logo" })),
-      { id: "trash", name: "휴지통", icon: "trash", cell: 2 },
+      systemIcons[1],
     ];
     icons.innerHTML = entries
       .map((f) => {
@@ -189,9 +315,6 @@
       })
       .join("");
     $("#file-count").textContent = files.filter((f) => !f.trash).length;
-    const trashCount = files.filter((f) => f.trash).length;
-    $("#trash-badge").textContent = trashCount;
-    $("#trash-badge").hidden = !trashCount;
   }
   function selectIcon(id) {
     selected = id;
@@ -239,7 +362,7 @@
       e.preventDefault();
       trashFile(id);
     } else if (e.key.startsWith("Arrow")) {
-      const f = files.find((f) => f.id === id);
+      const f = desktopIcon(id);
       if (!f) return;
       e.preventDefault();
       const { rows } = grid();
@@ -259,7 +382,7 @@
     const el = e.target.closest("[data-id]");
     if (!el || e.button !== 0) return;
     const id = el.dataset.id,
-      f = files.find((f) => f.id === id);
+      f = desktopIcon(id);
     selectIcon(id);
     if (!f) return;
     const start = {
@@ -289,12 +412,19 @@
           Math.min(desk.clientHeight - 100, start.top + ev.clientY - start.y),
         ) + "px";
     };
-    const end = (ev) => {
+    const cleanup = () => {
       el.removeEventListener("pointermove", move);
       el.removeEventListener("pointerup", end);
       el.removeEventListener("pointercancel", cancel);
+      el.removeEventListener("lostpointercapture", cancel);
+      if (el.hasPointerCapture(e.pointerId))
+        el.releasePointerCapture(e.pointerId);
+    };
+    const end = (ev) => {
+      cleanup();
       if (!moved) return;
       const inRect = (target) => {
+        if (!target || target.closest("[hidden]")) return false;
         const r = target.getBoundingClientRect();
         return (
           ev.clientX >= r.left &&
@@ -303,7 +433,7 @@
           ev.clientY <= r.bottom
         );
       };
-      if (inRect($("#dock-trash")) || inRect($('[data-id="trash"]', icons)))
+      if (files.includes(f) && inRect($('[data-id="trash"]', icons)))
         trashFile(id);
       else {
         const cell = nearestCell(el.offsetLeft, el.offsetTop, id);
@@ -312,17 +442,22 @@
       }
     };
     const cancel = () => {
-      el.removeEventListener("pointermove", move);
-      el.removeEventListener("pointerup", end);
+      cleanup();
       drawIcons();
     };
     el.addEventListener("pointermove", move);
     el.addEventListener("pointerup", end);
     el.addEventListener("pointercancel", cancel);
+    el.addEventListener("lostpointercapture", cancel);
   });
   function bindWindowMove(handle, resize) {
     handle.addEventListener("pointerdown", (e) => {
-      if (e.button !== 0 || innerWidth <= 850 || e.target.closest("button"))
+      if (
+        maximized ||
+        e.button !== 0 ||
+        innerWidth <= 850 ||
+        e.target.closest("button")
+      )
         return;
       e.preventDefault();
       const start = {
@@ -336,7 +471,8 @@
       handle.setPointerCapture(e.pointerId);
       const move = (ev) => {
         const dx = ev.clientX - start.x,
-          dy = ev.clientY - start.y;
+          dy = ev.clientY - start.y,
+          bottomGap = 13;
         if (resize) {
           win.style.width =
             Math.max(
@@ -345,8 +481,8 @@
             ) + "px";
           win.style.height =
             Math.max(
-              Math.min(455, desk.clientHeight - start.top - 77),
-              Math.min(desk.clientHeight - start.top - 77, start.h + dy),
+              Math.min(455, desk.clientHeight - start.top - bottomGap),
+              Math.min(desk.clientHeight - start.top - bottomGap, start.h + dy),
             ) + "px";
         } else {
           win.style.left =
@@ -357,7 +493,7 @@
           win.style.top =
             Math.max(
               8,
-              Math.min(desk.clientHeight - start.h - 77, start.top + dy),
+              Math.min(desk.clientHeight - start.h - bottomGap, start.top + dy),
             ) + "px";
         }
       };
@@ -375,7 +511,7 @@
   bindWindowMove($("#window-handle"), false);
   bindWindowMove($("#resize-handle"), true);
   $("#resize-handle").addEventListener("keydown", (e) => {
-    if (!e.key.startsWith("Arrow")) return;
+    if (maximized || !e.key.startsWith("Arrow")) return;
     e.preventDefault();
     if (e.key === "ArrowRight") win.style.width = win.offsetWidth + 20 + "px";
     if (e.key === "ArrowLeft")
@@ -388,26 +524,10 @@
   });
   $("#minimize-btn").onclick = hideWindow;
   $("#close-window-btn").onclick = hideWindow;
-  $("#dock-analysis").onclick = showWindow;
+  sidebarToggle.onclick = () => setSidebarOpen(sidebar.hidden);
   $("#maximize-btn").onclick = () => {
-    if (maximized) {
-      Object.assign(win.style, previousRect);
-      maximized = false;
-    } else {
-      previousRect = {
-        left: win.style.left,
-        top: win.style.top,
-        width: win.style.width,
-        height: win.style.height,
-      };
-      Object.assign(win.style, {
-        left: "9px",
-        top: "9px",
-        width: desk.clientWidth - 82 + "px",
-        height: desk.clientHeight - 88 + "px",
-      });
-      maximized = true;
-    }
+    maximized = !maximized;
+    win.classList.toggle("maximized", maximized);
     $("#maximize-btn").setAttribute(
       "aria-label",
       maximized ? "이전 창 크기로 복원" : "창 최대화",
@@ -418,7 +538,7 @@
   function contextUI() {
     $("#company-context").textContent = context.company;
     $("#hs-context").textContent = formatHS(context.hs);
-    $("#country-context").textContent = context.country;
+    $("#country-context").textContent = countryLabel(context.country);
   }
   function heading(title, sub, kicker = "EXPORT INTELLIGENCE") {
     return `<div class="content-heading"><div><span class="eyebrow">${kicker}</span><h2>${title}</h2><p>${sub}</p></div><div class="heading-actions"><button class="small-button" aria-label="가중치 설정" data-action="weights"><i class="ph ph-sliders-horizontal"></i><span>가중치 설정</span></button><button class="small-button" aria-label="보고서 다운로드" data-action="report"><i class="ph ph-download-simple"></i><span>보고서</span></button></div></div>`;
@@ -482,8 +602,53 @@
         "한눈에 보는 수출 가능성",
         "기업의 다음 선택을 위한 다섯 가지 관점",
       ) +
-      `<div class="analysis-banner"><span class="banner-icon"><i class="ph ph-magnifying-glass"></i></span><div><strong>가능성을 살펴보고, 근거를 확인하세요.</strong><p>현재 화면은 예시입니다. 실제 규제 검토와 수출 판정은 진행되지 않았습니다.</p></div><span class="example-badge">DEMO</span></div><div class="score-grid">${cards.map((c) => `<article class="score-card" style="--card-color:${colors[c.key]}"><div class="card-title"><i class="ph ph-${c.icon}"></i>${c.label}<small>${c.hint}</small></div><div class="metric ${c.status ? "status" : ""}">${c.value}<small>${c.unit}</small></div><p>${c.desc}</p><div class="card-foot"><span>${c.foot}</span><span>${c.key === "regulation" ? "관문 고정" : `비중 ${weights[c.key]}%`}</span></div></article>`).join("")}</div><div class="summary-foot"><span><i class="ph ph-info"></i>오른쪽 책갈피에서 상세 지표와 근거를 확인하세요.</span><span>${customWeights ? "사용자 가중치 · 시연" : "기본 가중치 · 시연"} · 실제 자료 미연결</span></div>`
+      summaryBanner() +
+      `<div class="score-grid">${cards
+        .map((c) => {
+          const s = summaryCard(c.key);
+          return `<article class="score-card" style="--card-color:${colors[c.key]}" data-state="${s.state}"><div class="card-title"><i class="ph ph-${c.icon}"></i>${c.label}<small>${c.hint}</small></div><div class="metric status" style="white-space:normal;font-size:19px;line-height:1.3" title="${esc(s.value)}">${esc(s.value)}</div><p>${esc(s.desc)}</p>${s.meta ? `<p>${esc(s.meta)}</p>` : ""}<div class="card-foot"><span>${esc(s.foot)}</span><span>${c.key === "regulation" ? "관문 고정" : `비중 ${weights[c.key]}%`}</span></div></article>`;
+        })
+        .join("")}</div><div class="summary-foot"><span><i class="ph ph-info"></i>오른쪽 책갈피에서 상세 지표와 근거를 확인하세요.</span><span>${customWeights ? "사용자 가중치 · 시연" : "기본 가중치 · 시연"} · ${summaryFootNote()}</span></div>`
     );
+  }
+  function summaryBanner() {
+    let strong = "가능성을 살펴보고, 근거를 확인하세요.";
+    let p = "요약 자료를 불러오는 중입니다. 실제 규제 검토와 수출 판정은 진행되지 않았습니다.";
+    let badge = "LOADING";
+    if (summary.status === "ok") {
+      const ctx = summary.context || {};
+      const hsList = Array.isArray(ctx.hs) ? ctx.hs : ctx.hs ? [ctx.hs] : [];
+      const basis = [
+        hsList.length ? "HS " + hsList.map((h) => formatHS(String(h))).join("·") : "",
+        ctx.country || "",
+      ]
+        .filter(Boolean)
+        .join(" · ");
+      strong = "공개 자료에서 추출한 요약값입니다.";
+      p = `요약 카드는 실제 자료 기준${basis ? "(" + esc(basis) + ")" : ""}이며, 규제 판정·적합도 채점은 진행되지 않았습니다. 상세 탭은 예시입니다.`;
+      badge = "DATA";
+    } else if (summary.status === "error") {
+      strong = "요약 자료를 불러오지 못했습니다.";
+      p = "카드에 값을 표시하지 않습니다. 파일 경로와 서버 상태를 확인한 뒤 새로고침하세요.";
+      badge = "ERROR";
+    }
+    return `<div class="analysis-banner"><span class="banner-icon"><i class="ph ph-magnifying-glass"></i></span><div><strong>${strong}</strong><p>${p}</p></div><span class="example-badge">${badge}</span></div>`;
+  }
+  function summaryFootNote() {
+    if (summary.status === "ok") {
+      const ctx = summary.context || {};
+      const hsList = Array.isArray(ctx.hs) ? ctx.hs : ctx.hs ? [ctx.hs] : [];
+      const mismatch = ctx.country && ctx.country !== context.country;
+      const hsMismatch = hsList.length && !hsList.some((h) => String(context.hs).startsWith(String(h)));
+      return (
+        "요약 카드 실제 자료 연결" +
+        (summary.generatedAt ? " (생성 " + esc(summary.generatedAt.slice(0, 10)) + ")" : "") +
+        (mismatch ? ` · 주의: 요약 자료는 ${esc(ctx.country)} 기준` : "") +
+        (hsMismatch ? ` · 주의: 요약 자료는 HS ${esc(hsList.join("·"))} 기준` : "")
+      );
+    }
+    if (summary.status === "error") return "요약 자료 조회 실패";
+    return "요약 자료 불러오는 중";
   }
   const detailData = {
     market: {
@@ -598,7 +763,7 @@
     chart = new Chart($("#detail-chart"), {
       type: d.bar ? "bar" : "line",
       data: {
-        labels: d.labels,
+        labels: d.labels.map(t),
         datasets: [
           {
             data: d.data,
@@ -625,7 +790,7 @@
           legend: { display: false },
           tooltip: {
             displayColors: false,
-            callbacks: { label: (ctx) => `${ctx.parsed.y} ${d.unit} · 예시` },
+            callbacks: { label: (ctx) => `${ctx.parsed.y} ${d.unit} · ${t("예시")}` },
           },
         },
         scales: {
@@ -660,6 +825,7 @@
     $("#tab-content").setAttribute("aria-labelledby", "tab-" + key);
     $(".window-main").scrollTop = 0;
     drawChart(key);
+    window.AXPI18n?.translateDOM($("#tab-content"));
   }
   $$(".bookmark-tabs button").forEach((b) => {
     b.onclick = () => setTab(b.dataset.tab);
@@ -791,6 +957,7 @@
   };
   function showFiles(trash = false) {
     $("#files-title").textContent = trash ? "휴지통" : "기업 데이터";
+    $("#files-title").dataset.trash = String(trash);
     $("#files-description").textContent = trash
       ? "휴지통의 파일을 바탕화면으로 복원할 수 있습니다. 원본 파일은 변경되지 않습니다."
       : "현재 화면에서 추가한 파일입니다. 새로고침하면 파일 목록이 초기화됩니다.";
@@ -897,20 +1064,23 @@
     const button = $('[data-action="report"]', $("#tab-content"));
     if (button) button.disabled = true;
     try {
-      const reportRows = [
-        ["규제", "검토 전", "관문 고정"],
-        ["시장성", "82 / 100", weights.market + "%"],
-        ["가격", "76 / 100", weights.price + "%"],
-        ["물류", "88 / 100", weights.logistics + "%"],
-        ["안정성", "71 / 100", weights.stability + "%"],
-      ];
+      // 요약 카드와 같은 실제 자료 값을 쓴다 (로딩·실패·자료 부족은 문구 그대로)
+      const reportRows = ["regulation", "market", "price", "logistics", "stability"].map((k) => {
+        const s = summaryCard(k);
+        return [
+          names[k],
+          esc(s.value) + " — " + esc(s.foot) + (s.meta ? "<br><small>" + esc(s.meta) + "</small>" : ""),
+          k === "regulation" ? "관문 고정" : weights[k] + "%",
+        ];
+      });
       const details = Object.entries(detailData)
         .map(
           ([k, d]) =>
             `<h2>${names[k]}</h2><p>${d.note}</p><table><tr><th>지표</th><th>표시값</th><th>상태</th></tr>${d.rows.map((r) => `<tr>${r.map((v) => `<td>${esc(v)}</td>`).join("")}</tr>`).join("")}</table>`,
         )
         .join("");
-      const html = `<!doctype html><html lang="ko"><meta charset="utf-8"><title>AXPORT 예시 분석 보고서</title><style>body{font-family:system-ui,'Malgun Gothic',sans-serif;max-width:850px;margin:50px auto;padding:24px;color:#24344f;line-height:1.8}h1{font-size:30px}h2{margin-top:35px;font-size:20px}table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:12px;text-align:left;border-bottom:1px solid #e5e9f1}th{background:#f5f7fb}.note{background:#eef2ff;padding:18px;border-radius:8px;color:#526a9c}@media print{body{margin:0;padding:10px}h2{break-after:avoid}table{break-inside:avoid}}</style><body><p>AXPORT / EXPORT INTELLIGENCE</p><h1>수출 분석 보고서</h1><div class="note">화면 검토용 예시 데이터 · 실제 수출 판정 미실행<br>파일 내용·외부 API·규정 데이터는 연결되지 않았습니다.</div><p>기업: ${esc(context.company)}<br>HS: ${esc(formatHS(context.hs))} · 대상국: ${esc(context.country)}<br>파일: ${esc(context.file)}<br>생성일: ${new Date().toLocaleString("ko-KR")}<br>가중치: ${customWeights ? "사용자 설정" : "기본값"} · UI 예시 v1</p><h2>5개 영역 요약</h2><table><tr><th>영역</th><th>표시 결과</th><th>적용 비중</th></tr>${reportRows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table><h2>규제 관문</h2><p>전략물자·최종사용자·수출허가·원산지 증빙은 모두 미검토입니다. 가중치로 규제 관문을 해제하지 않습니다.</p>${details}<p>출처: AXPORT 프론트엔드 시연 데이터. 실제 근거·시행일·규칙 버전은 미연결입니다.</p></body></html>`;
+      let html = `<!doctype html><html lang="${window.AXPI18n?.language || "ko"}"><meta charset="utf-8"><title>AXPORT 예시 분석 보고서</title><style>body{font-family:system-ui,'Malgun Gothic',sans-serif;max-width:850px;margin:50px auto;padding:24px;color:#24344f;line-height:1.8}h1{font-size:30px}h2{margin-top:35px;font-size:20px}table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:12px;text-align:left;border-bottom:1px solid #e5e9f1}th{background:#f5f7fb}.note{background:#eef2ff;padding:18px;border-radius:8px;color:#526a9c}@media print{body{margin:0;padding:10px}h2{break-after:avoid}table{break-inside:avoid}}</style><body><p>AXPORT / EXPORT INTELLIGENCE</p><h1>수출 분석 보고서</h1><div class="note">화면 검토용 예시 데이터 · 실제 수출 판정 미실행<br>파일 내용·외부 API·규정 데이터는 연결되지 않았습니다.</div><p>기업: ${esc(context.company)}<br>HS: ${esc(formatHS(context.hs))} · 대상국: ${esc(countryLabel(context.country))}<br>파일: ${esc(context.file)}<br>생성일: ${new Date().toLocaleString(window.AXPI18n?.locale || "ko-KR")}<br>가중치: ${customWeights ? "사용자 설정" : "기본값"} · UI 예시 v1</p><h2>5개 영역 요약</h2><table><tr><th>영역</th><th>표시 결과</th><th>적용 비중</th></tr>${reportRows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table><h2>규제 관문</h2><p>전략물자·최종사용자·수출허가·원산지 증빙은 모두 미검토입니다. 가중치로 규제 관문을 해제하지 않습니다.</p>${details}<p>출처: AXPORT 프론트엔드 시연 데이터. 실제 근거·시행일·규칙 버전은 미연결입니다.</p></body></html>`;
+      html = window.AXPI18n?.translateHTML(html) || html;
       const link = $("#report-download");
       if (link.dataset.blobUrl) URL.revokeObjectURL(link.dataset.blobUrl);
       const blob = new Blob([html], { type: "text/html;charset=utf-8" }),
@@ -962,12 +1132,6 @@
       }
     }),
   );
-  $("#dock-upload").onclick = () => {
-    pendingFile = null;
-    openUpload();
-  };
-  $("#dock-files").onclick = () => showFiles();
-  $("#dock-trash").onclick = () => showFiles(true);
   $("#edit-context").onclick = () => {
     pendingFile =
       files.find((f) => f.id === context.fileId && !f.trash) || null;
@@ -976,22 +1140,28 @@
   $("#help-btn").onclick = () => openDialog("#help-dialog");
   $("#profile-btn").onclick = () =>
     toast("계정 연결 없는 디자인 미리보기입니다.");
-  $("#desktop-date").textContent = new Date().toLocaleDateString("ko-KR", {
-    month: "long",
-    day: "numeric",
-    weekday: "short",
+  displayDate();
+  window.addEventListener("axp:language-changed", () => {
+    displayDate();
+    contextUI();
+    drawIcons();
+    setTab(activeTab);
+    if ($("#weights-dialog")?.open) drawWeights();
+    if ($("#files-dialog")?.open) showFiles($("#files-title").dataset.trash === "true");
+    if ($("#report-dialog")?.open) report();
   });
   window.addEventListener("resize", () => {
     fitWindow();
-    files
-      .filter((f) => !f.trash)
-      .forEach((f) => {
-        const { rows, cols } = grid();
-        if (f.cell >= rows * cols) {
-          const c = emptyCell(1, f.id);
-          if (c !== null) f.cell = c;
-        }
-      });
+    const { rows, cols } = grid(),
+      used = new Set();
+    [...systemIcons, ...files.filter((f) => !f.trash)].forEach((f) => {
+      if (f.cell >= rows * cols || used.has(f.cell)) {
+        let cell = 0;
+        while (used.has(cell)) cell++;
+        f.cell = cell;
+      }
+      used.add(f.cell);
+    });
     drawIcons();
   });
   const layout = readUI();
@@ -1008,9 +1178,11 @@
     });
   }
   files[0].conditions = { ...context };
+  setSidebarOpen(innerWidth > 560);
   contextUI();
   drawIcons();
   setTab("overview");
+  loadSummary();
   fitWindow();
   $("#workspace-loading").hidden = true;
 })();

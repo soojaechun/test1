@@ -1,371 +1,264 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="/static/assets/axport-logo.png" />
-    <meta name="theme-color" content="#06172f" />
-    <meta
-      name="description"
-      content="반도체 수출을 위한 데이터 분석 작업공간, AXPORT. 기업 데이터와 HS 코드로 수출의 가능성을 살펴보세요."
-    />
-    <title>AXPORT — 수출의 가능성을 확신으로</title>
-    <link rel="stylesheet" href="/static/vendor/phosphor/regular/style.css" />
-    <link rel="stylesheet" href="/static/vendor/font/index.css" />
-    <link rel="stylesheet" href="/static/css/home.css" />
-    <script src="/static/js/home.js" defer></script>
-    <link rel="stylesheet" href="/static/css/chatbot.css" />
-    <script defer src="/static/js/chatbot-i18n.js"></script>
-    <script defer src="/static/js/chatbot-demo.js"></script>
-    <script defer src="/static/js/chatbot.js"></script>
-  </head>
-  <body>
-    <a class="skip-link" href="#main">본문으로 바로가기</a>
-    <header class="site-header">
-      <div class="header-inner shell">
-        <a class="brand" href="/" aria-label="AXPORT 홈"
-          ><img
-            src="/static/assets/axport-logo.png"
-            alt="AXPORT"
-            width="108"
-            height="60"
-        /></a>
-        <nav class="desktop-nav" aria-label="주요 메뉴">
-          <a href="#features">서비스 소개</a
-          ><a href="#how-it-works">이용 방법</a
-          ><a href="/app" data-launch-app
-            >워크스페이스 <i class="ph ph-arrow-up-right" aria-hidden="true"></i
-          ></a>
-        </nav>
-        <div class="header-actions">
-          <span class="preview-tag">UI PREVIEW</span
-          ><a
-            class="button button-blue button-small"
-            href="/app"
-            data-launch-app
-            >대시보드 시작
-            <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a
-          ><button
-            class="menu-toggle"
-            type="button"
-            aria-label="메뉴 열기"
-            aria-controls="mobile-nav"
-            aria-expanded="false"
-          >
-            <i class="ph ph-list" aria-hidden="true"></i>
-          </button>
-        </div>
-      </div>
-      <nav id="mobile-nav" class="mobile-nav" aria-label="모바일 메뉴" hidden>
-        <a href="#features">서비스 소개</a><a href="#how-it-works">이용 방법</a
-        ><a href="/app" data-launch-app>워크스페이스 열기</a>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06172f">
+  <meta name="description" content="반도체 수출을 위한 데이터 분석 작업공간, AXPORT. 기업 데이터와 HS 코드로 수출의 가능성을 살펴보세요.">
+  <title>AXPORT — 수출의 가능성을 확신으로</title>
+  <link rel="icon" href="/static/assets/axport-logo.png">
+  <link rel="preload" href="/static/assets/hero-poster.jpg" as="image" fetchpriority="high">
+  <link rel="stylesheet" href="/static/vendor/phosphor/regular/style.css">
+  <link rel="stylesheet" href="/static/vendor/font/index.css">
+  <link rel="stylesheet" href="/static/css/home.css?v=11">
+
+  <script src="/static/js/axport-i18n.js?v=2" defer></script>
+  <script src="/static/js/home.js?v=11" defer></script>
+  <link rel="stylesheet" href="/static/css/chatbot.css" />
+  <script defer src="/static/js/chatbot-i18n.js"></script>
+  <script defer src="/static/js/chatbot-demo.js"></script>
+  <script defer src="/static/js/chatbot.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">본문으로 바로가기</a>
+  <!-- First-design visual language: a single floating, pill-shaped navigation bar. -->
+  <header class="site-header" id="site-header">
+    <div class="header-inner shell">
+      <a class="brand" href="/" aria-label="AXPORT 홈">
+        <img class="brand-logo brand-logo--white" src="/static/assets/axport-logo-white.png" alt="AXPORT" width="100" height="65">
+        <img class="brand-logo brand-logo--color" src="/static/assets/axport-logo-color.png" alt="" aria-hidden="true" width="100" height="65">
+      </a>
+      <nav class="desktop-nav" aria-label="주요 메뉴">
+        <a href="#features">서비스 소개</a>
+        <a href="#how-it-works">이용 방법</a>
+        <a href="#workspace-story">워크스페이스</a>
       </nav>
-    </header>
-    <main id="main">
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-inner shell">
-          <div class="hero-copy">
-            <p class="eyebrow hero-eyebrow">
-              <span></span> SEMICONDUCTOR EXPORT INTELLIGENCE
-            </p>
-            <h1 id="hero-title">
-              반도체 수출의 시작,<br /><span>확신을 더하다.</span>
-            </h1>
-            <p class="hero-description">
-              복잡한 수출 데이터, 명확한 의사결정.<br />우리 기업의 가능성을
-              AXPORT에서 확인하세요.
-            </p>
-            <div class="hero-buttons">
-              <a class="button button-blue" href="/app" data-launch-app
-                >대시보드 시작하기
-                <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a
-              ><a class="button button-outline" href="#how-it-works"
-                >이용 방법 알아보기
-                <i class="ph ph-arrow-down" aria-hidden="true"></i
-              ></a>
-            </div>
-            <div class="hero-benefits">
-              <span
-                ><i class="ph ph-check-circle" aria-hidden="true"></i> 기업
-                데이터 기반 분석</span
-              ><span
-                ><i class="ph ph-check-circle" aria-hidden="true"></i> 5개 영역
-                통합 검토</span
-              >
-            </div>
-          </div>
-          <div class="hero-visual">
-            <img
-              class="brain-image"
-              src="/static/assets/brain-chip.jpg"
-              alt="반도체 칩을 중심으로 빛나는 회로가 뇌의 형태를 이루는 이미지"
-              width="735"
-              height="950"
-              fetchpriority="high"
-            />
-            <div class="visual-caption">
-              <span class="live-dot"></span> DATA CONNECTED. POSSIBILITIES
-              EXPANDED.
-            </div>
+      <div class="header-actions">
+        <div class="language-picker" id="language-picker">
+          <select id="axp-language" class="visually-hidden-native" aria-hidden="true" tabindex="-1" aria-label="표시 언어"><option value="ko">한국어</option><option value="en">EN</option><option value="zh">中文</option><option value="ja">日本語</option></select>
+          <button class="language-trigger" id="language-trigger" type="button" aria-label="표시 언어 선택" aria-haspopup="menu" aria-expanded="false" aria-controls="language-menu"><span class="language-orb" aria-hidden="true"></span><span class="language-current" data-no-translate>KO</span><i class="ph ph-caret-down" aria-hidden="true"></i></button>
+          <div id="language-menu" class="language-menu" role="menu" aria-label="표시 언어" hidden>
+            <button type="button" class="language-option" role="menuitemradio" aria-checked="true" data-language="ko">KO <span class="language-option-check" aria-hidden="true">✓</span></button>
+            <button type="button" class="language-option" role="menuitemradio" aria-checked="false" data-language="en">EN <span class="language-option-check" aria-hidden="true">✓</span></button>
+            <button type="button" class="language-option" role="menuitemradio" aria-checked="false" data-language="zh">中文 <span class="language-option-check" aria-hidden="true">✓</span></button>
+            <button type="button" class="language-option" role="menuitemradio" aria-checked="false" data-language="ja">日本語 <span class="language-option-check" aria-hidden="true">✓</span></button>
           </div>
         </div>
-        <div class="hero-bottom shell">
-          <span>FROM DATA TO DECISION</span
-          ><a href="#features" aria-label="서비스 소개로 스크롤"
-            ><i class="ph ph-arrow-down" aria-hidden="true"></i> SCROLL TO
-            EXPLORE</a
-          ><span class="hero-bottom-note">반도체 수출을 위한 새로운 관점</span>
-        </div>
-      </section>
-      <section class="intro-strip" aria-label="서비스 개요">
-        <div class="shell intro-strip-inner">
-          <p>
-            흩어진 정보는 하나로.<br /><strong
-              >수출의 다음 단계는 명확하게.</strong
-            >
-          </p>
-          <div>
-            <i class="ph ph-file-xls" aria-hidden="true"></i
-            ><span>기업 데이터</span>
-          </div>
-          <i class="ph ph-arrow-right strip-arrow" aria-hidden="true"></i>
-          <div>
-            <i class="ph ph-barcode" aria-hidden="true"></i><span>HS 코드</span>
-          </div>
-          <i class="ph ph-arrow-right strip-arrow" aria-hidden="true"></i>
-          <div>
-            <i class="ph ph-chart-pie-slice" aria-hidden="true"></i
-            ><span>수출적합도 대시보드</span>
-          </div>
-        </div>
-      </section>
-      <section
-        id="features"
-        class="features section-space"
-        aria-labelledby="features-title"
-      >
-        <div class="shell">
-          <div class="section-heading reveal">
-            <div>
-              <p class="eyebrow">A CLEARER VIEW OF EXPORTS</p>
-              <h2 id="features-title">
-                복잡한 판단을,<br />다섯 가지 관점으로.
-              </h2>
-            </div>
-            <p class="section-description">
-              핵심은 한눈에, 근거는 자세하게.<br />필요한 정보에 집중하는 분석
-              환경을 제공합니다.
-            </p>
-          </div>
-          <div class="feature-grid">
-            <article class="feature-card reveal">
-              <div class="feature-top">
-                <i class="ph ph-shield-check" aria-hidden="true"></i
-                ><span>01</span>
-              </div>
-              <h3>규제</h3>
-              <p>수출 전 확인해야 할<br />규제와 허가 조건</p>
-              <span class="feature-label">수출의 첫 번째 관문</span>
-            </article>
-            <article class="feature-card reveal">
-              <div class="feature-top">
-                <i class="ph ph-chart-line-up" aria-hidden="true"></i
-                ><span>02</span>
-              </div>
-              <h3>시장성</h3>
-              <p>시장규모와 성장 흐름으로<br />살펴보는 수출 기회</p>
-              <span class="feature-label">시장의 가능성</span>
-            </article>
-            <article class="feature-card reveal">
-              <div class="feature-top">
-                <i class="ph ph-coins" aria-hidden="true"></i><span>03</span>
-              </div>
-              <h3>가격</h3>
-              <p>관세와 환율을 고려한<br />가격 판단의 기초</p>
-              <span class="feature-label">비용의 이해</span>
-            </article>
-            <article class="feature-card reveal">
-              <div class="feature-top">
-                <i class="ph ph-shipping-container" aria-hidden="true"></i
-                ><span>04</span>
-              </div>
-              <h3>물류</h3>
-              <p>운송 조건과 납기를<br />함께 살펴보는 계획</p>
-              <span class="feature-label">이동의 효율</span>
-            </article>
-            <article class="feature-card reveal">
-              <div class="feature-top">
-                <i class="ph ph-pulse" aria-hidden="true"></i><span>05</span>
-              </div>
-              <h3>안정성</h3>
-              <p>지표의 변동 흐름으로<br />확인하는 불확실성</p>
-              <span class="feature-label">지속 가능한 판단</span>
-            </article>
-          </div>
-          <div class="feature-note">
-            <i class="ph ph-info" aria-hidden="true"></i>
-            <p>
-              현재는 화면과 사용 흐름을 확인하는 프로토타입입니다. 앱의 분석
-              결과는 예시 데이터로 표시됩니다.
-            </p>
-          </div>
-        </div>
-      </section>
-      <section
-        id="how-it-works"
-        class="how-section section-space"
-        aria-labelledby="how-title"
-      >
-        <div class="shell">
-          <div class="section-heading reveal">
-            <div>
-              <p class="eyebrow">YOUR NEXT MOVE, SIMPLIFIED</p>
-              <h2 id="how-title">
-                데이터에서 인사이트까지,<br />하나의 워크스페이스.
-              </h2>
-            </div>
-            <a class="text-link" href="/app" data-launch-app
-              >직접 둘러보기
-              <i class="ph ph-arrow-up-right" aria-hidden="true"></i
-            ></a>
-          </div>
-          <div class="steps-grid">
-            <article class="step-card reveal">
-              <div class="step-meta">
-                <span>STEP 01</span
-                ><i class="ph ph-upload-simple" aria-hidden="true"></i>
-              </div>
-              <h3>기업 데이터를 올리고</h3>
-              <p>
-                엑셀 파일을 작업공간에 추가하세요.<br />파일을 아이콘으로 정리할
-                수 있습니다.
-              </p>
-              <div class="step-detail">
-                <i class="ph ph-file-xls" aria-hidden="true"></i
-                ><span>기업 데이터.xlsx</span
-                ><i class="ph ph-check" aria-hidden="true"></i>
-              </div>
-            </article>
-            <article class="step-card reveal">
-              <div class="step-meta">
-                <span>STEP 02</span
-                ><i class="ph ph-sliders-horizontal" aria-hidden="true"></i>
-              </div>
-              <h3>분석 조건을 확인하고</h3>
-              <p>
-                제품의 HS 코드와 대상국을 입력해<br />분석할 거래의 범위를
-                설정하세요.
-              </p>
-              <div class="step-detail">
-                <span class="detail-label">HS CODE</span><span>8542.31</span
-                ><span class="detail-divider"></span><span>대상국 선택</span>
-              </div>
-            </article>
-            <article class="step-card reveal">
-              <div class="step-meta">
-                <span>STEP 03</span
-                ><i class="ph ph-chart-pie-slice" aria-hidden="true"></i>
-              </div>
-              <h3>판단의 근거를 살펴보세요</h3>
-              <p>
-                5개 영역의 요약을 먼저 확인하고,<br />오른쪽 탭에서 세부 근거를
-                탐색하세요.
-              </p>
-              <div class="step-detail step-tags">
-                <span>규제</span><span>시장성</span><span>가격</span
-                ><span>물류</span><span>안정성</span>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-      <section
-        class="workspace-story section-space"
-        aria-labelledby="workspace-title"
-      >
-        <div class="shell workspace-story-inner">
-          <div class="reveal">
-            <p class="eyebrow">BUILT AROUND YOUR WORKFLOW</p>
-            <h2 id="workspace-title">
-              익숙한 바탕화면.<br />새로운 분석 경험.
-            </h2>
-            <p class="workspace-description">
-              파일을 열고, 창을 옮기고, 필요한 근거를 나란히.<br />당신의 업무
-              방식에 맞춰 작업공간을 구성하세요.
-            </p>
-            <a class="text-link" href="/app" data-launch-app
-              >내 작업공간 열기
-              <i class="ph ph-arrow-up-right" aria-hidden="true"></i
-            ></a>
-          </div>
-          <div class="workspace-benefits reveal">
-            <div>
-              <i class="ph ph-squares-four" aria-hidden="true"></i
-              ><span
-                ><strong>자유롭게 정리하는 바탕화면</strong
-                ><small>파일 아이콘을 원하는 위치에 배치하세요.</small></span
-              >
-            </div>
-            <div>
-              <i class="ph ph-browsers" aria-hidden="true"></i
-              ><span
-                ><strong>나에게 맞추는 분석 창</strong
-                ><small>창의 위치와 크기를 조절하며 살펴보세요.</small></span
-              >
-            </div>
-            <div>
-              <i class="ph ph-bookmarks-simple" aria-hidden="true"></i
-              ><span
-                ><strong>근거로 바로 연결되는 책갈피</strong
-                ><small>요약과 상세 내용을 자연스럽게 오가세요.</small></span
-              >
-            </div>
-          </div>
-        </div>
-      </section>
-      <section class="bottom-cta-section">
-        <div class="shell bottom-cta reveal">
-          <div>
-            <p class="eyebrow">READY FOR YOUR NEXT EXPORT?</p>
-            <h2>
-              수출의 가능성을,<br class="mobile-break" />
-              지금 확인해 보세요.
-            </h2>
-            <p>더 명확한 의사결정의 시작, AXPORT.</p>
-          </div>
-          <a class="button button-white" href="/app" data-launch-app
-            >대시보드 시작하기
-            <i class="ph ph-arrow-up-right" aria-hidden="true"></i
-          ></a>
-        </div>
-      </section>
-    </main>
-    <footer class="site-footer">
-      <div class="shell footer-inner">
-        <div>
-          <a class="footer-brand" href="/" aria-label="AXPORT 홈"
-            >AXPORT<span>EXPORT INTELLIGENCE</span></a
-          >
-          <p>데이터로 연결하는 반도체 수출의 다음 기회.</p>
-        </div>
-        <div class="footer-right">
-          <nav aria-label="하단 메뉴">
-            <a href="#features">서비스 소개</a
-            ><a href="#how-it-works">이용 방법</a
-            ><a href="/app" data-launch-app>워크스페이스</a>
-          </nav>
-          <span>© 2026 AXPORT · Frontend prototype</span>
-        </div>
-      </div>
-    </footer>
-    <div class="app-transition" role="status" aria-live="polite" hidden>
-      <div class="transition-content">
-        <i class="ph ph-circles-four transition-symbol" aria-hidden="true"></i
-        ><strong>작업공간으로 이동합니다</strong>
-        <p>AXPORT WORKSPACE</p>
-        <span class="loading-track"></span>
+        <a class="button button-blue button-small" href="/app" data-launch-app>대시보드 시작 <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a>
+        <button class="menu-toggle" type="button" aria-label="메뉴 열기" aria-controls="mobile-nav" aria-expanded="false"><i class="ph ph-list" aria-hidden="true"></i></button>
       </div>
     </div>
-    {% include "chatbot.html" %}
-  </body>
+    <nav id="mobile-nav" class="mobile-nav" aria-label="모바일 메뉴" hidden>
+      <a href="#features">서비스 소개</a><a href="#how-it-works">이용 방법</a><a href="#workspace-story">워크스페이스</a><a href="/app" data-launch-app>대시보드 시작하기</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- Cinematic dark hero from the original concept; all text follows test1. -->
+    <section class="hero" id="hero" aria-labelledby="hero-title">
+      <div class="hero-media" aria-hidden="true">
+        <video class="hero-video" autoplay muted loop playsinline preload="metadata" poster="/static/assets/hero-poster.jpg">
+          <source src="/static/assets/hero-semiconductor.mp4" type="video/mp4">
+        </video>
+        <div class="hero-video-shade"></div>
+        <div class="hero-mesh"></div>
+      </div>
+      <div class="hero-inner shell">
+        <div class="hero-copy">
+
+          <h1 id="hero-title">반도체 수출의 시작,<br><span>확신을 더하다.</span></h1>
+          <p class="hero-description">우리 기업의 가능성을 AXPORT에서 확인하세요.</p>
+          <div class="hero-buttons">
+            <a class="button button-blue button-main" href="/app" data-launch-app>대시보드 시작하기 <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a>
+            <a class="button button-outline" href="#how-it-works">이용 방법 알아보기 <i class="ph ph-arrow-down" aria-hidden="true"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="hero-bottom shell">
+        <a class="hero-scroll-cue" href="#features" aria-label="서비스 소개로 스크롤"><span data-no-translate>SCROLL</span><span class="scroll-line" aria-hidden="true"></span></a>
+      </div>
+    </section>
+
+    <div class="cinematic-transition" aria-hidden="true"><div class="cinematic-grid"></div></div>
+<div class="signal-marquee" aria-hidden="true">
+      <div class="signal-marquee-track"><span>REGULATION</span><i>✧</i><span>MARKET</span><i>✧</i><span>PRICE</span><i>✧</i><span>LOGISTICS</span><i>✧</i><span>STABILITY</span><i>✧</i><span>REGULATION</span><i>✧</i><span>MARKET</span><i>✧</i><span>PRICE</span><i>✧</i><span>LOGISTICS</span><i>✧</i><span>STABILITY</span><i>✧</i></div>
+    </div>
+
+<!-- Five criteria: one expanding, rounded canvas with five selectable areas.
+     Every hover image fills the entire shared canvas, not an individual area. -->
+<section id="features" class="features section-space criteria-section" aria-labelledby="features-title">
+  <div class="shell criteria-shell">
+    <header class="criteria-heading">
+      <p class="eyebrow">A CLEARER VIEW OF EXPORTS</p>
+      <h2 id="features-title">복잡한 판단을,<br>다섯 가지 관점으로.</h2>
+      <p class="section-description">핵심은 한눈에, 근거는 자세하게.<br>필요한 정보에 집중하는 분석 환경을 제공합니다.</p>
+    </header>
+
+    <!-- The navy rectangle grows outward from its center after the heading rises. -->
+    <div class="criteria-stage" id="criteria-stage" aria-label="수출적합도 판단 기준 5개">
+      <div class="criteria-stage__images" aria-hidden="true">
+        <img class="criteria-stage__image" data-criteria-image="0" src="/static/assets/feature-regulation.jpg" alt="" decoding="async">
+        <img class="criteria-stage__image" data-criteria-image="1" src="/static/assets/feature-market.jpg" alt="" decoding="async">
+        <img class="criteria-stage__image" data-criteria-image="2" src="/static/assets/feature-price.jpg" alt="" decoding="async">
+        <img class="criteria-stage__image" data-criteria-image="3" src="/static/assets/feature-logistics.jpg" alt="" decoding="async">
+        <img class="criteria-stage__image" data-criteria-image="4" src="/static/assets/feature-stability.jpg" alt="" decoding="async">
+      </div>
+      <div class="criteria-stage__shade" aria-hidden="true"></div>
+      <div class="criteria-stage__grain" aria-hidden="true"></div>
+
+      <div class="criteria-pane-list" aria-label="수출적합도 판단 기준" role="group">
+        <button class="criteria-pane" type="button" data-criteria="0" aria-pressed="false">
+          <span class="criteria-pane__top"><span class="criteria-pane__number" data-no-translate>01</span><i class="ph ph-shield-check" aria-hidden="true"></i></span>
+          <span class="criteria-pane__copy"><span class="criteria-pane__title">규제</span><span class="criteria-pane__description">수출 전 확인해야 할<br>규제와 허가 조건</span><span class="criteria-pane__tag">수출의 첫 번째 관문</span></span>
+        </button>
+        <button class="criteria-pane" type="button" data-criteria="1" aria-pressed="false">
+          <span class="criteria-pane__top"><span class="criteria-pane__number" data-no-translate>02</span><i class="ph ph-chart-line-up" aria-hidden="true"></i></span>
+          <span class="criteria-pane__copy"><span class="criteria-pane__title">시장성</span><span class="criteria-pane__description">시장규모와 성장 흐름으로<br>살펴보는 수출 기회</span><span class="criteria-pane__tag">시장의 가능성</span></span>
+        </button>
+        <button class="criteria-pane" type="button" data-criteria="2" aria-pressed="false">
+          <span class="criteria-pane__top"><span class="criteria-pane__number" data-no-translate>03</span><i class="ph ph-coins" aria-hidden="true"></i></span>
+          <span class="criteria-pane__copy"><span class="criteria-pane__title">가격</span><span class="criteria-pane__description">관세와 환율을 고려한<br>가격 판단의 기초</span><span class="criteria-pane__tag">비용의 이해</span></span>
+        </button>
+        <button class="criteria-pane" type="button" data-criteria="3" aria-pressed="false">
+          <span class="criteria-pane__top"><span class="criteria-pane__number" data-no-translate>04</span><i class="ph ph-shipping-container" aria-hidden="true"></i></span>
+          <span class="criteria-pane__copy"><span class="criteria-pane__title">물류</span><span class="criteria-pane__description">운송 조건과 납기를<br>함께 살펴보는 계획</span><span class="criteria-pane__tag">이동의 효율</span></span>
+        </button>
+        <button class="criteria-pane" type="button" data-criteria="4" aria-pressed="false">
+          <span class="criteria-pane__top"><span class="criteria-pane__number" data-no-translate>05</span><i class="ph ph-pulse" aria-hidden="true"></i></span>
+          <span class="criteria-pane__copy"><span class="criteria-pane__title">안정성</span><span class="criteria-pane__description">지표의 변동 흐름으로<br>확인하는 불확실성</span><span class="criteria-pane__tag">지속 가능한 판단</span></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+<section aria-labelledby="how-title" class="how-section section-space" id="how-it-works">
+<div class="shell">
+<div class="section-heading reveal">
+<div>
+<p class="eyebrow">YOUR NEXT MOVE, SIMPLIFIED</p>
+<h2 id="how-title">
+                데이터에서 인사이트까지,<br/>하나의 워크스페이스.
+              </h2>
+</div>
+<a class="text-link" data-launch-app="" href="/app">직접 둘러보기
+              <i aria-hidden="true" class="ph ph-arrow-up-right"></i></a>
+</div>
+<div class="steps-grid">
+<article class="step-card reveal">
+<div class="step-meta">
+<span>STEP 01</span><i aria-hidden="true" class="ph ph-upload-simple"></i>
+</div>
+<h3>기업 데이터를 올리고</h3>
+<p>
+                엑셀 파일을 작업공간에 추가하세요.<br/>파일을 아이콘으로 정리할
+                수 있습니다.
+              </p>
+<div class="step-stage step-stage--upload" aria-hidden="true">
+  <div class="demo-file"><i class="ph ph-file-xls"></i><span>기업 데이터.xlsx</span></div>
+  <div class="demo-upload-target"><span class="demo-upload-symbol"><i class="ph ph-upload-simple"></i></span><small>WORKSPACE</small><span class="demo-upload-check"><i class="ph ph-check-circle"></i></span></div>
+  <svg class="demo-cursor" width="24" height="31" viewBox="0 0 24 31" fill="none"><path d="M3 2L3 26L9.2 20.3L13.1 29L18.2 26.8L14.1 18.5L22 18L3 2Z" fill="#133755" stroke="white" stroke-width="2.2" stroke-linejoin="round"/></svg>
+  <div class="demo-upload-meter"><span></span></div>
+</div>
+</article>
+<article class="step-card reveal">
+<div class="step-meta">
+<span>STEP 02</span><i aria-hidden="true" class="ph ph-sliders-horizontal"></i>
+</div>
+<h3>분석 조건을 확인하고</h3>
+<p>
+                제품의 HS 코드와 대상국을 입력해<br/>분석할 거래의 범위를
+                설정하세요.
+              </p>
+<div class="step-stage step-stage--form" aria-hidden="true">
+  <div class="demo-form-row"><span class="demo-form-label">HS CODE</span><span class="demo-typed demo-typed--code">8542.31</span><span class="demo-form-caret"></span><i class="ph ph-check"></i></div>
+  <div class="demo-form-row"><span class="demo-form-label">대상국</span><span class="demo-typed demo-typed--country">미국</span><span class="demo-form-caret"></span><i class="ph ph-caret-down"></i></div>
+  <div class="demo-form-row"><span class="demo-form-label">거래 조건</span><span class="demo-typed demo-typed--term">FOB</span><span class="demo-form-caret"></span><i class="ph ph-caret-down"></i></div>
+</div>
+</article>
+<article class="step-card reveal">
+<div class="step-meta">
+<span>STEP 03</span><i aria-hidden="true" class="ph ph-chart-pie-slice"></i>
+</div>
+<h3>판단의 근거를 살펴보세요</h3>
+<p>
+                5개 영역의 요약을 먼저 확인하고,<br/>오른쪽 탭에서 세부 근거를
+                탐색하세요.
+              </p>
+<div class="step-stage step-stage--decision" aria-hidden="true">
+  <div class="demo-score-chart">
+    <svg class="demo-score-donut" viewBox="0 0 116 116"><circle class="demo-score-track" cx="58" cy="58" r="43"/><circle class="demo-score-progress" cx="58" cy="58" r="43"/></svg>
+    <div class="demo-score-center"><span class="demo-score-value">78</span><small>/ 100</small></div>
+    <span class="demo-score-example">예시</span>
+  </div>
+  <div class="demo-bookmarks"><span class="demo-bookmark" style="--tab:0">규제<i class="ph ph-caret-right"></i></span><span class="demo-bookmark" style="--tab:1">시장성<i class="ph ph-caret-right"></i></span><span class="demo-bookmark" style="--tab:2">가격<i class="ph ph-caret-right"></i></span><span class="demo-bookmark" style="--tab:3">물류<i class="ph ph-caret-right"></i></span><span class="demo-bookmark" style="--tab:4">안정성<i class="ph ph-caret-right"></i></span></div>
+</div>
+</article>
+</div>
+</div>
+</section>
+<section aria-labelledby="workspace-title" class="workspace-story section-space" id="workspace-story">
+<div class="shell workspace-story-inner">
+<div class="reveal">
+<p class="eyebrow">BUILT AROUND YOUR WORKFLOW</p>
+<h2 id="workspace-title">
+              익숙한 바탕화면.<br/>새로운 분석 경험.
+            </h2>
+<p class="workspace-description">
+              파일을 열고, 창을 옮기고, 필요한 근거를 나란히.<br/>당신의 업무
+              방식에 맞춰 작업공간을 구성하세요.
+            </p>
+<a class="text-link" data-launch-app="" href="/app">내 작업공간 열기
+              <i aria-hidden="true" class="ph ph-arrow-up-right"></i></a>
+</div>
+<div class="workspace-benefits reveal">
+<div>
+<i aria-hidden="true" class="ph ph-squares-four"></i><span><strong>자유롭게 정리하는 바탕화면</strong><small>파일 아이콘을 원하는 위치에 배치하세요.</small></span>
+</div>
+<div>
+<i aria-hidden="true" class="ph ph-browsers"></i><span><strong>나에게 맞추는 분석 창</strong><small>창의 위치와 크기를 조절하며 살펴보세요.</small></span>
+</div>
+<div>
+<i aria-hidden="true" class="ph ph-bookmarks-simple"></i><span><strong>근거로 바로 연결되는 책갈피</strong><small>요약과 상세 내용을 자연스럽게 오가세요.</small></span>
+</div>
+</div>
+</div>
+</section>
+<section class="bottom-cta-section">
+<div class="shell bottom-cta reveal">
+<div>
+<p class="eyebrow">READY FOR YOUR NEXT EXPORT?</p>
+<h2>
+              수출의 가능성을,<br class="mobile-break"/>
+              지금 확인해 보세요.
+            </h2>
+<p>더 명확한 의사결정의 시작, AXPORT.</p>
+</div>
+<a class="button button-white" data-launch-app="" href="/app">대시보드 시작하기
+            <i aria-hidden="true" class="ph ph-arrow-up-right"></i></a>
+</div>
+</section>
+  </main>
+<footer class="site-footer">
+<div class="shell footer-inner">
+<div>
+<a aria-label="AXPORT 홈" class="footer-brand" href="/">AXPORT<span>EXPORT INTELLIGENCE</span></a>
+<p>데이터로 연결하는 반도체 수출의 다음 기회.</p>
+</div>
+<div class="footer-right">
+<nav aria-label="하단 메뉴">
+<a href="#features">서비스 소개</a><a href="#how-it-works">이용 방법</a><a data-launch-app="" href="/app">워크스페이스</a>
+</nav>
+<span>© 2026 AXPORT · Frontend prototype</span>
+</div>
+</div>
+</footer>
+<div aria-live="polite" class="app-transition" hidden="" role="status">
+<div class="transition-content">
+<i aria-hidden="true" class="ph ph-circles-four transition-symbol"></i><strong>작업공간으로 이동합니다</strong>
+<p>AXPORT WORKSPACE</p>
+<span class="loading-track"></span>
+</div>
+</div>
+  {% include "chatbot.html" %}
+</body>
 </html>
