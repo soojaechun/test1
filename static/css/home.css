@@ -2004,10 +2004,12 @@ html[lang="ja"] body,html[lang="ja"] button,html[lang="ja"] input,html[lang="ja"
                 opacity 1000ms ease;
     pointer-events: none;
   }
+  /* Titles start appearing as soon as the panorama has opened enough.
+     Short, consecutive fades avoid the long blank gap after the image reveal. */
   html.criteria-motion-ready .criteria-pane {
-    opacity: 0; transform: translateY(52px);
-    transition: opacity 750ms cubic-bezier(.22, 1, .36, 1),
-                transform 930ms cubic-bezier(.22, 1, .36, 1),
+    opacity: 0; transform: translateY(14px);
+    transition: opacity 470ms cubic-bezier(.22, 1, .36, 1),
+                transform 650ms cubic-bezier(.22, 1, .36, 1),
                 background 350ms ease;
   }
   html.criteria-motion-ready .criteria-section.is-visible .criteria-heading {
@@ -2022,11 +2024,12 @@ html[lang="ja"] body,html[lang="ja"] button,html[lang="ja"] input,html[lang="ja"
   html.criteria-motion-ready .criteria-section.is-visible .criteria-pane {
     opacity: 1; transform: none;
   }
-  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(1) { transition-delay: 1910ms,1910ms,0ms; }
-  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(2) { transition-delay: 2020ms,2020ms,0ms; }
-  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(3) { transition-delay: 2130ms,2130ms,0ms; }
-  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(4) { transition-delay: 2240ms,2240ms,0ms; }
-  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(5) { transition-delay: 2350ms,2350ms,0ms; }
+  /* Left → right, every 130 ms. The last title starts before photo opening ends. */
+  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(1) { transition-delay: 860ms,860ms,0ms; }
+  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(2) { transition-delay: 990ms,990ms,0ms; }
+  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(3) { transition-delay: 1120ms,1120ms,0ms; }
+  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(4) { transition-delay: 1250ms,1250ms,0ms; }
+  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(5) { transition-delay: 1380ms,1380ms,0ms; }
 }
 @media(max-width:1000px) {
   .criteria-section { padding: 90px 0; }
