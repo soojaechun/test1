@@ -2105,58 +2105,64 @@ html[lang="ja"] body,html[lang="ja"] button,html[lang="ja"] input,html[lang="ja"
   .hero .hero-buttons { margin-top: 40px !important; }
 }
 
-
 /* ================================================================
-   AXPORT · Five-perspective hover focus · 2026-09-23
-   Animate text only. Keep the full-size background photographs,
-   column dimensions and center-out stage reveal unchanged.
-   The existing home.js toggles .is-current / data-active-criterion.
+   AXPORT · Five-perspective hover — smooth, single-peak text pulse
+   Background images, five-column layout and center-out image reveal
+   are intentionally unchanged.
    ================================================================ */
 
-/* Return to a crisp, neutral state whenever no panel is selected. */
+/* Keep the whole text block in normal flow; fade/blur only this layer.
+   Do not animate its transform or font-size, which causes flicker and
+   changes text rasterization while sibling panels are blurring. */
 .criteria-stage .criteria-pane__copy {
-  transform: scale(1);
+  transform: none;
   opacity: 1;
   filter: blur(0);
-  transform-origin: center center;
-  transition: filter 420ms ease,
-              opacity 360ms ease,
-              transform 420ms cubic-bezier(.22, 1, .36, 1);
-  backface-visibility: hidden;
+  transition: opacity 500ms ease-in-out, filter 500ms ease-in-out;
 }
 
-/* When one panel is hovered or keyboard-focused, softly recede
-   only the OTHER panels' text — never blur or scale the photo. */
 .criteria-stage[data-active-criterion]:not([data-active-criterion="none"])
   .criteria-pane:not(.is-current) .criteria-pane__copy {
-  opacity: .35;
-  filter: blur(2.7px);
-  transform: scale(.98);
+  opacity: .40;
+  filter: blur(2.1px);
 }
 
-/* Each entry into the active panel creates one gentle emphasis
-   pulse (slightly larger, then exactly back to its original size). */
+/* Composite the actual letter layers independently of the blurred
+   container. Transform does not reflow text or move neighboring panes. */
+.criteria-stage .criteria-pane__title,
+.criteria-stage .criteria-pane__description {
+  transform: translate3d(0, 0, 0) scale(1);
+  transform-origin: center center;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  will-change: transform;
+}
+
+/* One fluid pulse, with a single turning point — no bounce / steps.
+   Gentle 4% increase, 1.25s total, ease-in-out on both halves. */
 .criteria-stage[data-active-criterion]:not([data-active-criterion="none"])
-  .criteria-pane.is-current .criteria-pane__copy {
-  opacity: 1;
-  filter: blur(0);
-  animation: criteria-type-emphasis 780ms cubic-bezier(.18, .85, .27, 1) both;
+  .criteria-pane.is-current .criteria-pane__title,
+.criteria-stage[data-active-criterion]:not([data-active-criterion="none"])
+  .criteria-pane.is-current .criteria-pane__description {
+  animation: criteria-text-breathe 1250ms cubic-bezier(.42, 0, .58, 1) 1 both;
 }
 
-@keyframes criteria-type-emphasis {
-  0%   { transform: scale(1); }
-  38%  { transform: scale(1.075); }
-  67%  { transform: scale(1.025); }
-  100% { transform: scale(1); }
+@keyframes criteria-text-breathe {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(0, 0, 0) scale(1.04); }
 }
 
-/* Avoid unnecessary movement for visitors who disable animations.
-   Keep the focus-vs-background contrast, but remove movement/blur. */
+/* Respect the user's operating-system animation preference. */
 @media (prefers-reduced-motion: reduce) {
   .criteria-stage .criteria-pane__copy {
-    animation: none !important;
-    transition: none !important;
-    transform: none !important;
+    opacity: 1;
     filter: none !important;
+    transition: none !important;
+  }
+  .criteria-stage .criteria-pane__title,
+  .criteria-stage .criteria-pane__description {
+    animation: none !important;
+    transform: none !important;
+    will-change: auto;
   }
 }
