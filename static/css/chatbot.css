@@ -22,7 +22,7 @@
 .axchat-message { max-width:92%; white-space:pre-wrap; overflow-wrap:anywhere; padding:12px 14px; border-radius:15px; font-size:15px; line-height:1.75; }
 .axchat-user { align-self:flex-end; background:#2458cf; color:#fff; border-bottom-right-radius:4px; }
 .axchat-answer { align-self:flex-start; background:#f1f4f9; border-bottom-left-radius:4px; }
-.axchat-answer small { display:block; color:#596a83; font-size:11px; margin-bottom:5px; }
+.axchat-answer small { display:block; color:#48525f; font-size:11px; margin-bottom:5px; }
 .axchat-loading { display:flex; align-items:center; gap:9px; color:#53637b; }
 .axchat-spinner { flex-shrink:0; width:18px; height:18px; border:2px solid #cbd2dc; border-top-color:#19395f; border-radius:50%; animation:axchat-spin .9s linear infinite; }
 @keyframes axchat-spin { to { transform:rotate(360deg); } }
@@ -50,9 +50,6 @@
 .axchat-compact .axchat-suggestions { padding:6px 0; }
 .axchat-compact .axchat-latest { padding:2px 8px; }
 
-.axchat-language { display:flex; flex-basis:100%; align-items:center; justify-content:space-between; gap:8px; margin-top:4px; font-size:12px; color:#53637b; }
-.axchat-language select { min-width:100px; max-width:60%; height:28px; padding:2px 8px; border:1px solid #d4deec; border-radius:7px; background:#f8faff; color:#132946; font-size:14px; }
-.axchat-compact .axchat-language { margin-top:0; }
 .axchat-compact .axchat-header small { font-size:10px; }
 
 /* One shared scroll area keeps the welcome and questions together on short screens. */
@@ -76,11 +73,10 @@
 /* AXPORT glass finish: navy, blue and translucent white only. */
 .axchat-launcher { background:linear-gradient(145deg,rgba(238,247,255,.30),rgba(155,187,220,.13)); border-color:rgba(221,237,250,.26); box-shadow:0 10px 30px rgba(10,35,64,.16),inset 0 1px 1px rgba(255,255,255,.40); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); }
 .axchat-launcher img { opacity:.84; filter:drop-shadow(0 3px 5px rgba(22,56,87,.12)); }
-.axchat-panel { background:linear-gradient(150deg,rgba(233,244,254,.92),rgba(252,254,255,.94) 48%,rgba(222,237,249,.92)); border:1px solid rgba(255,255,255,.72); border-radius:26px; backdrop-filter:blur(24px) saturate(110%); -webkit-backdrop-filter:blur(24px) saturate(110%); box-shadow:0 22px 64px rgba(9,32,61,.19),0 4px 14px rgba(9,32,61,.06),inset 0 1px 0 rgba(255,255,255,.9); }
-.axchat-header { background:rgba(255,255,255,.24); border-bottom-color:rgba(127,157,186,.13); }
+.axchat-panel { background:linear-gradient(150deg,rgba(233,244,254,.74),rgba(252,254,255,.82) 48%,rgba(222,237,249,.72)); border:1px solid rgba(255,255,255,.72); border-radius:26px; backdrop-filter:blur(28px) saturate(115%); -webkit-backdrop-filter:blur(28px) saturate(115%); box-shadow:0 22px 64px rgba(9,32,61,.19),0 4px 14px rgba(9,32,61,.06),inset 0 1px 0 rgba(255,255,255,.9); }
+.axchat-header { background:rgba(255,255,255,.38); border-bottom-color:rgba(127,157,186,.13); }
 .axchat-header strong { letter-spacing:-.35px; color:#132f4d; }
 .axchat-header button { border:1px solid rgba(255,255,255,.66); border-radius:50%; background:rgba(255,255,255,.48); color:#49647d; }
-.axchat-language select { background:rgba(255,255,255,.55); border-color:rgba(132,163,192,.20); border-radius:10px; }
 .axchat-welcome img { opacity:.90; filter:drop-shadow(0 7px 12px rgba(36,91,143,.14)); }
 .axchat-welcome p { color:#163653; letter-spacing:-.3px; }
 .axchat-welcome small { color:#536c82; }
@@ -90,12 +86,31 @@
 .axchat-suggestions .axchat-question-icon { color:#537faa; }
 .axchat-suggestions button:nth-of-type(2) .axchat-question-icon { color:#65849f; }
 .axchat-suggestions button:nth-of-type(3) .axchat-question-icon { color:#355d80; }
-.axchat-user { background:linear-gradient(135deg,#245b8e,#173d67); box-shadow:0 4px 10px rgba(26,67,108,.12); border-radius:18px 18px 5px 18px; }
-.axchat-answer { background:rgba(255,255,255,.80); border:1px solid rgba(255,255,255,.86); box-shadow:0 3px 12px rgba(34,65,96,.045); border-radius:18px 18px 18px 5px; }
-.axchat-form { background:rgba(255,255,255,.30); border-top-color:rgba(127,157,186,.13); }
-.axchat-form textarea { background:rgba(255,255,255,.68); border-color:rgba(144,170,195,.23); border-radius:17px; box-shadow:inset 0 1px 3px rgba(34,65,96,.025); }
+.axchat-user { background:linear-gradient(135deg,rgba(125,145,173,.43),rgba(104,127,158,.47)); color:#142438; border:1px solid rgba(85,108,140,.22); box-shadow:0 4px 7px rgba(30,49,65,.14),inset 0 1px 0 rgba(255,255,255,.40); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); border-radius:18px 18px 6px 18px; }
+.axchat-answer { background:linear-gradient(145deg,rgba(222,226,231,.66),rgba(209,213,219,.56)); color:#15191f; border:1px solid rgba(157,166,177,.20); box-shadow:0 4px 8px rgba(30,42,56,.13),inset 0 1px 0 rgba(255,255,255,.35); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); border-radius:20px; }
+.axchat-form { background:rgba(255,255,255,.42); border-top-color:rgba(127,157,186,.13); }
+.axchat-form textarea { background:rgba(255,255,255,.84); border-color:rgba(144,170,195,.23); border-radius:17px; box-shadow:inset 0 1px 3px rgba(34,65,96,.025); }
 .axchat-form textarea::placeholder { color:#63788b; }
-.axchat-form button { background:linear-gradient(145deg,#326eaa,#1b466f); border-radius:14px; box-shadow:0 4px 12px rgba(27,70,111,.16); }
+.axchat-form button { background:linear-gradient(145deg,#388bd5,#2877c2); border-radius:14px; box-shadow:0 3px 8px rgba(27,70,111,.16),inset 0 1px 0 rgba(255,255,255,.20); }
 .axchat-body { scrollbar-width:thin; scrollbar-color:rgba(89,125,158,.28) transparent; }
 @media (hover:hover) and (pointer:fine) { .axchat-suggestions button:hover { background:rgba(255,255,255,.95); border-color:rgba(149,184,215,.5); } .axchat-header button:hover { background:rgba(255,255,255,.84); } }
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) { .axchat-panel { background:linear-gradient(150deg,#edf5fc,#fbfdff 48%,#e8f1f9); } }
+
+/* Welcome character: a single entrance with a soft blue light. */
+.axchat-hero { position:relative; isolation:isolate; width:148px; height:132px; margin:0 auto 8px; display:grid; place-items:center; flex-shrink:0; }
+.axchat-hero::before { content:""; position:absolute; inset:3px -16px -6px; z-index:-1; background:radial-gradient(ellipse,rgba(55,150,232,.38),rgba(100,181,237,.19) 48%,transparent 74%); }
+.axchat-hero::after { content:""; position:absolute; bottom:0; width:90px; height:14px; border-radius:50%; background:rgba(33,76,124,.16); filter:blur(8px); z-index:-1; }
+.axchat-welcome .axchat-hero img { width:116px; height:116px; opacity:1; filter:drop-shadow(0 8px 12px rgba(32,75,117,.15)); }
+.axchat-panel:not([hidden]) .axchat-hero img { animation:axchat-hero-enter 720ms cubic-bezier(.22,.75,.25,1) both; }
+.axchat-panel:not([hidden]) .axchat-hero::before { animation:axchat-hero-glow 900ms ease-out both; }
+.axchat-panel:not([hidden]) .axchat-hero::after { animation:axchat-hero-shadow 720ms ease-out both; }
+@keyframes axchat-hero-enter { 0% { opacity:0; transform:translateY(24px) scale(.76); } 58% { opacity:1; transform:translateY(-5px) scale(1.07); } 80% { transform:translateY(2px) scale(.99); } 100% { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes axchat-hero-glow { 0% { opacity:0; transform:scale(.55); } 45% { opacity:1; transform:scale(1.3); } 100% { opacity:.8; transform:scale(1); } }
+@keyframes axchat-hero-shadow { 0% { opacity:0; transform:scale(.6); } 60% { opacity:.6; transform:scale(1.12); } 100% { opacity:1; transform:scale(1); } }
+.axchat-compact .axchat-hero { width:104px; height:86px; margin-bottom:4px; }
+.axchat-compact .axchat-hero img { width:76px; height:76px; }
+@media (prefers-reduced-motion:reduce) { .axchat-panel:not([hidden]) .axchat-hero img,.axchat-panel:not([hidden]) .axchat-hero::before,.axchat-panel:not([hidden]) .axchat-hero::after { animation:none; } }
+
+/* Keep supporting labels readable over both dark and light page backgrounds. */
+.axchat-header small, .axchat-welcome small, .axchat-question-heading { color:#40586e; }
+@media (prefers-reduced-transparency:reduce) { .axchat-panel { background:linear-gradient(150deg,#edf5fc,#fbfdff 48%,#e8f1f9); backdrop-filter:none; -webkit-backdrop-filter:none; } }
