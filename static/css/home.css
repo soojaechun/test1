@@ -2104,3 +2104,59 @@ html[lang="ja"] body,html[lang="ja"] button,html[lang="ja"] input,html[lang="ja"
   }
   .hero .hero-buttons { margin-top: 40px !important; }
 }
+
+
+/* ================================================================
+   AXPORT · Five-perspective hover focus · 2026-09-23
+   Animate text only. Keep the full-size background photographs,
+   column dimensions and center-out stage reveal unchanged.
+   The existing home.js toggles .is-current / data-active-criterion.
+   ================================================================ */
+
+/* Return to a crisp, neutral state whenever no panel is selected. */
+.criteria-stage .criteria-pane__copy {
+  transform: scale(1);
+  opacity: 1;
+  filter: blur(0);
+  transform-origin: center center;
+  transition: filter 420ms ease,
+              opacity 360ms ease,
+              transform 420ms cubic-bezier(.22, 1, .36, 1);
+  backface-visibility: hidden;
+}
+
+/* When one panel is hovered or keyboard-focused, softly recede
+   only the OTHER panels' text — never blur or scale the photo. */
+.criteria-stage[data-active-criterion]:not([data-active-criterion="none"])
+  .criteria-pane:not(.is-current) .criteria-pane__copy {
+  opacity: .35;
+  filter: blur(2.7px);
+  transform: scale(.98);
+}
+
+/* Each entry into the active panel creates one gentle emphasis
+   pulse (slightly larger, then exactly back to its original size). */
+.criteria-stage[data-active-criterion]:not([data-active-criterion="none"])
+  .criteria-pane.is-current .criteria-pane__copy {
+  opacity: 1;
+  filter: blur(0);
+  animation: criteria-type-emphasis 780ms cubic-bezier(.18, .85, .27, 1) both;
+}
+
+@keyframes criteria-type-emphasis {
+  0%   { transform: scale(1); }
+  38%  { transform: scale(1.075); }
+  67%  { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+
+/* Avoid unnecessary movement for visitors who disable animations.
+   Keep the focus-vs-background contrast, but remove movement/blur. */
+@media (prefers-reduced-motion: reduce) {
+  .criteria-stage .criteria-pane__copy {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}
