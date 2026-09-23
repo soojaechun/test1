@@ -1,6 +1,10 @@
 "use strict";
 (() => {
   const $ = (s, root = document) => root.querySelector(s);
+  const t = (source) => window.AXPI18n?.t(source) || source;
+  const countryCodes = {US:"미국",JP:"일본",DE:"독일",VN:"베트남"};
+  const countryLabel = (code) => t(countryCodes[code] || code);
+  const displayDate = () => {$("#desktop-date").textContent = new Date().toLocaleDateString(window.AXPI18n?.locale || "ko-KR", {month:"long",day:"numeric",weekday:"short"});};
   const $$ = (s, root = document) => [...root.querySelectorAll(s)];
   const esc = (value) =>
     String(value).replace(
@@ -24,7 +28,7 @@
   let context = {
     company: "AX 반도체",
     hs: "854231",
-    country: "미국",
+    country: "US",
     file: "AX_반도체_샘플.xlsx",
     fileId: "sample",
   };
@@ -418,7 +422,7 @@
   function contextUI() {
     $("#company-context").textContent = context.company;
     $("#hs-context").textContent = formatHS(context.hs);
-    $("#country-context").textContent = context.country;
+    $("#country-context").textContent = countryLabel(context.country);
   }
   function heading(title, sub, kicker = "EXPORT INTELLIGENCE") {
     return `<div class="content-heading"><div><span class="eyebrow">${kicker}</span><h2>${title}</h2><p>${sub}</p></div><div class="heading-actions"><button class="small-button" aria-label="가중치 설정" data-action="weights"><i class="ph ph-sliders-horizontal"></i><span>가중치 설정</span></button><button class="small-button" aria-label="보고서 다운로드" data-action="report"><i class="ph ph-download-simple"></i><span>보고서</span></button></div></div>`;
@@ -598,7 +602,7 @@
     chart = new Chart($("#detail-chart"), {
       type: d.bar ? "bar" : "line",
       data: {
-        labels: d.labels,
+        labels: d.labels.map(t),
         datasets: [
           {
             data: d.data,
@@ -625,7 +629,7 @@
           legend: { display: false },
           tooltip: {
             displayColors: false,
-            callbacks: { label: (ctx) => `${ctx.parsed.y} ${d.unit} · 예시` },
+            callbacks: { label: (ctx) => `${ctx.parsed.y} ${d.unit} · ${t("예시")}` },
           },
         },
         scales: {
@@ -660,6 +664,7 @@
     $("#tab-content").setAttribute("aria-labelledby", "tab-" + key);
     $(".window-main").scrollTop = 0;
     drawChart(key);
+    window.AXPI18n?.translateDOM($("#tab-content"));
   }
   $$(".bookmark-tabs button").forEach((b) => {
     b.onclick = () => setTab(b.dataset.tab);
@@ -791,6 +796,7 @@
   };
   function showFiles(trash = false) {
     $("#files-title").textContent = trash ? "휴지통" : "기업 데이터";
+    $("#files-title").dataset.trash = String(trash);
     $("#files-description").textContent = trash
       ? "휴지통의 파일을 바탕화면으로 복원할 수 있습니다. 원본 파일은 변경되지 않습니다."
       : "현재 화면에서 추가한 파일입니다. 새로고침하면 파일 목록이 초기화됩니다.";
@@ -910,7 +916,8 @@
             `<h2>${names[k]}</h2><p>${d.note}</p><table><tr><th>지표</th><th>표시값</th><th>상태</th></tr>${d.rows.map((r) => `<tr>${r.map((v) => `<td>${esc(v)}</td>`).join("")}</tr>`).join("")}</table>`,
         )
         .join("");
-      const html = `<!doctype html><html lang="ko"><meta charset="utf-8"><title>AXPORT 예시 분석 보고서</title><style>body{font-family:system-ui,'Malgun Gothic',sans-serif;max-width:850px;margin:50px auto;padding:24px;color:#24344f;line-height:1.8}h1{font-size:30px}h2{margin-top:35px;font-size:20px}table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:12px;text-align:left;border-bottom:1px solid #e5e9f1}th{background:#f5f7fb}.note{background:#eef2ff;padding:18px;border-radius:8px;color:#526a9c}@media print{body{margin:0;padding:10px}h2{break-after:avoid}table{break-inside:avoid}}</style><body><p>AXPORT / EXPORT INTELLIGENCE</p><h1>수출 분석 보고서</h1><div class="note">화면 검토용 예시 데이터 · 실제 수출 판정 미실행<br>파일 내용·외부 API·규정 데이터는 연결되지 않았습니다.</div><p>기업: ${esc(context.company)}<br>HS: ${esc(formatHS(context.hs))} · 대상국: ${esc(context.country)}<br>파일: ${esc(context.file)}<br>생성일: ${new Date().toLocaleString("ko-KR")}<br>가중치: ${customWeights ? "사용자 설정" : "기본값"} · UI 예시 v1</p><h2>5개 영역 요약</h2><table><tr><th>영역</th><th>표시 결과</th><th>적용 비중</th></tr>${reportRows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table><h2>규제 관문</h2><p>전략물자·최종사용자·수출허가·원산지 증빙은 모두 미검토입니다. 가중치로 규제 관문을 해제하지 않습니다.</p>${details}<p>출처: AXPORT 프론트엔드 시연 데이터. 실제 근거·시행일·규칙 버전은 미연결입니다.</p></body></html>`;
+      let html = `<!doctype html><html lang="${window.AXPI18n?.language || "ko"}"><meta charset="utf-8"><title>AXPORT 예시 분석 보고서</title><style>body{font-family:system-ui,'Malgun Gothic',sans-serif;max-width:850px;margin:50px auto;padding:24px;color:#24344f;line-height:1.8}h1{font-size:30px}h2{margin-top:35px;font-size:20px}table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:12px;text-align:left;border-bottom:1px solid #e5e9f1}th{background:#f5f7fb}.note{background:#eef2ff;padding:18px;border-radius:8px;color:#526a9c}@media print{body{margin:0;padding:10px}h2{break-after:avoid}table{break-inside:avoid}}</style><body><p>AXPORT / EXPORT INTELLIGENCE</p><h1>수출 분석 보고서</h1><div class="note">화면 검토용 예시 데이터 · 실제 수출 판정 미실행<br>파일 내용·외부 API·규정 데이터는 연결되지 않았습니다.</div><p>기업: ${esc(context.company)}<br>HS: ${esc(formatHS(context.hs))} · 대상국: ${esc(countryLabel(context.country))}<br>파일: ${esc(context.file)}<br>생성일: ${new Date().toLocaleString(window.AXPI18n?.locale || "ko-KR")}<br>가중치: ${customWeights ? "사용자 설정" : "기본값"} · UI 예시 v1</p><h2>5개 영역 요약</h2><table><tr><th>영역</th><th>표시 결과</th><th>적용 비중</th></tr>${reportRows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table><h2>규제 관문</h2><p>전략물자·최종사용자·수출허가·원산지 증빙은 모두 미검토입니다. 가중치로 규제 관문을 해제하지 않습니다.</p>${details}<p>출처: AXPORT 프론트엔드 시연 데이터. 실제 근거·시행일·규칙 버전은 미연결입니다.</p></body></html>`;
+      html = window.AXPI18n?.translateHTML(html) || html;
       const link = $("#report-download");
       if (link.dataset.blobUrl) URL.revokeObjectURL(link.dataset.blobUrl);
       const blob = new Blob([html], { type: "text/html;charset=utf-8" }),
@@ -976,10 +983,15 @@
   $("#help-btn").onclick = () => openDialog("#help-dialog");
   $("#profile-btn").onclick = () =>
     toast("계정 연결 없는 디자인 미리보기입니다.");
-  $("#desktop-date").textContent = new Date().toLocaleDateString("ko-KR", {
-    month: "long",
-    day: "numeric",
-    weekday: "short",
+  displayDate();
+  window.addEventListener("axp:language-changed", () => {
+    displayDate();
+    contextUI();
+    drawIcons();
+    setTab(activeTab);
+    if ($("#weights-dialog")?.open) drawWeights();
+    if ($("#files-dialog")?.open) showFiles($("#files-title").dataset.trash === "true");
+    if ($("#report-dialog")?.open) report();
   });
   window.addEventListener("resize", () => {
     fitWindow();
