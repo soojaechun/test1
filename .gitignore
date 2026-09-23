@@ -6,3 +6,7 @@ node_modules/
 *.log
 qa/
 
+
+# 조원 API 키·환경파일 (junhee)
+*api 키*.txt
+*.env
