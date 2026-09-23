@@ -7,6 +7,59 @@
     "거래 조건": {en:"Trade terms", zh:"贸易术语", ja:"取引条件"},
     "미국": {en:"United States", zh:"美国", ja:"米国"}
   });
+  // Exact translations for the revised punctuation-free home headings.
+  Object.assign(entries, {
+  "반도체 수출의 시작": {
+    "en": "Semiconductor exports",
+    "zh": "半导体出口",
+    "ja": "半導体輸出に"
+  },
+  "확신을 더하다": {
+    "en": "with confidence",
+    "zh": "从容决策",
+    "ja": "確かな自信を"
+  },
+  "복잡한 판단을": {
+    "en": "Complex decisions",
+    "zh": "复杂的判断",
+    "ja": "複雑な判断を"
+  },
+  "다섯 가지 관점으로": {
+    "en": "five clear perspectives",
+    "zh": "从五个维度看清",
+    "ja": "5つの観点から"
+  },
+  "데이터에서 인사이트까지": {
+    "en": "From data to insight",
+    "zh": "从数据到洞察",
+    "ja": "データからインサイトまで"
+  },
+  "하나의 워크스페이스": {
+    "en": "one workspace",
+    "zh": "一个工作空间",
+    "ja": "ひとつのワークスペースで"
+  },
+  "익숙한 바탕화면": {
+    "en": "A familiar desktop",
+    "zh": "熟悉的桌面",
+    "ja": "使い慣れたデスクトップ"
+  },
+  "새로운 분석 경험": {
+    "en": "A new way to analyze",
+    "zh": "全新的分析体验",
+    "ja": "新しい分析体験"
+  },
+  "수출의 가능성을": {
+    "en": "Your next export opportunity",
+    "zh": "出口的下一种可能",
+    "ja": "輸出の可能性を"
+  },
+  "지금 확인해 보세요": {
+    "en": "explore it today",
+    "zh": "现在就来探索",
+    "ja": "今すぐ確認しましょう"
+  }
+});
   const supported = ["ko","en","zh","ja"];
   const locales = {ko:"ko-KR",en:"en-US",zh:"zh-CN",ja:"ja-JP"};
   function normalize(code){const short=String(code||"").toLowerCase().split("-")[0];return supported.includes(short)?short:"ko";}

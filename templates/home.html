@@ -8,12 +8,13 @@
   <title>AXPORT — 수출의 가능성을 확신으로</title>
   <link rel="icon" href="/static/assets/axport-logo.png">
   <link rel="preload" href="/static/assets/hero-poster.jpg" as="image" fetchpriority="high">
+  <link rel="preload" href="/static/assets/feature-default.jpg?v=15" as="image">
   <link rel="stylesheet" href="/static/vendor/phosphor/regular/style.css">
   <link rel="stylesheet" href="/static/vendor/font/index.css">
-  <link rel="stylesheet" href="/static/css/home.css?v=11">
+  <link rel="stylesheet" href="/static/css/home.css?v=16">
 
-  <script src="/static/js/axport-i18n.js?v=2" defer></script>
-  <script src="/static/js/home.js?v=11" defer></script>
+  <script src="/static/js/axport-i18n.js?v=4" defer></script>
+  <script src="/static/js/home.js?v=15" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">본문으로 바로가기</a>
@@ -62,7 +63,7 @@
       <div class="hero-inner shell">
         <div class="hero-copy">
 
-          <h1 id="hero-title">반도체 수출의 시작,<br><span>확신을 더하다.</span></h1>
+          <h1 id="hero-title">반도체 수출의 시작<br><span>확신을 더하다</span></h1>
           <p class="hero-description">우리 기업의 가능성을 AXPORT에서 확인하세요.</p>
           <div class="hero-buttons">
             <a class="button button-blue button-main" href="/app" data-launch-app>대시보드 시작하기 <i class="ph ph-arrow-up-right" aria-hidden="true"></i></a>
@@ -80,48 +81,41 @@
       <div class="signal-marquee-track"><span>REGULATION</span><i>✧</i><span>MARKET</span><i>✧</i><span>PRICE</span><i>✧</i><span>LOGISTICS</span><i>✧</i><span>STABILITY</span><i>✧</i><span>REGULATION</span><i>✧</i><span>MARKET</span><i>✧</i><span>PRICE</span><i>✧</i><span>LOGISTICS</span><i>✧</i><span>STABILITY</span><i>✧</i></div>
     </div>
 
-<!-- Five criteria: one expanding, rounded canvas with five selectable areas.
-     Every hover image fills the entire shared canvas, not an individual area. -->
+<!-- 다섯 가지 판단 기준: 숫자·아이콘·보조 문구 없이 제목과 핵심 설명만 표시합니다. -->
 <section id="features" class="features section-space criteria-section" aria-labelledby="features-title">
   <div class="shell criteria-shell">
     <header class="criteria-heading">
       <p class="eyebrow">A CLEARER VIEW OF EXPORTS</p>
-      <h2 id="features-title">복잡한 판단을,<br>다섯 가지 관점으로.</h2>
+      <h2 id="features-title">복잡한 판단을<br>다섯 가지 관점으로</h2>
       <p class="section-description">핵심은 한눈에, 근거는 자세하게.<br>필요한 정보에 집중하는 분석 환경을 제공합니다.</p>
     </header>
-
-    <!-- The navy rectangle grows outward from its center after the heading rises. -->
+    <!-- 기본 이미지와 다섯 호버 이미지는 최종 너비를 유지합니다. 클리핑 영역만 중앙에서 좌우로 열립니다. -->
     <div class="criteria-stage" id="criteria-stage" aria-label="수출적합도 판단 기준 5개">
       <div class="criteria-stage__images" aria-hidden="true">
-        <img class="criteria-stage__image" data-criteria-image="0" src="/static/assets/feature-regulation.jpg" alt="" decoding="async">
-        <img class="criteria-stage__image" data-criteria-image="1" src="/static/assets/feature-market.jpg" alt="" decoding="async">
-        <img class="criteria-stage__image" data-criteria-image="2" src="/static/assets/feature-price.jpg" alt="" decoding="async">
-        <img class="criteria-stage__image" data-criteria-image="3" src="/static/assets/feature-logistics.jpg" alt="" decoding="async">
-        <img class="criteria-stage__image" data-criteria-image="4" src="/static/assets/feature-stability.jpg" alt="" decoding="async">
+        <!-- 다섯 가지 관점 기본 이미지: 첨부받은 feature-default.jpg를 직접 사용합니다. -->
+        <img class="criteria-stage__image criteria-stage__image--default" data-criteria-default src="/static/assets/feature-default.jpg?v=15" alt="" decoding="async" fetchpriority="high">
+        <img class="criteria-stage__image" data-criteria-image="0" src="/static/assets/feature-regulation.jpg?v=12" alt="" decoding="async">
+        <img class="criteria-stage__image" data-criteria-image="1" src="/static/assets/feature-market.jpg?v=12" alt="" decoding="async">
+        <img class="criteria-stage__image" data-criteria-image="2" src="/static/assets/feature-price.jpg?v=12" alt="" decoding="async">
+        <img class="criteria-stage__image" data-criteria-image="3" src="/static/assets/feature-logistics.jpg?v=12" alt="" decoding="async">
+        <img class="criteria-stage__image" data-criteria-image="4" src="/static/assets/feature-stability.jpg?v=12" alt="" decoding="async">
       </div>
       <div class="criteria-stage__shade" aria-hidden="true"></div>
-      <div class="criteria-stage__grain" aria-hidden="true"></div>
-
       <div class="criteria-pane-list" aria-label="수출적합도 판단 기준" role="group">
         <button class="criteria-pane" type="button" data-criteria="0" aria-pressed="false">
-          <span class="criteria-pane__top"><span class="criteria-pane__number" data-no-translate>01</span><i class="ph ph-shield-check" aria-hidden="true"></i></span>
-          <span class="criteria-pane__copy"><span class="criteria-pane__title">규제</span><span class="criteria-pane__description">수출 전 확인해야 할<br>규제와 허가 조건</span><span class="criteria-pane__tag">수출의 첫 번째 관문</span></span>
+          <span class="criteria-pane__copy"><span class="criteria-pane__title">규제</span><span class="criteria-pane__description">수출 전 확인해야 할<br>규제와 허가 조건</span></span>
         </button>
         <button class="criteria-pane" type="button" data-criteria="1" aria-pressed="false">
-          <span class="criteria-pane__top"><span class="criteria-pane__number" data-no-translate>02</span><i class="ph ph-chart-line-up" aria-hidden="true"></i></span>
-          <span class="criteria-pane__copy"><span class="criteria-pane__title">시장성</span><span class="criteria-pane__description">시장규모와 성장 흐름으로<br>살펴보는 수출 기회</span><span class="criteria-pane__tag">시장의 가능성</span></span>
+          <span class="criteria-pane__copy"><span class="criteria-pane__title">시장성</span><span class="criteria-pane__description">시장규모와 성장 흐름으로<br>살펴보는 수출 기회</span></span>
         </button>
         <button class="criteria-pane" type="button" data-criteria="2" aria-pressed="false">
-          <span class="criteria-pane__top"><span class="criteria-pane__number" data-no-translate>03</span><i class="ph ph-coins" aria-hidden="true"></i></span>
-          <span class="criteria-pane__copy"><span class="criteria-pane__title">가격</span><span class="criteria-pane__description">관세와 환율을 고려한<br>가격 판단의 기초</span><span class="criteria-pane__tag">비용의 이해</span></span>
+          <span class="criteria-pane__copy"><span class="criteria-pane__title">가격</span><span class="criteria-pane__description">관세와 환율을 고려한<br>가격 판단의 기초</span></span>
         </button>
         <button class="criteria-pane" type="button" data-criteria="3" aria-pressed="false">
-          <span class="criteria-pane__top"><span class="criteria-pane__number" data-no-translate>04</span><i class="ph ph-shipping-container" aria-hidden="true"></i></span>
-          <span class="criteria-pane__copy"><span class="criteria-pane__title">물류</span><span class="criteria-pane__description">운송 조건과 납기를<br>함께 살펴보는 계획</span><span class="criteria-pane__tag">이동의 효율</span></span>
+          <span class="criteria-pane__copy"><span class="criteria-pane__title">물류</span><span class="criteria-pane__description">운송 조건과 납기를<br>함께 살펴보는 계획</span></span>
         </button>
         <button class="criteria-pane" type="button" data-criteria="4" aria-pressed="false">
-          <span class="criteria-pane__top"><span class="criteria-pane__number" data-no-translate>05</span><i class="ph ph-pulse" aria-hidden="true"></i></span>
-          <span class="criteria-pane__copy"><span class="criteria-pane__title">안정성</span><span class="criteria-pane__description">지표의 변동 흐름으로<br>확인하는 불확실성</span><span class="criteria-pane__tag">지속 가능한 판단</span></span>
+          <span class="criteria-pane__copy"><span class="criteria-pane__title">안정성</span><span class="criteria-pane__description">지표의 변동 흐름으로<br>확인하는 불확실성</span></span>
         </button>
       </div>
     </div>
@@ -133,7 +127,7 @@
 <div>
 <p class="eyebrow">YOUR NEXT MOVE, SIMPLIFIED</p>
 <h2 id="how-title">
-                데이터에서 인사이트까지,<br/>하나의 워크스페이스.
+                데이터에서 인사이트까지<br/>하나의 워크스페이스
               </h2>
 </div>
 <a class="text-link" data-launch-app="" href="/app">직접 둘러보기
@@ -184,7 +178,6 @@
   <div class="demo-score-chart">
     <svg class="demo-score-donut" viewBox="0 0 116 116"><circle class="demo-score-track" cx="58" cy="58" r="43"/><circle class="demo-score-progress" cx="58" cy="58" r="43"/></svg>
     <div class="demo-score-center"><span class="demo-score-value">78</span><small>/ 100</small></div>
-    <span class="demo-score-example">예시</span>
   </div>
   <div class="demo-bookmarks"><span class="demo-bookmark" style="--tab:0">규제<i class="ph ph-caret-right"></i></span><span class="demo-bookmark" style="--tab:1">시장성<i class="ph ph-caret-right"></i></span><span class="demo-bookmark" style="--tab:2">가격<i class="ph ph-caret-right"></i></span><span class="demo-bookmark" style="--tab:3">물류<i class="ph ph-caret-right"></i></span><span class="demo-bookmark" style="--tab:4">안정성<i class="ph ph-caret-right"></i></span></div>
 </div>
@@ -197,7 +190,7 @@
 <div class="reveal">
 <p class="eyebrow">BUILT AROUND YOUR WORKFLOW</p>
 <h2 id="workspace-title">
-              익숙한 바탕화면.<br/>새로운 분석 경험.
+              익숙한 바탕화면<br/>새로운 분석 경험
             </h2>
 <p class="workspace-description">
               파일을 열고, 창을 옮기고, 필요한 근거를 나란히.<br/>당신의 업무
@@ -224,8 +217,8 @@
 <div>
 <p class="eyebrow">READY FOR YOUR NEXT EXPORT?</p>
 <h2>
-              수출의 가능성을,<br class="mobile-break"/>
-              지금 확인해 보세요.
+              수출의 가능성을<br class="mobile-break"/>
+              지금 확인해 보세요
             </h2>
 <p>더 명확한 의사결정의 시작, AXPORT.</p>
 </div>
