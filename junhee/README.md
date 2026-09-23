@@ -93,6 +93,14 @@ HS 는 `HS_LIST = ["854231", "854232"]` 두 개를 본다 (샘플 회사가 메�
 - 게이지·추세선은 vendor 의 Chart.js 로 그린다. 숫자는 count-up, prefers-reduced-motion 이면 즉시 전환.
 - 안정성 카드 설명: 기업 내부 거래 안정성(HHI·변동계수)이며 국가위험등급이 아님을 화면에 적음.
 
+## JH2 최종 디자인 반영 (2026-09-23 저녁, main 의 JH2/index2.html 기준)
+
+- 종합 탭: 왼쪽 패널 350px 고정, 큰 도넛(176px, 파랑→하늘→남보라 그라데이션), 요인별 점수는 mono 숫자 + 파란 전월 대비, 핵심 포인트 상자(컴퍼스 아이콘)에 '상세 리포트 보기 →'. 오른쪽 카드는 테두리 없는 파스텔 배경(#FFF5F5 · #FAF5FF · #F0F9FF · #FFFDF0 · #F0FDF4), 큰 검정 점수, '↑ +n (지난달 대비)', 끝점 있는 추세선. 색은 workspace.js `colors` 를 유지.
+- 상세 탭 5개를 모듈이 그린다(`detailMeta`/`detailHTML`, workspace.js setTab 연결부 1곳). JH2 배치(상단 배너 → KPI/표 → 시사점·공개자료 → 6개월 점수 추이 차트)를 따르되 **JH2 의 하드코딩 문구·수치(OECD 등급, $48.2B 등)는 쓰지 않고** 회사 JSON 의 `inputs` 와 `static/data/dashboard_summary.json` 공개자료만 표시한다. 안정성 탭에는 '기업 내부 거래 안정성이며 국가위험등급이 아님' 안내를 둔다.
+- 가중치 설정: workspace.js 의 사용자 가중치를 `getWeights`/`isCustom` 로 읽어 종합 점수를 요인 점수의 가중평균으로 다시 계산한다(기본 가중치면 점수표 값 그대로). 화면 하단에 '사용자 가중치 적용 · 종합 점수 재계산' 표시.
+- 보고서: 회사가 선택돼 있으면 `reportRows()` 로 화면과 같은 회사 점수를 표에 넣는다(연결부 1곳).
+- 반응형: 컨테이너 폭 820px 이하 1열, 560px 이하 카드 1열.
+
 ## 챗봇 연결 (CHATBOT.md 지침대로)
 
 - 챗봇 연결(chatbot.css + 스크립트 3개 + `{% include "chatbot.html" %}`)은 조원(minjeong)의 chatbot_connect 커밋으로 main 에 들어왔다. 내 쪽에서 넣었던 같은 줄은 병합 전에 되돌렸다(2026-09-23, 백업 `../_merge_backup/`).

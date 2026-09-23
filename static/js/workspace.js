@@ -843,8 +843,11 @@
       b.setAttribute("aria-selected", String(on));
       b.tabIndex = on ? 0 : -1;
     });
-    $("#tab-content").innerHTML = key === "overview" ? overview() : detail(key);
-    if (key === "overview" && window.JunheeDashboard) JunheeDashboard.mount($("#tab-content"));
+    // (junhee) 종합 탭과 상세 탭 5개는 점수형 모듈이 회사 점수·공개자료로 그린다 (모듈이 없으면 기존 예시 화면)
+    const jdMeta = window.JunheeDashboard && key !== "overview" ? JunheeDashboard.detailMeta(key) : null;
+    $("#tab-content").innerHTML =
+      key === "overview" ? overview() : jdMeta ? heading(jdMeta.title, jdMeta.sub, jdMeta.kicker) + JunheeDashboard.detailHTML(key) : detail(key);
+    if (window.JunheeDashboard && (key === "overview" || jdMeta)) JunheeDashboard.mount($("#tab-content"), key);
     $("#tab-content").setAttribute("role", "tabpanel");
     $("#tab-content").setAttribute("aria-labelledby", "tab-" + key);
     $(".window-main").scrollTop = 0;
@@ -1137,8 +1140,8 @@
     const button = $('[data-action="report"]', $("#tab-content"));
     if (button) button.disabled = true;
     try {
-      // 요약 카드와 같은 실제 자료 값을 쓴다 (로딩·실패·자료 부족은 문구 그대로)
-      const reportRows = ["regulation", "market", "price", "logistics", "stability"].map((k) => {
+      // (junhee) 회사가 선택돼 있으면 화면과 같은 회사 점수를, 아니면 공개자료 요약값을 쓴다
+      const reportRows = window.JunheeDashboard && JunheeDashboard.current() ? JunheeDashboard.reportRows() : ["regulation", "market", "price", "logistics", "stability"].map((k) => {
         const s = summaryCard(k);
         return [
           names[k],
@@ -1254,7 +1257,13 @@
   setSidebarOpen(innerWidth > 560);
   // (junhee) 점수형 종합 화면 모듈 연결: 색·가중치 전달, '더보기 →' 탭 이동, 등록 샘플 목록 미리 읽기
   if (window.JunheeDashboard) {
-    JunheeDashboard.configure({ colors, weights: defaults, esc });
+    JunheeDashboard.configure({
+      colors,
+      esc,
+      defaults,
+      getWeights: () => weights, // 사용자 가중치 설정을 그대로 읽어 종합 점수를 재계산
+      isCustom: () => customWeights,
+    });
     $("#tab-content").addEventListener("click", (e) => {
       const b = e.target.closest("[data-open-tab]");
       if (b) setTab(b.dataset.openTab);
