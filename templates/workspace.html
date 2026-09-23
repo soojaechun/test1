@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/static/vendor/phosphor/regular/style.css" />
     <link rel="stylesheet" href="/static/vendor/font/index.css" />
     <link rel="stylesheet" href="/static/css/workspace.css?v=4" />
+    <link rel="stylesheet" href="/static/css/junhee-dashboard.css?v=2" />
     <script>
       window.addEventListener("error", function (e) {
         console.error("AXPORT UI:", e.message);
@@ -21,7 +22,8 @@
     </script>
     <script defer src="/static/vendor/chart.umd.js"></script>
     <script defer src="/static/js/axport-i18n.js?v=2"></script>
-    <script defer src="/static/js/workspace.js?v=3"></script>
+    <script defer src="/static/js/junhee-dashboard.js?v=3"></script>
+    <script defer src="/static/js/workspace.js?v=4"></script>
     <link rel="stylesheet" href="/static/css/chatbot.css" />
     <script defer src="/static/js/chatbot-i18n.js"></script>
     <script defer src="/static/js/chatbot-demo.js"></script>
@@ -131,6 +133,7 @@
                 <strong id="company-context">AX 반도체</strong></span
               ><span>HS <b id="hs-context">8542.31</b></span
               ><span id="country-context">미국</span
+              ><span id="asof-context" class="asof-context"></span
               ><button id="edit-context" aria-label="평가 조건 변경">
                 <i class="ph ph-pencil-simple"></i>
               </button>

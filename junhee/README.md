@@ -1,7 +1,7 @@
 # junhee — 대시보드 요약 실제 데이터 연결
 
 다른 조원과 겹치지 않도록 새 파일은 모두 이 폴더에 둔다.
-프로젝트 파일 중에는 `templates/workspace.html`(요약 카드 자리), `static/js/workspace.js`(데이터 연결부), `.gitignore`, 새 폴더 `static/data/` 만 손댔다.
+프로젝트 파일 중에는 `templates/workspace.html`(연결 태그·기준일 span), `static/js/workspace.js`(연결부), `.gitignore`, 새 폴더 `static/data/`·`static/samples/`·`static/css|js/junhee-*` 를 손댔다. main 병합 절차는 `junhee/MERGE_GUIDE.md`.
 
 ## 구성
 
@@ -73,6 +73,38 @@ HS 는 `HS_LIST = ["854231", "854232"]` 두 개를 본다 (샘플 회사가 메�
 - 화면: `detail.per_country` 에 나라별 결과가 있고 workspace.js 가 현재 목적국 것을 카드에 보여준다. 통화 자료가 없는 나라는 자료 부족.
 - H.10 에 없는 COP·KHR·VND·ZiG 는 `fetch_fx_ecos.py` 가 한국은행 ECOS 731Y001 에서 받는다. 키는 환경변수 `ECOS_API_KEY` 로만 넘기고 파일·로그·메타에 남기지 않는다. 파일이 없으면 해당 나라는 자료 부족으로 표시된다.
 - 남은 일: fetch_fx_ecos.py 를 키와 함께 1회 실행 → extract → publish. ECOS 에 항목이 없는 통화가 있으면 대체 출처.
+
+## (구) 종합 탭 디자인 이식 A안 — 점수형 화면으로 대체됨 (아래 참조)
+
+- JH/templates(종합페이지)/index.html 시안의 구조·색을 현재 앱 틀(창·사이드바·책갈피 탭) 안의 종합 탭에 옮겼다. Tailwind CDN·Google Fonts 는 쓰지 않고 workspace.css 끝에 `.overview-layout`, `.suitability-card`, `.score-grid.jh-theme` 블록으로 구현했다.
+- 왼쪽 '종합 수출적합도' 카드: 점수 산식이 확정 전이라 **종합 점수는 계산하지 않고**, 명세 §6 의 '근거 충족 상태'(실제 자료 확보 n/5)를 도넛 게이지로 보여준다. 요인별 목록은 확보/자료 부족/조회 실패 문구와 비중을 표시한다.
+- 오른쪽 5개 카드: 아이콘 타일 + 영문 eyebrow + 제목, 상태 칩(실제자료/자료 부족/조회 실패/불러오는 중), headline, 스파크라인, note, 출처·기준일, '더보기 →'(해당 책갈피 탭으로 이동).
+- 스파크라인은 요약 JSON 의 실제 시계열만 그린다: 시장성(WSTS 최근 13개월), 가격(관세 조치일별 38건), 물류(미국서부 운임 13개월), 안정성(원/통화 월평균 13개월). 규제는 시계열이 없어 '추이 자료 없음'. 가짜 곡선을 넣지 않는다.
+- 팔레트는 시안 그대로: rose #f43f5e / violet #8b5cf6 / sky #0284c7 / amber #f59e0b / emerald #10b981. `colors` 맵이 바뀌어 상세 탭 강조색도 같은 팔레트를 쓴다.
+- 초기화 순서: 로딩 오버레이를 숨긴 뒤 요약 fetch 를 시작한다. 요약 연결이 실패해도 대시보드는 열린다.
+
+## 종합 탭 점수형 화면 + 더미 기업 업로드 연동 (2026-09-23, 레퍼런스 junhee/docs/reference/dashboard_reference.png)
+
+- 새 파일: `static/css/junhee-dashboard.css`, `static/js/junhee-dashboard.js`, `static/data/companies/`, `static/samples/`, `junhee/rules/demo_scoring.md`, `junhee/scripts/augment_samples.py`, `junhee/scripts/score_companies.py`.
+- workspace.html 은 새 CSS/JS 연결 태그, 기준일 span(`#asof-context`), 챗봇 연결만 추가. workspace.js 는 연결부만(초기 파일 2개, 업로드·파일 선택 시 모듈 호출, 종합 탭 렌더 위임, 파일 목록 '분석 완료'). workspace.css 는 손대지 않음.
+- 실행 순서: `make_sample_companies.py` → `augment_samples.py`(12개월 보강, 기존 행 뒤에 추가) → `score_companies.py` → `publish_static.py`(companies/·samples/ 복사).
+- 산식은 `junhee/rules/demo_scoring.md`. 종합 = 시장성 35·가격 30·물류 20·안정성 15 (workspace.js defaults), 규제는 관문으로 제외하고 감점 요인이 있으면 '규제 검토 필요' 배지.
+- 화면: 처음엔 빈 상태(— / 100, 안내 문구). 바탕화면 아이콘(한빛·대성)을 열거나 '엑셀 파일 추가'로 실제 파일을 올리면 브라우저에서 SHA-256 을 계산해 index.json 과 대조한다. 일치하면 그 회사 JSON 을 불러오고, 아니면 '시연 환경에서는 등록된 샘플 파일만 분석됩니다' 안내만 한다.
+- 게이지·추세선은 vendor 의 Chart.js 로 그린다. 숫자는 count-up, prefers-reduced-motion 이면 즉시 전환.
+- 안정성 카드 설명: 기업 내부 거래 안정성(HHI·변동계수)이며 국가위험등급이 아님을 화면에 적음.
+
+## JH2 최종 디자인 반영 (2026-09-23 저녁, main 의 JH2/index2.html 기준)
+
+- 종합 탭: 왼쪽 패널 350px 고정, 큰 도넛(176px, 파랑→하늘→남보라 그라데이션), 요인별 점수는 mono 숫자 + 파란 전월 대비, 핵심 포인트 상자(컴퍼스 아이콘)에 '상세 리포트 보기 →'. 오른쪽 카드는 테두리 없는 파스텔 배경(#FFF5F5 · #FAF5FF · #F0F9FF · #FFFDF0 · #F0FDF4), 큰 검정 점수, '↑ +n (지난달 대비)', 끝점 있는 추세선. 색은 workspace.js `colors` 를 유지.
+- 상세 탭 5개를 모듈이 그린다(`detailMeta`/`detailHTML`, workspace.js setTab 연결부 1곳). JH2 배치(상단 배너 → KPI/표 → 시사점·공개자료 → 6개월 점수 추이 차트)를 따르되 **JH2 의 하드코딩 문구·수치(OECD 등급, $48.2B 등)는 쓰지 않고** 회사 JSON 의 `inputs` 와 `static/data/dashboard_summary.json` 공개자료만 표시한다. 안정성 탭에는 '기업 내부 거래 안정성이며 국가위험등급이 아님' 안내를 둔다.
+- 가중치 설정: workspace.js 의 사용자 가중치를 `getWeights`/`isCustom` 로 읽어 종합 점수를 요인 점수의 가중평균으로 다시 계산한다(기본 가중치면 점수표 값 그대로). 화면 하단에 '사용자 가중치 적용 · 종합 점수 재계산' 표시.
+- 보고서: 회사가 선택돼 있으면 `reportRows()` 로 화면과 같은 회사 점수를 표에 넣는다(연결부 1곳).
+- 반응형: 컨테이너 폭 820px 이하 1열, 560px 이하 카드 1열.
+
+## 챗봇 연결 (CHATBOT.md 지침대로)
+
+- 챗봇 연결(chatbot.css + 스크립트 3개 + `{% include "chatbot.html" %}`)은 조원(minjeong)의 chatbot_connect 커밋으로 main 에 들어왔다. 내 쪽에서 넣었던 같은 줄은 병합 전에 되돌렸다(2026-09-23, 백업 `../_merge_backup/`).
+- 챗봇은 AI 미연결 데모 응답이며 workspace 에서는 `data-page="workspace"` 로 대시보드 질문을 보여준다.
 
 ## 대시보드 표시 규칙 (workspace.js)
 
