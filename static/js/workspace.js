@@ -16,7 +16,9 @@
     );
   const icons = $("#desktop-icons"),
     desk = $("#desktop"),
-    win = $("#analysis-window");
+    win = $("#analysis-window"),
+    sidebar = $("#window-sidebar"),
+    sidebarToggle = $("#sidebar-toggle");
   const defaults = { market: 35, price: 30, logistics: 20, stability: 15 };
   let weights = { ...defaults },
     draft = { ...defaults },
@@ -32,8 +34,7 @@
     activeTab = "overview",
     chart = null,
     selected = null,
-    maximized = false,
-    previousRect = null;
+    maximized = false;
   let files = [
     {
       id: "sample",
@@ -43,6 +44,15 @@
       trash: false,
       cell: 1,
     },
+  ];
+  const systemIcons = [
+    {
+      id: "analysis",
+      name: "분석 대시보드",
+      icon: "chart-pie-slice",
+      cell: 0,
+    },
+    { id: "trash", name: "휴지통", icon: "trash", cell: 2 },
   ];
   const names = {
     overview: "종합",
@@ -94,15 +104,15 @@
   };
   // UI geometry only is persisted. User filenames, file contents and conditions stay in memory.
   function fitWindow() {
-    if (innerWidth <= 850) return;
-    win.style.minHeight =
-      Math.min(455, Math.max(220, desk.clientHeight - 90)) + "px";
+    if (maximized || innerWidth <= 850) return;
+    const bottomGap = 13,
+      availableHeight = desk.clientHeight - 26;
+    win.style.minHeight = Math.min(455, Math.max(220, availableHeight)) + "px";
     const width = Math.min(win.offsetWidth, desk.clientWidth - 83),
-      height = Math.min(win.offsetHeight, desk.clientHeight - 90);
+      height = Math.min(win.offsetHeight, availableHeight);
     win.style.width =
       Math.max(Math.min(690, desk.clientWidth - 83), width) + "px";
-    win.style.height =
-      Math.max(Math.min(455, desk.clientHeight - 90), height) + "px";
+    win.style.height = Math.max(Math.min(455, availableHeight), height) + "px";
     win.style.left =
       Math.max(
         8,
@@ -111,12 +121,16 @@
     win.style.top =
       Math.max(
         8,
-        Math.min(win.offsetTop, desk.clientHeight - win.offsetHeight - 77),
+        Math.min(
+          win.offsetTop,
+          desk.clientHeight - win.offsetHeight - bottomGap,
+        ),
       ) + "px";
   }
   function resetWindow() {
     win.style.cssText = "";
     maximized = false;
+    win.classList.remove("maximized");
     $("#maximize-btn").setAttribute("aria-label", "창 최대화");
     try {
       localStorage.removeItem("axport-ui-layout-v1");
@@ -125,12 +139,18 @@
   }
   function showWindow() {
     win.hidden = false;
-    $("#dock-analysis").classList.add("dock-active");
     fitWindow();
   }
   function hideWindow() {
     win.hidden = true;
-    $("#dock-analysis").classList.remove("dock-active");
+  }
+  function setSidebarOpen(open) {
+    sidebar.hidden = !open;
+    win.classList.toggle("sidebar-collapsed", !open);
+    const label = open ? "사이드바 접기" : "사이드바 펼치기";
+    sidebarToggle.setAttribute("aria-expanded", String(open));
+    sidebarToggle.setAttribute("aria-label", label);
+    sidebarToggle.title = label;
   }
   function grid() {
     return {
@@ -146,11 +166,16 @@
     };
   }
   function occupied(except) {
-    return new Set([
-      0,
-      2,
-      ...files.filter((f) => !f.trash && f.id !== except).map((f) => f.cell),
-    ]);
+    return new Set(
+      [...systemIcons, ...files]
+        .filter((f) => !f.trash && f.id !== except)
+        .map((f) => f.cell),
+    );
+  }
+  function desktopIcon(id) {
+    return (
+      systemIcons.find((f) => f.id === id) || files.find((f) => f.id === id)
+    );
   }
   function emptyCell(want, id) {
     const { rows, cols } = grid(),
@@ -171,16 +196,11 @@
   }
   function drawIcons() {
     const entries = [
-      {
-        id: "analysis",
-        name: "분석 대시보드",
-        icon: "chart-pie-slice",
-        cell: 0,
-      },
+      systemIcons[0],
       ...files
         .filter((f) => !f.trash)
         .map((f) => ({ ...f, icon: "microsoft-excel-logo" })),
-      { id: "trash", name: "휴지통", icon: "trash", cell: 2 },
+      systemIcons[1],
     ];
     icons.innerHTML = entries
       .map((f) => {
@@ -189,9 +209,6 @@
       })
       .join("");
     $("#file-count").textContent = files.filter((f) => !f.trash).length;
-    const trashCount = files.filter((f) => f.trash).length;
-    $("#trash-badge").textContent = trashCount;
-    $("#trash-badge").hidden = !trashCount;
   }
   function selectIcon(id) {
     selected = id;
@@ -239,7 +256,7 @@
       e.preventDefault();
       trashFile(id);
     } else if (e.key.startsWith("Arrow")) {
-      const f = files.find((f) => f.id === id);
+      const f = desktopIcon(id);
       if (!f) return;
       e.preventDefault();
       const { rows } = grid();
@@ -259,7 +276,7 @@
     const el = e.target.closest("[data-id]");
     if (!el || e.button !== 0) return;
     const id = el.dataset.id,
-      f = files.find((f) => f.id === id);
+      f = desktopIcon(id);
     selectIcon(id);
     if (!f) return;
     const start = {
@@ -289,12 +306,19 @@
           Math.min(desk.clientHeight - 100, start.top + ev.clientY - start.y),
         ) + "px";
     };
-    const end = (ev) => {
+    const cleanup = () => {
       el.removeEventListener("pointermove", move);
       el.removeEventListener("pointerup", end);
       el.removeEventListener("pointercancel", cancel);
+      el.removeEventListener("lostpointercapture", cancel);
+      if (el.hasPointerCapture(e.pointerId))
+        el.releasePointerCapture(e.pointerId);
+    };
+    const end = (ev) => {
+      cleanup();
       if (!moved) return;
       const inRect = (target) => {
+        if (!target || target.closest("[hidden]")) return false;
         const r = target.getBoundingClientRect();
         return (
           ev.clientX >= r.left &&
@@ -303,7 +327,7 @@
           ev.clientY <= r.bottom
         );
       };
-      if (inRect($("#dock-trash")) || inRect($('[data-id="trash"]', icons)))
+      if (files.includes(f) && inRect($('[data-id="trash"]', icons)))
         trashFile(id);
       else {
         const cell = nearestCell(el.offsetLeft, el.offsetTop, id);
@@ -312,17 +336,22 @@
       }
     };
     const cancel = () => {
-      el.removeEventListener("pointermove", move);
-      el.removeEventListener("pointerup", end);
+      cleanup();
       drawIcons();
     };
     el.addEventListener("pointermove", move);
     el.addEventListener("pointerup", end);
     el.addEventListener("pointercancel", cancel);
+    el.addEventListener("lostpointercapture", cancel);
   });
   function bindWindowMove(handle, resize) {
     handle.addEventListener("pointerdown", (e) => {
-      if (e.button !== 0 || innerWidth <= 850 || e.target.closest("button"))
+      if (
+        maximized ||
+        e.button !== 0 ||
+        innerWidth <= 850 ||
+        e.target.closest("button")
+      )
         return;
       e.preventDefault();
       const start = {
@@ -336,7 +365,8 @@
       handle.setPointerCapture(e.pointerId);
       const move = (ev) => {
         const dx = ev.clientX - start.x,
-          dy = ev.clientY - start.y;
+          dy = ev.clientY - start.y,
+          bottomGap = 13;
         if (resize) {
           win.style.width =
             Math.max(
@@ -345,8 +375,8 @@
             ) + "px";
           win.style.height =
             Math.max(
-              Math.min(455, desk.clientHeight - start.top - 77),
-              Math.min(desk.clientHeight - start.top - 77, start.h + dy),
+              Math.min(455, desk.clientHeight - start.top - bottomGap),
+              Math.min(desk.clientHeight - start.top - bottomGap, start.h + dy),
             ) + "px";
         } else {
           win.style.left =
@@ -357,7 +387,7 @@
           win.style.top =
             Math.max(
               8,
-              Math.min(desk.clientHeight - start.h - 77, start.top + dy),
+              Math.min(desk.clientHeight - start.h - bottomGap, start.top + dy),
             ) + "px";
         }
       };
@@ -375,7 +405,7 @@
   bindWindowMove($("#window-handle"), false);
   bindWindowMove($("#resize-handle"), true);
   $("#resize-handle").addEventListener("keydown", (e) => {
-    if (!e.key.startsWith("Arrow")) return;
+    if (maximized || !e.key.startsWith("Arrow")) return;
     e.preventDefault();
     if (e.key === "ArrowRight") win.style.width = win.offsetWidth + 20 + "px";
     if (e.key === "ArrowLeft")
@@ -388,26 +418,10 @@
   });
   $("#minimize-btn").onclick = hideWindow;
   $("#close-window-btn").onclick = hideWindow;
-  $("#dock-analysis").onclick = showWindow;
+  sidebarToggle.onclick = () => setSidebarOpen(sidebar.hidden);
   $("#maximize-btn").onclick = () => {
-    if (maximized) {
-      Object.assign(win.style, previousRect);
-      maximized = false;
-    } else {
-      previousRect = {
-        left: win.style.left,
-        top: win.style.top,
-        width: win.style.width,
-        height: win.style.height,
-      };
-      Object.assign(win.style, {
-        left: "9px",
-        top: "9px",
-        width: desk.clientWidth - 82 + "px",
-        height: desk.clientHeight - 88 + "px",
-      });
-      maximized = true;
-    }
+    maximized = !maximized;
+    win.classList.toggle("maximized", maximized);
     $("#maximize-btn").setAttribute(
       "aria-label",
       maximized ? "이전 창 크기로 복원" : "창 최대화",
@@ -962,12 +976,6 @@
       }
     }),
   );
-  $("#dock-upload").onclick = () => {
-    pendingFile = null;
-    openUpload();
-  };
-  $("#dock-files").onclick = () => showFiles();
-  $("#dock-trash").onclick = () => showFiles(true);
   $("#edit-context").onclick = () => {
     pendingFile =
       files.find((f) => f.id === context.fileId && !f.trash) || null;
@@ -983,15 +991,16 @@
   });
   window.addEventListener("resize", () => {
     fitWindow();
-    files
-      .filter((f) => !f.trash)
-      .forEach((f) => {
-        const { rows, cols } = grid();
-        if (f.cell >= rows * cols) {
-          const c = emptyCell(1, f.id);
-          if (c !== null) f.cell = c;
-        }
-      });
+    const { rows, cols } = grid(),
+      used = new Set();
+    [...systemIcons, ...files.filter((f) => !f.trash)].forEach((f) => {
+      if (f.cell >= rows * cols || used.has(f.cell)) {
+        let cell = 0;
+        while (used.has(cell)) cell++;
+        f.cell = cell;
+      }
+      used.add(f.cell);
+    });
     drawIcons();
   });
   const layout = readUI();
@@ -1008,6 +1017,7 @@
     });
   }
   files[0].conditions = { ...context };
+  setSidebarOpen(innerWidth > 560);
   contextUI();
   drawIcons();
   setTab("overview");
