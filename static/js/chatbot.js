@@ -8,7 +8,7 @@
   const form = $('.axchat-form'), input = $('textarea'), send = form.querySelector('button');
   const latest = $('.axchat-latest'), badge = $('.axchat-badge'), status = $('.axchat-status');
   const handle = $('.axchat-resize'), provider = window.AXPORTChatDemo;
-  const i18n = window.AXPORTChatI18n, languageSelect = $('.axchat-language select');
+  const i18n = window.AXPORTChatI18n;
   let locale = i18n.normalize(document.documentElement.lang || navigator.language);
   let hasOpened = false, statusKey = '';
   const t = key => i18n.catalog[locale].ui[key];
@@ -17,13 +17,13 @@
   }
   function announce(key) { statusKey = key; status.textContent = key ? t(key) : ''; }
   function setLanguage(value) {
-    locale = i18n.normalize(value); root.lang = locale; languageSelect.value = locale;
+    locale = i18n.normalize(value); root.lang = locale;
     root.querySelectorAll('[data-chat-text]').forEach(node => {
       node.textContent = t(node.dataset.chatText);
       // Pending/error controls follow the UI language; completed messages keep theirs.
       node.closest('.axchat-answer')?.setAttribute('lang', locale);
     });
-    [[$('.axchat-minimize'),'minimize'],[$('.axchat-close'),'close'],[handle,'resize'],[body,'body'],[suggestions,'suggestions'],[input,'input'],[send,'sendLabel'],[languageSelect,'language']].forEach(([node,key]) => node.setAttribute('aria-label',t(key)));
+    [[$('.axchat-minimize'),'minimize'],[$('.axchat-close'),'close'],[handle,'resize'],[body,'body'],[suggestions,'suggestions'],[input,'input'],[send,'sendLabel']].forEach(([node,key]) => node.setAttribute('aria-label',t(key)));
     handle.title = t('resizeHint'); input.placeholder = t('placeholder');
     send.textContent = t('send'); latest.querySelector('button').textContent = t('latest'); badge.textContent = t('badge');
     launcher.setAttribute('aria-label', t(opened ? 'minimize' : hasOpened ? 'restore' : 'open'));
@@ -191,7 +191,6 @@
   window.addEventListener('resize', layout);
   window.visualViewport?.addEventListener('resize', layout);
   window.visualViewport?.addEventListener('scroll', layout);
-  languageSelect.addEventListener('change', () => setLanguage(languageSelect.value));
   // Shared site switchers may update <html lang> or call this chat-only adapter.
   new MutationObserver(() => setLanguage(document.documentElement.lang)).observe(document.documentElement, {attributes:true, attributeFilter:['lang']});
   window.AXPORTChat = Object.freeze({ setLanguage, getLanguage: () => locale });

@@ -93,11 +93,11 @@
     },
     "answers": [
       "AXPORT is designed to help companies review export suitability and supporting evidence using company data and HS codes. The current version is a prototype of the home page and desktop-style dashboard. Actual Excel analysis and export assessments are not connected.",
-      "1. Open the workspace using “대시보드 시작” (Start dashboard) on the home page.\n2. Choose “새 분석 만들기” (New analysis) or the + button in the Dock to select a file or use the sample file.\n3. Enter a company name, HS code and destination, then select “분석 화면 보기” (View analysis).\n4. Explore the five-area summary and evidence tabs.\nThe current prototype only uses file names and sizes. It does not read or upload file contents. Results are examples. The page controls currently use Korean labels.",
+      "1. Open the workspace using “Open AXPORT” on the home page.\n2. Choose “New analysis” or the + button in the Dock to select a file or use the sample file.\n3. Enter a company name, HS code and destination, then select “View analysis”.\n4. Explore the five-area summary and evidence tabs.\nThe current prototype only uses file names and sizes. It does not read or upload file contents. Results are examples.",
       "Use the prototype to explore how export-review information can be organized, discuss the relative importance of market potential, pricing, logistics and stability with your team, or review the evidence tabs and report layout. The example scores cannot support real export decisions or regulatory assessments.",
       "Regulation: a separate gate for mandatory export-control and licensing conditions.\nMarket potential: market size and growth.\nPricing: tariffs and exchange rates.\nLogistics: transport conditions.\nStability: variability of indicators.\nCurrent numbers and charts are UI examples. Detailed scoring rules and real data are not connected. Changing other weights cannot remove the regulatory gate.",
-      "Open “가중치 설정” (Weight settings) in the analysis window, adjust the percentages and choose “설정 적용” (Apply). The total must be 100%. “기본값 복원” restores the defaults. Regulation is a separate gate. These weights are UI examples; changing them does not recalculate the example scores.",
-      "Use the tabs on the right of the analysis window to select regulation, market potential, pricing, logistics or stability. On narrow screens, the tabs move to the bottom. Charts, tables and explanations currently contain examples. “보고서 내보내기” (Export report) opens the example report preview and HTML download. Actual legal and tariff sources and assessment evidence are not connected."
+      "Open “Set weights” in the analysis window, adjust the percentages and choose “Apply settings”. The total must be 100%. “Restore defaults” restores the defaults. Regulation is a separate gate. These weights are UI examples; changing them does not recalculate the example scores.",
+      "Use the tabs on the right of the analysis window to select regulation, market potential, pricing, logistics or stability. On narrow screens, the tabs move to the bottom. Charts, tables and explanations currently contain examples. “Export report” opens the example report preview and HTML download. Actual legal and tariff sources and assessment evidence are not connected."
     ],
     "fallback": "This is a frontend demo with no AI connected. Your question is not sent externally. Actual analysis data and AI-generated answers are not available. You can preview guidance about the service, its workflow, assessment areas, weights and evidence screens."
   },
@@ -143,11 +143,11 @@
     },
     "answers": [
       "AXPORT 旨在帮助企业根据企业数据和 HS 编码查看出口适合度及判断依据。目前是展示首页和桌面式仪表板操作流程的原型，尚未连接实际 Excel 内容分析或出口评估功能。",
-      "1. 在首页点击“대시보드 시작”（启动仪表板），进入工作区。\n2. 点击“새 분석 만들기”（新建分析）或 Dock 中的 + 按钮，选择文件或使用示例文件。\n3. 输入企业名称、HS 编码和目的国，点击“분석 화면 보기”（查看分析）。\n4. 浏览五个领域的概览和依据标签页。\n目前只使用文件名和大小，不读取或上传文件内容。结果均为示例，页面按钮目前仍显示韩文。",
+      "1. 在首页点击“打开 AXPORT”，进入工作区。\n2. 点击“新建分析”或 Dock 中的 + 按钮，选择文件或使用示例文件。\n3. 输入企业名称、HS 编码和目的国，点击“查看分析”。\n4. 浏览五个领域的概览和依据标签页。\n目前只使用文件名和大小，不读取或上传文件内容。结果均为示例。",
       "您可以通过原型了解如何整理出口审查信息，与团队讨论市场、价格、物流和稳定性的重要程度，或预览依据标签页与报告布局。目前的示例分数不能作为实际出口决策或监管判断的依据。",
       "监管：出口管制、许可等必要条件的独立关卡。\n市场：市场规模和增长率。\n价格：关税和汇率。\n物流：运输条件。\n稳定性：指标的波动情况。\n当前数值和图表均为界面示例，详细评分规则与实际数据尚未连接。调整其他领域的权重不能解除监管关卡。",
-      "在分析窗口打开“가중치 설정”（权重设置），调整各项比例后点击“설정 적용”（应用设置）。合计必须为 100%，点击“기본값 복원”可恢复默认值。监管关卡独立处理。目前权重仅用于界面演示，修改后不会重新计算示例分数。",
-      "在分析窗口右侧的标签页中选择监管、市场、价格、物流或稳定性。窄屏时标签页位于底部。可以查看图表、表格和说明，但目前均为示例。点击“보고서 내보내기”（导出报告）可预览示例报告或下载 HTML。实际法规、关税来源和评估依据尚未连接。"
+      "在分析窗口打开“设置权重”，调整各项比例后点击“应用设置”。合计必须为 100%，点击“恢复默认值”可恢复默认值。监管关卡独立处理。目前权重仅用于界面演示，修改后不会重新计算示例分数。",
+      "在分析窗口右侧的标签页中选择监管、市场、价格、物流或稳定性。窄屏时标签页位于底部。可以查看图表、表格和说明，但目前均为示例。点击“导出报告”可预览示例报告或下载 HTML。实际法规、关税来源和评估依据尚未连接。"
     ],
     "fallback": "这是尚未连接实际 AI 的前端示例。您的问题不会发送到外部，也不会查询实际分析数据或生成 AI 回答。您可以预览服务介绍、使用流程、评估领域、权重与依据页面的说明。"
   },
@@ -193,11 +193,11 @@
     },
     "answers": [
       "AXPORTは、企業データとHSコードをもとに輸出適合度と判断根拠を確認するためのサービスとして企画されています。現在はホーム画面とデスクトップ型ダッシュボードの操作を確認するプロトタイプです。実際のExcel分析や輸出判定は接続されていません。",
-      "1. ホームの「대시보드 시작」（ダッシュボードを開始）からワークスペースを開きます。\n2. 「새 분석 만들기」（新規分析）またはDockの＋ボタンでファイルを選ぶか、サンプルを使用します。\n3. 企業名・HSコード・仕向国を入力し、「분석 화면 보기」（分析画面を見る）を押します。\n4. 5分野の概要と根拠タブを確認します。\n現在はファイル名とサイズのみを使用し、内容の読み取りやアップロードは行いません。結果はサンプルで、ページのボタン表記は現在韓国語です。",
+      "1. ホームの「AXPORT を開く」からワークスペースを開きます。\n2. 「新規分析」またはDockの＋ボタンでファイルを選ぶか、サンプルを使用します。\n3. 企業名・HSコード・仕向国を入力し、「分析画面を見る」を押します。\n4. 5分野の概要と根拠タブを確認します。\n現在はファイル名とサイズのみを使用し、内容の読み取りやアップロードは行いません。結果はサンプルです。",
       "輸出検討に必要な情報の整理方法を確認したり、市場性・価格・物流・安定性の重要度をチームで話し合ったりする画面デモに活用できます。根拠タブやレポート構成の事前確認にも使えます。サンプルの点数は、実際の輸出判断や規制判定の根拠にはできません。",
       "規制：輸出規制・許可などの必須条件を確認する独立した関門です。\n市場性：市場規模と成長率です。\n価格：関税と為替です。\n物流：輸送条件です。\n安定性：指標の変動です。\n現在の数値やグラフはUI用のサンプルで、詳細な採点基準と実データは未接続です。他分野の重みを変えても規制の関門は解除されません。",
-      "分析ウィンドウの「가중치 설정」（重み付け設定）で各項目の割合を調整し、「설정 적용」（設定を適用）を押します。合計は100%にする必要があります。「기본값 복원」で初期値に戻せます。規制の関門は別扱いです。現在の重みはUI用のサンプルで、変更してもサンプルの点数は再計算されません。",
-      "分析ウィンドウ右側のタブで規制・市場性・価格・物流・安定性を選んでください。狭い画面では下部タブに切り替わります。グラフ・表・説明は現在サンプルです。「보고서 내보내기」（レポートのエクスポート）からサンプルレポートのプレビューやHTMLのダウンロードができます。実際の法令・関税の出典や判定根拠は未接続です。"
+      "分析ウィンドウの「重みを設定」で各項目の割合を調整し、「設定を適用」を押します。合計は100%にする必要があります。「初期値に戻す」で初期値に戻せます。規制の関門は別扱いです。現在の重みはUI用のサンプルで、変更してもサンプルの点数は再計算されません。",
+      "分析ウィンドウ右側のタブで規制・市場性・価格・物流・安定性を選んでください。狭い画面では下部タブに切り替わります。グラフ・表・説明は現在サンプルです。「レポートを出力」からサンプルレポートのプレビューやHTMLのダウンロードができます。実際の法令・関税の出典や判定根拠は未接続です。"
     ],
     "fallback": "現在はAI未接続のフロントエンドデモです。質問は外部に送信されず、実際の分析データの参照やAI回答の生成も行いません。サービス概要、利用手順、評価分野、重み付けや根拠画面の案内を確認できます。"
   }
