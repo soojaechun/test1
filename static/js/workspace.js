@@ -73,6 +73,108 @@
     logistics: "#efa44d",
     stability: "#39ad96",
   };
+  // ---- 요약 카드 실제 데이터 연결 (junhee) ------------------------------
+  // static/data/dashboard_summary.json 을 읽어 종합 탭 5개 카드에 넣는다.
+  // 상태는 loading / ok / insufficient / error 를 문구로 구분한다 (색상만으로 구분하지 않음).
+  const SUMMARY_SRC =
+    ($("#tab-content") && $("#tab-content").dataset.summarySrc) ||
+    "/static/data/dashboard_summary.json";
+  let summary = { status: "loading", items: {}, context: null, error: "" };
+  function loadSummary() {
+    summary = { status: "loading", items: {}, context: null, error: "" };
+    fetch(SUMMARY_SRC, { cache: "no-store" })
+      .then((r) => {
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then((doc) => {
+        if (!doc || !Array.isArray(doc.items)) throw new Error("형식 오류");
+        const items = {};
+        doc.items.forEach((it) => {
+          if (it && it.key) items[it.key] = it;
+        });
+        summary = {
+          status: "ok",
+          items,
+          context: doc.context || null,
+          error: "",
+          generatedAt: doc.generated_at || "",
+        };
+      })
+      .catch((e) => {
+        console.error("AXPORT summary:", e);
+        summary = {
+          status: "error",
+          items: {},
+          context: null,
+          error: String((e && e.message) || e),
+        };
+      })
+      .finally(() => {
+        if (activeTab === "overview") setTab("overview");
+      });
+  }
+  function summaryCard(key) {
+    let item = summary.items[key];
+    // 안정성은 목적국(결제통화)별 결과가 detail.per_country 에 있으면 현재 화면 조건의 나라 것을 쓴다
+    if (item && item.detail && item.detail.per_country && item.detail.per_country[context.country]) {
+      const pc = item.detail.per_country[context.country];
+      item = {
+        ...item,
+        headline: pc.headline,
+        note: pc.note,
+        state: pc.state,
+        as_of: pc.as_of !== undefined ? pc.as_of : item.as_of,
+        source: pc.source || item.source,
+      };
+    }
+    if (summary.status === "loading")
+      return {
+        state: "loading",
+        value: "불러오는 중",
+        desc: "실제 자료 요약을 불러오고 있습니다.",
+        meta: "",
+        foot: "상태: 로딩 중",
+      };
+    if (summary.status === "error")
+      return {
+        state: "error",
+        value: "조회 실패",
+        desc: "요약 자료를 불러오지 못했습니다. 파일 경로와 서버 상태를 확인하세요.",
+        meta: summary.error ? "오류: " + summary.error : "",
+        foot: "상태: 조회 실패 · 값 미표시",
+      };
+    if (!item)
+      return {
+        state: "error",
+        value: "조회 실패",
+        desc: "요약 자료에 이 항목이 없습니다.",
+        meta: "",
+        foot: "상태: 조회 실패 · 값 미표시",
+      };
+    const asOf = item.as_of
+      ? "기준일 " + item.as_of
+      : item.checked_on
+        ? "기준일 없음 (확인일 " + item.checked_on + ")"
+        : "기준일 없음";
+    const meta = "출처 " + (item.source || "-") + " · " + asOf;
+    const cls = item.data_class ? " · " + item.data_class : "";
+    if (item.state === "insufficient")
+      return {
+        state: "insufficient",
+        value: "자료 부족",
+        desc: item.note || "필요한 자료가 없습니다.",
+        meta,
+        foot: "상태: 자료 부족" + cls,
+      };
+    return {
+      state: "ok",
+      value: item.headline || "-",
+      desc: item.note || "",
+      meta,
+      foot: "상태: 정상" + cls,
+    };
+  }
   let toastTimer;
   const toast = (message) => {
     $("#toast").textContent = message;
@@ -500,8 +602,53 @@
         "한눈에 보는 수출 가능성",
         "기업의 다음 선택을 위한 다섯 가지 관점",
       ) +
-      `<div class="analysis-banner"><span class="banner-icon"><i class="ph ph-magnifying-glass"></i></span><div><strong>가능성을 살펴보고, 근거를 확인하세요.</strong><p>현재 화면은 예시입니다. 실제 규제 검토와 수출 판정은 진행되지 않았습니다.</p></div><span class="example-badge">DEMO</span></div><div class="score-grid">${cards.map((c) => `<article class="score-card" style="--card-color:${colors[c.key]}"><div class="card-title"><i class="ph ph-${c.icon}"></i>${c.label}<small>${c.hint}</small></div><div class="metric ${c.status ? "status" : ""}">${c.value}<small>${c.unit}</small></div><p>${c.desc}</p><div class="card-foot"><span>${c.foot}</span><span>${c.key === "regulation" ? "관문 고정" : `비중 ${weights[c.key]}%`}</span></div></article>`).join("")}</div><div class="summary-foot"><span><i class="ph ph-info"></i>오른쪽 책갈피에서 상세 지표와 근거를 확인하세요.</span><span>${customWeights ? "사용자 가중치 · 시연" : "기본 가중치 · 시연"} · 실제 자료 미연결</span></div>`
+      summaryBanner() +
+      `<div class="score-grid">${cards
+        .map((c) => {
+          const s = summaryCard(c.key);
+          return `<article class="score-card" style="--card-color:${colors[c.key]}" data-state="${s.state}"><div class="card-title"><i class="ph ph-${c.icon}"></i>${c.label}<small>${c.hint}</small></div><div class="metric status" style="white-space:normal;font-size:19px;line-height:1.3" title="${esc(s.value)}">${esc(s.value)}</div><p>${esc(s.desc)}</p>${s.meta ? `<p>${esc(s.meta)}</p>` : ""}<div class="card-foot"><span>${esc(s.foot)}</span><span>${c.key === "regulation" ? "관문 고정" : `비중 ${weights[c.key]}%`}</span></div></article>`;
+        })
+        .join("")}</div><div class="summary-foot"><span><i class="ph ph-info"></i>오른쪽 책갈피에서 상세 지표와 근거를 확인하세요.</span><span>${customWeights ? "사용자 가중치 · 시연" : "기본 가중치 · 시연"} · ${summaryFootNote()}</span></div>`
     );
+  }
+  function summaryBanner() {
+    let strong = "가능성을 살펴보고, 근거를 확인하세요.";
+    let p = "요약 자료를 불러오는 중입니다. 실제 규제 검토와 수출 판정은 진행되지 않았습니다.";
+    let badge = "LOADING";
+    if (summary.status === "ok") {
+      const ctx = summary.context || {};
+      const hsList = Array.isArray(ctx.hs) ? ctx.hs : ctx.hs ? [ctx.hs] : [];
+      const basis = [
+        hsList.length ? "HS " + hsList.map((h) => formatHS(String(h))).join("·") : "",
+        ctx.country || "",
+      ]
+        .filter(Boolean)
+        .join(" · ");
+      strong = "공개 자료에서 추출한 요약값입니다.";
+      p = `요약 카드는 실제 자료 기준${basis ? "(" + esc(basis) + ")" : ""}이며, 규제 판정·적합도 채점은 진행되지 않았습니다. 상세 탭은 예시입니다.`;
+      badge = "DATA";
+    } else if (summary.status === "error") {
+      strong = "요약 자료를 불러오지 못했습니다.";
+      p = "카드에 값을 표시하지 않습니다. 파일 경로와 서버 상태를 확인한 뒤 새로고침하세요.";
+      badge = "ERROR";
+    }
+    return `<div class="analysis-banner"><span class="banner-icon"><i class="ph ph-magnifying-glass"></i></span><div><strong>${strong}</strong><p>${p}</p></div><span class="example-badge">${badge}</span></div>`;
+  }
+  function summaryFootNote() {
+    if (summary.status === "ok") {
+      const ctx = summary.context || {};
+      const hsList = Array.isArray(ctx.hs) ? ctx.hs : ctx.hs ? [ctx.hs] : [];
+      const mismatch = ctx.country && ctx.country !== context.country;
+      const hsMismatch = hsList.length && !hsList.some((h) => String(context.hs).startsWith(String(h)));
+      return (
+        "요약 카드 실제 자료 연결" +
+        (summary.generatedAt ? " (생성 " + esc(summary.generatedAt.slice(0, 10)) + ")" : "") +
+        (mismatch ? ` · 주의: 요약 자료는 ${esc(ctx.country)} 기준` : "") +
+        (hsMismatch ? ` · 주의: 요약 자료는 HS ${esc(hsList.join("·"))} 기준` : "")
+      );
+    }
+    if (summary.status === "error") return "요약 자료 조회 실패";
+    return "요약 자료 불러오는 중";
   }
   const detailData = {
     market: {
@@ -917,13 +1064,15 @@
     const button = $('[data-action="report"]', $("#tab-content"));
     if (button) button.disabled = true;
     try {
-      const reportRows = [
-        ["규제", "검토 전", "관문 고정"],
-        ["시장성", "82 / 100", weights.market + "%"],
-        ["가격", "76 / 100", weights.price + "%"],
-        ["물류", "88 / 100", weights.logistics + "%"],
-        ["안정성", "71 / 100", weights.stability + "%"],
-      ];
+      // 요약 카드와 같은 실제 자료 값을 쓴다 (로딩·실패·자료 부족은 문구 그대로)
+      const reportRows = ["regulation", "market", "price", "logistics", "stability"].map((k) => {
+        const s = summaryCard(k);
+        return [
+          names[k],
+          esc(s.value) + " — " + esc(s.foot) + (s.meta ? "<br><small>" + esc(s.meta) + "</small>" : ""),
+          k === "regulation" ? "관문 고정" : weights[k] + "%",
+        ];
+      });
       const details = Object.entries(detailData)
         .map(
           ([k, d]) =>
@@ -1033,6 +1182,7 @@
   contextUI();
   drawIcons();
   setTab("overview");
+  loadSummary();
   fitWindow();
   $("#workspace-loading").hidden = true;
 })();
