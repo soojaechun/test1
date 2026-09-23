@@ -52,7 +52,7 @@
   }
   const safe = document.createElement('span'); safe.className = 'axchat-safe'; root.append(safe);
   let generation = 0, pending = false, composing = false, opened = false;
-  let desired = { width:400, height:600 }, savedScroll = 0, following = true, unread = false, drag = null;
+  let desired = { width:400, height:560 }, savedScroll = 0, following = true, unread = false, drag = null;
   const mobile = () => matchMedia('(max-width:767px), (pointer:coarse)').matches;
   const nearBottom = () => body.scrollHeight - body.scrollTop - body.clientHeight <= 40;
   function sync() {
@@ -74,10 +74,14 @@
     const edgeRight = margin + parseFloat(s.paddingRight), edgeBottom = margin + parseFloat(s.paddingBottom);
     const edgeLeft = margin + parseFloat(s.paddingLeft), edgeTop = margin + parseFloat(s.paddingTop);
     const availableW = Math.max(1, width - edgeRight - edgeLeft);
-    const availableH = Math.max(1, height - edgeBottom - size - 12 - edgeTop);
+    // Keep desktop home navigation accessible, including at browser zoom levels.
+    const siteHeader = document.querySelector('#site-header');
+    const headerBottom = !mobile() && siteHeader ? siteHeader.getBoundingClientRect().bottom : 0;
+    const topClearance = Math.max(edgeTop, headerBottom > 0 ? headerBottom - top + 12 : 0);
+    const availableH = Math.max(1, height - edgeBottom - size - 12 - topClearance);
     const w = Math.min(mobile() ? 400 : desired.width, availableW);
-    const h = Math.min(mobile() ? 600 : desired.height, availableH);
-    panel.classList.toggle('axchat-compact', h < 480);
+    const h = Math.min(mobile() ? 560 : desired.height, availableH);
+    panel.classList.toggle('axchat-compact', h < 520);
     launcher.style.left = `${left + width - edgeRight - size}px`;
     launcher.style.top = `${top + height - edgeBottom - size}px`;
     Object.assign(panel.style, {left:`${left + width - edgeRight - w}px`, top:`${top + height - edgeBottom - size - 12 - h}px`, width:`${w}px`, height:`${h}px`});
@@ -102,7 +106,7 @@
   function close() {
     generation++; pending = false; input.value = ''; composing = false;
     messages.replaceChildren(); welcome.hidden = false; suggestions.hidden = false;
-    desired = {width:400, height:600}; following = true; unread = false; announce('');
+    desired = {width:400, height:560}; following = true; unread = false; announce('');
     minimize(); savedScroll = 0; layout();
     hasOpened = false; launcher.setAttribute('aria-label', t('open'));
   }
@@ -195,6 +199,9 @@
     const r = panel.getBoundingClientRect(); resize(r.width + change[0], r.height + change[1]);
   });
   window.addEventListener('resize', layout);
+  window.addEventListener('scroll', layout, {passive:true});
+  const siteHeader = document.querySelector('#site-header');
+  if (siteHeader && typeof ResizeObserver !== 'undefined') new ResizeObserver(layout).observe(siteHeader);
   window.visualViewport?.addEventListener('resize', layout);
   window.visualViewport?.addEventListener('scroll', layout);
   // Site events update open/minimized chats; the observer also supports other switchers.
