@@ -21,6 +21,10 @@
     </script>
     <script defer src="/static/vendor/chart.umd.js"></script>
     <script defer src="/static/js/workspace.js"></script>
+    <link rel="stylesheet" href="/static/css/chatbot.css" />
+    <script defer src="/static/js/chatbot-i18n.js"></script>
+    <script defer src="/static/js/chatbot-demo.js"></script>
+    <script defer src="/static/js/chatbot.js"></script>
   </head>
   <body>
     <div id="workspace-loading" class="workspace-loading" role="status">
@@ -364,5 +368,6 @@
       </div>
     </dialog>
     <div id="toast" role="status" aria-live="polite"></div>
+    {% include "chatbot.html" %}
   </body>
 </html>
