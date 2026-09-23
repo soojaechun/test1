@@ -12,9 +12,9 @@
 .axchat-header > div { flex:1; min-width:0; }
 .axchat-header strong { font-size:16px; }
 .axchat-header small { display:block; font-size:11px; color:#617089; }
-.axchat-header button { width:36px; height:36px; flex-shrink:0; border:0; border-radius:10px; background:#f3f6fb; font-size:22px; }
+.axchat-header button { width:30px; height:30px; padding:0; display:grid; place-items:center; flex-shrink:0; border:0; border-radius:10px; background:#f3f6fb; font-size:22px; }
 .axchat-body { flex:1; min-height:0; overflow-y:auto; overscroll-behavior:contain; overflow-anchor:none; padding:12px 16px; display:flex; flex-direction:column; }
-.axchat-welcome { text-align:center; padding:16px 0 22px; flex:1 0 auto; display:flex; flex-direction:column; justify-content:center; }
+.axchat-welcome { text-align:center; padding:8px 0 12px; flex:1 0 auto; display:flex; flex-direction:column; justify-content:center; }
 .axchat-welcome img { width:64px; height:64px; display:block; object-fit:contain; margin:0 auto; }
 .axchat-welcome p { margin:8px 0 4px; font-size:15px; line-height:1.5; }
 .axchat-welcome small { display:block; font-size:12px; line-height:1.5; color:#5b6b83; }
@@ -67,7 +67,7 @@
 .axchat-suggestions button:nth-of-type(2) .axchat-question-icon { color:#689b91; }
 .axchat-suggestions button:nth-of-type(3) .axchat-question-icon { color:#c29664; }
 .axchat-suggestions button > span { min-width:0; }
-.axchat-compact .axchat-welcome { padding:10px 0 14px; }
+.axchat-compact .axchat-welcome { padding:6px 0 8px; }
 @media (hover:hover) and (pointer:fine) { .axchat-suggestions button:hover { background:#f5f8fc; border-color:#ccd7e6; } }
 
 /* AXPORT glass finish: navy, blue and translucent white only. */
@@ -114,3 +114,5 @@
 /* Keep supporting labels readable over both dark and light page backgrounds. */
 .axchat-header small, .axchat-welcome small, .axchat-question-heading { color:#40586e; }
 @media (prefers-reduced-transparency:reduce) { .axchat-panel { background:linear-gradient(150deg,#edf5fc,#fbfdff 48%,#e8f1f9); backdrop-filter:none; -webkit-backdrop-filter:none; } }
+
+.axchat-header button svg { display:block; width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; }
