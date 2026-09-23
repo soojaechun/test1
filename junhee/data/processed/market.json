@@ -17,6 +17,60 @@
     "prev_month_thousand_usd": 157462968.0,
     "yoy_pct": 129.43,
     "mom_pct": -9.51,
-    "hs_breakdown_available": false
+    "hs_breakdown_available": false,
+    "monthly": [
+      {
+        "month": "2025-07",
+        "value_thousand_usd": 62100790.0
+      },
+      {
+        "month": "2025-08",
+        "value_thousand_usd": 69173660.0
+      },
+      {
+        "month": "2025-09",
+        "value_thousand_usd": 78520702.0
+      },
+      {
+        "month": "2025-10",
+        "value_thousand_usd": 71647272.0
+      },
+      {
+        "month": "2025-11",
+        "value_thousand_usd": 81883025.0
+      },
+      {
+        "month": "2025-12",
+        "value_thousand_usd": 85348277.0
+      },
+      {
+        "month": "2026-01",
+        "value_thousand_usd": 82925862.0
+      },
+      {
+        "month": "2026-02",
+        "value_thousand_usd": 103671953.0
+      },
+      {
+        "month": "2026-03",
+        "value_thousand_usd": 118321116.0
+      },
+      {
+        "month": "2026-04",
+        "value_thousand_usd": 115800518.0
+      },
+      {
+        "month": "2026-05",
+        "value_thousand_usd": 140466438.0
+      },
+      {
+        "month": "2026-06",
+        "value_thousand_usd": 157462968.0
+      },
+      {
+        "month": "2026-07",
+        "value_thousand_usd": 142480424.0
+      }
+    ]
   }
 }

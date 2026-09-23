@@ -8,7 +8,7 @@
   const form = $('.axchat-form'), input = $('textarea'), send = form.querySelector('button');
   const latest = $('.axchat-latest'), badge = $('.axchat-badge'), status = $('.axchat-status');
   const handle = $('.axchat-resize'), provider = window.AXPORTChatDemo;
-  const i18n = window.AXPORTChatI18n, languageSelect = $('.axchat-language select');
+  const i18n = window.AXPORTChatI18n;
   let locale = i18n.normalize(document.documentElement.lang || navigator.language);
   let hasOpened = false, statusKey = '';
   const t = key => i18n.catalog[locale].ui[key];
@@ -17,13 +17,13 @@
   }
   function announce(key) { statusKey = key; status.textContent = key ? t(key) : ''; }
   function setLanguage(value) {
-    locale = i18n.normalize(value); root.lang = locale; languageSelect.value = locale;
+    locale = i18n.normalize(value); root.lang = locale;
     root.querySelectorAll('[data-chat-text]').forEach(node => {
       node.textContent = t(node.dataset.chatText);
-      // Pending/error controls follow the UI language; completed messages keep theirs.
+      // All interface states follow the current site language.
       node.closest('.axchat-answer')?.setAttribute('lang', locale);
     });
-    [[$('.axchat-minimize'),'minimize'],[$('.axchat-close'),'close'],[handle,'resize'],[body,'body'],[suggestions,'suggestions'],[input,'input'],[send,'sendLabel'],[languageSelect,'language']].forEach(([node,key]) => node.setAttribute('aria-label',t(key)));
+    [[$('.axchat-minimize'),'minimize'],[$('.axchat-close'),'close'],[handle,'resize'],[body,'body'],[suggestions,'suggestions'],[input,'input'],[send,'sendLabel']].forEach(([node,key]) => node.setAttribute('aria-label',t(key)));
     handle.title = t('resizeHint'); input.placeholder = t('placeholder');
     send.textContent = t('send'); latest.querySelector('button').textContent = t('latest'); badge.textContent = t('badge');
     launcher.setAttribute('aria-label', t(opened ? 'minimize' : hasOpened ? 'restore' : 'open'));
@@ -40,11 +40,19 @@
       const label = document.createElement('span'); label.textContent = question; button.append(icon, label);
       button.addEventListener('click', () => submit(question)); suggestions.append(button);
     });
+    messages.querySelectorAll('[data-demo-complete]').forEach(answer => renderAnswer(answer));
     layout();
+  }
+  function renderAnswer(answer) {
+    answer.lang = locale;
+    const label = document.createElement('small'); label.textContent = t('replyLabel');
+    const content = document.createElement('div');
+    content.textContent = provider.getResponse(answer.dataset.question, locale);
+    answer.replaceChildren(label, content);
   }
   const safe = document.createElement('span'); safe.className = 'axchat-safe'; root.append(safe);
   let generation = 0, pending = false, composing = false, opened = false;
-  let desired = { width:400, height:600 }, savedScroll = 0, following = true, unread = false, drag = null;
+  let desired = { width:400, height:560 }, savedScroll = 0, following = true, unread = false, drag = null;
   const mobile = () => matchMedia('(max-width:767px), (pointer:coarse)').matches;
   const nearBottom = () => body.scrollHeight - body.scrollTop - body.clientHeight <= 40;
   function sync() {
@@ -66,10 +74,14 @@
     const edgeRight = margin + parseFloat(s.paddingRight), edgeBottom = margin + parseFloat(s.paddingBottom);
     const edgeLeft = margin + parseFloat(s.paddingLeft), edgeTop = margin + parseFloat(s.paddingTop);
     const availableW = Math.max(1, width - edgeRight - edgeLeft);
-    const availableH = Math.max(1, height - edgeBottom - size - 12 - edgeTop);
+    // Keep desktop home navigation accessible, including at browser zoom levels.
+    const siteHeader = document.querySelector('#site-header');
+    const headerBottom = !mobile() && siteHeader ? siteHeader.getBoundingClientRect().bottom : 0;
+    const topClearance = Math.max(edgeTop, headerBottom > 0 ? headerBottom - top + 12 : 0);
+    const availableH = Math.max(1, height - edgeBottom - size - 12 - topClearance);
     const w = Math.min(mobile() ? 400 : desired.width, availableW);
-    const h = Math.min(mobile() ? 600 : desired.height, availableH);
-    panel.classList.toggle('axchat-compact', h < 480);
+    const h = Math.min(mobile() ? 560 : desired.height, availableH);
+    panel.classList.toggle('axchat-compact', h < 520);
     launcher.style.left = `${left + width - edgeRight - size}px`;
     launcher.style.top = `${top + height - edgeBottom - size}px`;
     Object.assign(panel.style, {left:`${left + width - edgeRight - w}px`, top:`${top + height - edgeBottom - size - 12 - h}px`, width:`${w}px`, height:`${h}px`});
@@ -94,7 +106,7 @@
   function close() {
     generation++; pending = false; input.value = ''; composing = false;
     messages.replaceChildren(); welcome.hidden = false; suggestions.hidden = false;
-    desired = {width:400, height:600}; following = true; unread = false; announce('');
+    desired = {width:400, height:560}; following = true; unread = false; announce('');
     minimize(); savedScroll = 0; layout();
     hasOpened = false; launcher.setAttribute('aria-label', t('open'));
   }
@@ -108,8 +120,8 @@
     if (pending) return;
     pending = true; sync();
     const token = generation;
-    const responseLocale = answer.dataset.responseLocale || locale;
-    answer.dataset.responseLocale = responseLocale;
+    answer.dataset.question = question;
+    delete answer.dataset.demoComplete;
     answer.lang = locale;
     answer.replaceChildren();
     const loading = document.createElement('div'); loading.className = 'axchat-loading';
@@ -119,12 +131,10 @@
     if (opened && following) bottom();
     let failed = false;
     try {
-      const text = await provider.respond(question, responseLocale);
+      await provider.respond(question, locale);
       if (token !== generation) return;
-      answer.replaceChildren();
-      answer.lang = responseLocale;
-      const label = document.createElement('small'); label.textContent = i18n.catalog[responseLocale].ui.replyLabel;
-      const content = document.createElement('div'); content.textContent = text; answer.append(label, content);
+      answer.dataset.demoComplete = 'true';
+      renderAnswer(answer);
     } catch {
       if (token !== generation) return;
       failed = true; answer.replaceChildren(localized(document.createElement('span'), 'error'));
@@ -189,11 +199,19 @@
     const r = panel.getBoundingClientRect(); resize(r.width + change[0], r.height + change[1]);
   });
   window.addEventListener('resize', layout);
+  window.addEventListener('scroll', layout, {passive:true});
+  const siteHeader = document.querySelector('#site-header');
+  if (siteHeader && typeof ResizeObserver !== 'undefined') new ResizeObserver(layout).observe(siteHeader);
   window.visualViewport?.addEventListener('resize', layout);
   window.visualViewport?.addEventListener('scroll', layout);
-  languageSelect.addEventListener('change', () => setLanguage(languageSelect.value));
-  // Shared site switchers may update <html lang> or call this chat-only adapter.
-  new MutationObserver(() => setLanguage(document.documentElement.lang)).observe(document.documentElement, {attributes:true, attributeFilter:['lang']});
+  // Site events update open/minimized chats; the observer also supports other switchers.
+  window.addEventListener('axp:language-changed', event => {
+    const next = event.detail?.language || document.documentElement.lang;
+    if (i18n.normalize(next) !== locale) setLanguage(next);
+  });
+  new MutationObserver(() => {
+    if (i18n.normalize(document.documentElement.lang) !== locale) setLanguage(document.documentElement.lang);
+  }).observe(document.documentElement, {attributes:true, attributeFilter:['lang']});
   window.AXPORTChat = Object.freeze({ setLanguage, getLanguage: () => locale });
   setLanguage(locale);
 })();

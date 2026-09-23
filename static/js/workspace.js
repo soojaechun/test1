@@ -27,12 +27,13 @@
   let weights = { ...defaults },
     draft = { ...defaults },
     customWeights = false;
+  // (junhee) 처음에는 아무 회사도 선택되지 않은 상태. 점수는 등록된 더미 파일을 열었을 때만 채워진다.
   let context = {
-    company: "AX 반도체",
+    company: "미선택",
     hs: "854231",
     country: "US",
-    file: "AX_반도체_샘플.xlsx",
-    fileId: "sample",
+    file: "",
+    fileId: null,
   };
   let pendingFile = null,
     activeTab = "overview",
@@ -41,12 +42,20 @@
     maximized = false;
   let files = [
     {
-      id: "sample",
-      name: "AX_반도체_샘플.xlsx",
+      id: "sample-hanbit",
+      name: "한빛반도체_수출데이터_v0.1.xlsx",
       size: 0,
       sample: true,
       trash: false,
       cell: 1,
+    },
+    {
+      id: "sample-daesung",
+      name: "대성일렉트로닉스_수출데이터_v0.1.xlsx",
+      size: 0,
+      sample: true,
+      trash: false,
+      cell: 3,
     },
   ];
   const systemIcons = [
@@ -539,11 +548,25 @@
     $("#company-context").textContent = context.company;
     $("#hs-context").textContent = formatHS(context.hs);
     $("#country-context").textContent = countryLabel(context.country);
+    // (junhee) 기준일: 점수 JSON 의 as_of
+    const asof = $("#asof-context");
+    if (asof) {
+      const cur = window.JunheeDashboard && JunheeDashboard.current();
+      asof.textContent = cur && cur.as_of ? "기준일 " + cur.as_of : "";
+    }
   }
   function heading(title, sub, kicker = "EXPORT INTELLIGENCE") {
     return `<div class="content-heading"><div><span class="eyebrow">${kicker}</span><h2>${title}</h2><p>${sub}</p></div><div class="heading-actions"><button class="small-button" aria-label="가중치 설정" data-action="weights"><i class="ph ph-sliders-horizontal"></i><span>가중치 설정</span></button><button class="small-button" aria-label="보고서 다운로드" data-action="report"><i class="ph ph-download-simple"></i><span>보고서</span></button></div></div>`;
   }
   function overview() {
+    // (junhee) 점수형 종합 화면 모듈이 있으면 그것을 쓴다 (업로드 전 빈 상태 / 회사 선택 후 점수)
+    if (window.JunheeDashboard)
+      return (
+        heading(
+          "한눈에 보는 수출 가능성",
+          "기업의 다음 선택을 위한 다섯 가지 관점",
+        ) + JunheeDashboard.panelHTML()
+      );
     const cards = [
       {
         key: "regulation",
@@ -820,7 +843,11 @@
       b.setAttribute("aria-selected", String(on));
       b.tabIndex = on ? 0 : -1;
     });
-    $("#tab-content").innerHTML = key === "overview" ? overview() : detail(key);
+    // (junhee) 종합 탭과 상세 탭 5개는 점수형 모듈이 회사 점수·공개자료로 그린다 (모듈이 없으면 기존 예시 화면)
+    const jdMeta = window.JunheeDashboard && key !== "overview" ? JunheeDashboard.detailMeta(key) : null;
+    $("#tab-content").innerHTML =
+      key === "overview" ? overview() : jdMeta ? heading(jdMeta.title, jdMeta.sub, jdMeta.kicker) + JunheeDashboard.detailHTML(key) : detail(key);
+    if (window.JunheeDashboard && (key === "overview" || jdMeta)) JunheeDashboard.mount($("#tab-content"), key);
     $("#tab-content").setAttribute("role", "tabpanel");
     $("#tab-content").setAttribute("aria-labelledby", "tab-" + key);
     $(".window-main").scrollTop = 0;
@@ -883,8 +910,19 @@
       $("#upload-error").textContent = "20 MB 이하의 파일을 선택해 주세요.";
       return;
     }
-    pendingFile = { name: file.name, size: file.size, sample: false };
+    pendingFile = { name: file.name, size: file.size, sample: false, raw: file, hashing: true, match: null };
     updateUploadLabel();
+    // (junhee) 브라우저에서 SHA-256 을 계산해 등록된 샘플인지 확인한다 (내용은 전송하지 않음)
+    if (window.JunheeDashboard) {
+      const mine = pendingFile;
+      JunheeDashboard.identifyFile(file).then((res) => {
+        if (pendingFile !== mine) return;
+        mine.hashing = false;
+        mine.match = res.status === "matched" ? res.entry : null;
+        mine.identifyError = res.status === "error" ? res.message : "";
+        if (res.status === "matched") $("#file-label").textContent = `${mine.name} · 등록된 샘플 (${res.entry.company_name})`;
+      });
+    }
   }
   $("#excel-input").onchange = (e) => acceptFile(e.target.files[0]);
   $("#drop-zone").ondragover = (e) => {
@@ -908,7 +946,7 @@
     acceptFile(e.dataTransfer.files[0]);
   });
   $("#use-sample").onclick = () => {
-    pendingFile = { name: "AX_반도체_샘플.xlsx", size: 0, sample: true };
+    pendingFile = files.find((f) => f.sample && !f.trash) || { name: "한빛반도체_수출데이터_v0.1.xlsx", size: 0, sample: true };
     updateUploadLabel();
   };
   $("#analysis-form").onsubmit = (e) => {
@@ -929,6 +967,21 @@
       $("#upload-error").textContent = "기업명을 입력해 주세요.";
       return;
     }
+    // (junhee) 시연 환경에서는 등록된 샘플 파일만 분석한다. 그 외 파일은 안내만 하고 대시보드를 바꾸지 않는다.
+    let reg = null;
+    if (window.JunheeDashboard) {
+      if (pendingFile.raw && pendingFile.hashing) {
+        $("#upload-error").textContent = "파일을 확인하는 중입니다. 잠시 후 다시 시도해 주세요.";
+        return;
+      }
+      reg = pendingFile.raw ? pendingFile.match : JunheeDashboard.findByFileName(pendingFile.name);
+      if (!reg) {
+        $("#upload-error").textContent = pendingFile.identifyError
+          ? "파일을 확인하지 못했습니다: " + pendingFile.identifyError
+          : "시연 환경에서는 등록된 샘플 파일만 분석됩니다.";
+        return;
+      }
+    }
     let file = files.find((f) => f.id === pendingFile.id && !f.trash);
     if (!file) {
       const cell = emptyCell(1);
@@ -947,13 +1000,36 @@
       file: file.name,
       fileId: file.id,
     };
+    if (reg) {
+      // 등록된 샘플이면 평가 대상(기업명·HS·대상국)은 점수 JSON 의 값을 쓴다
+      context = {
+        ...context,
+        company: reg.company_name,
+        hs: String(reg.hs || context.hs),
+        country: countryCodes[reg.country_iso2] ? reg.country_iso2 : reg.country,
+      };
+    }
     file.conditions = { ...context };
     contextUI();
     drawIcons();
     setTab("overview");
     showWindow();
     $("#upload-dialog").close();
-    toast("예시 분석 화면을 열었습니다. 파일 내용은 분석하지 않았습니다.");
+    if (reg) {
+      JunheeDashboard.select(reg.company_id)
+        .then(() => {
+          files.forEach((f) => (f.analyzed = f.name === reg.file_name));
+          contextUI();
+          if (activeTab === "overview") setTab("overview");
+          toast(`${reg.company_name} 분석 완료 · 가상 데이터 · 시연용 산식`);
+        })
+        .catch((err) => {
+          console.error("JunheeDashboard select:", err);
+          toast("점수 파일을 불러오지 못했습니다. 대시보드는 바뀌지 않았습니다.");
+        });
+    } else {
+      toast("예시 분석 화면을 열었습니다. 파일 내용은 분석하지 않았습니다.");
+    }
   };
   function showFiles(trash = false) {
     $("#files-title").textContent = trash ? "휴지통" : "기업 데이터";
@@ -966,7 +1042,7 @@
       ? list
           .map(
             (f) =>
-              `<div class="file-row"><i class="ph ph-microsoft-excel-logo"></i><div class="file-info"><strong>${esc(f.name)}</strong><small>${f.sample ? "샘플 파일" : (f.size / 1024).toFixed(1) + " KB"} · 내용 미분석</small></div><button class="small-button" data-file-action="${trash ? "restore" : "open"}" data-file-id="${f.id}">${trash ? "복원" : "열기"}</button>${trash ? "" : `<button class="icon-btn" aria-label="${esc(f.name)} 휴지통으로 이동" data-file-action="trash" data-file-id="${f.id}"><i class="ph ph-trash"></i></button>`}</div>`,
+              `<div class="file-row"><i class="ph ph-microsoft-excel-logo"></i><div class="file-info"><strong>${esc(f.name)}</strong><small>${f.sample ? "샘플 파일" : (f.size / 1024).toFixed(1) + " KB"} · ${f.analyzed ? "분석 완료" : "내용 미분석"}</small></div><button class="small-button" data-file-action="${trash ? "restore" : "open"}" data-file-id="${f.id}">${trash ? "복원" : "열기"}</button>${trash ? "" : `<button class="icon-btn" aria-label="${esc(f.name)} 휴지통으로 이동" data-file-action="trash" data-file-id="${f.id}"><i class="ph ph-trash"></i></button>`}</div>`,
           )
           .join("")
       : `<div class="empty-state"><i class="ph ph-${trash ? "trash" : "folder-simple"}"></i>${trash ? "휴지통이 비어 있습니다." : "추가된 파일이 없습니다."}</div>`;
@@ -1064,8 +1140,8 @@
     const button = $('[data-action="report"]', $("#tab-content"));
     if (button) button.disabled = true;
     try {
-      // 요약 카드와 같은 실제 자료 값을 쓴다 (로딩·실패·자료 부족은 문구 그대로)
-      const reportRows = ["regulation", "market", "price", "logistics", "stability"].map((k) => {
+      // (junhee) 회사가 선택돼 있으면 화면과 같은 회사 점수를, 아니면 공개자료 요약값을 쓴다
+      const reportRows = window.JunheeDashboard && JunheeDashboard.current() ? JunheeDashboard.reportRows() : ["regulation", "market", "price", "logistics", "stability"].map((k) => {
         const s = summaryCard(k);
         return [
           names[k],
@@ -1179,6 +1255,23 @@
   }
   files[0].conditions = { ...context };
   setSidebarOpen(innerWidth > 560);
+  // (junhee) 점수형 종합 화면 모듈 연결: 색·가중치 전달, '더보기 →' 탭 이동, 등록 샘플 목록 미리 읽기
+  if (window.JunheeDashboard) {
+    JunheeDashboard.configure({
+      colors,
+      esc,
+      defaults,
+      getWeights: () => weights, // 사용자 가중치 설정을 그대로 읽어 종합 점수를 재계산
+      isCustom: () => customWeights,
+    });
+    $("#tab-content").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-open-tab]");
+      if (b) setTab(b.dataset.openTab);
+    });
+    JunheeDashboard.load().then(() => {
+      if (activeTab === "overview") setTab("overview");
+    });
+  }
   contextUI();
   drawIcons();
   setTab("overview");

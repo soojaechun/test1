@@ -1,6 +1,6 @@
 {
   "schema_version": "0.2",
-  "generated_at": "2026-09-23T12:44:17",
+  "generated_at": "2026-09-23T16:39:35",
   "context": {
     "hs": [
       "854231",
@@ -161,7 +161,61 @@
         "prev_month_thousand_usd": 157462968.0,
         "yoy_pct": 129.43,
         "mom_pct": -9.51,
-        "hs_breakdown_available": false
+        "hs_breakdown_available": false,
+        "monthly": [
+          {
+            "month": "2025-07",
+            "value_thousand_usd": 62100790.0
+          },
+          {
+            "month": "2025-08",
+            "value_thousand_usd": 69173660.0
+          },
+          {
+            "month": "2025-09",
+            "value_thousand_usd": 78520702.0
+          },
+          {
+            "month": "2025-10",
+            "value_thousand_usd": 71647272.0
+          },
+          {
+            "month": "2025-11",
+            "value_thousand_usd": 81883025.0
+          },
+          {
+            "month": "2025-12",
+            "value_thousand_usd": 85348277.0
+          },
+          {
+            "month": "2026-01",
+            "value_thousand_usd": 82925862.0
+          },
+          {
+            "month": "2026-02",
+            "value_thousand_usd": 103671953.0
+          },
+          {
+            "month": "2026-03",
+            "value_thousand_usd": 118321116.0
+          },
+          {
+            "month": "2026-04",
+            "value_thousand_usd": 115800518.0
+          },
+          {
+            "month": "2026-05",
+            "value_thousand_usd": 140466438.0
+          },
+          {
+            "month": "2026-06",
+            "value_thousand_usd": 157462968.0
+          },
+          {
+            "month": "2026-07",
+            "value_thousand_usd": 142480424.0
+          }
+        ]
       }
     },
     {
@@ -576,6 +630,116 @@
             "mom_pct": -9.0,
             "yoy_pct": 0.05
           }
+        },
+        "monthly": {
+          "미국서부": [
+            {
+              "month": "2025-08",
+              "value": 5388.0
+            },
+            {
+              "month": "2025-09",
+              "value": 5033.0
+            },
+            {
+              "month": "2025-10",
+              "value": 5145.0
+            },
+            {
+              "month": "2025-11",
+              "value": 5187.0
+            },
+            {
+              "month": "2025-12",
+              "value": 5077.0
+            },
+            {
+              "month": "2026-01",
+              "value": 4933.0
+            },
+            {
+              "month": "2026-02",
+              "value": 4713.0
+            },
+            {
+              "month": "2026-03",
+              "value": 5646.0
+            },
+            {
+              "month": "2026-04",
+              "value": 5062.0
+            },
+            {
+              "month": "2026-05",
+              "value": 5465.0
+            },
+            {
+              "month": "2026-06",
+              "value": 7705.0
+            },
+            {
+              "month": "2026-07",
+              "value": 8547.0
+            },
+            {
+              "month": "2026-08",
+              "value": 8589.0
+            }
+          ],
+          "미국동부": [
+            {
+              "month": "2025-08",
+              "value": 3680.0
+            },
+            {
+              "month": "2025-09",
+              "value": 3426.0
+            },
+            {
+              "month": "2025-10",
+              "value": 3084.0
+            },
+            {
+              "month": "2025-11",
+              "value": 3218.0
+            },
+            {
+              "month": "2025-12",
+              "value": 3557.0
+            },
+            {
+              "month": "2026-01",
+              "value": 3385.0
+            },
+            {
+              "month": "2026-02",
+              "value": 3157.0
+            },
+            {
+              "month": "2026-03",
+              "value": 3336.0
+            },
+            {
+              "month": "2026-04",
+              "value": 3618.0
+            },
+            {
+              "month": "2026-05",
+              "value": 3590.0
+            },
+            {
+              "month": "2026-06",
+              "value": 4162.0
+            },
+            {
+              "month": "2026-07",
+              "value": 5535.0
+            },
+            {
+              "month": "2026-08",
+              "value": 5014.0
+            }
+          ]
         },
         "parse_method": "hwpx(Contents/section0.xml) 문단 텍스트 정규식 추출"
       }
