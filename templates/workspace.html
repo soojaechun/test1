@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>워크스페이스 · AXPORT</title>
+    <link rel="icon" href="/static/assets/axport-logo.png" />
+    <link rel="stylesheet" href="/static/vendor/phosphor/regular/style.css" />
+    <link rel="stylesheet" href="/static/vendor/font/index.css" />
+    <link rel="stylesheet" href="/static/css/workspace.css" />
+    <script>
+      window.addEventListener("error", function (e) {
+        console.error("AXPORT UI:", e.message);
+        const loading = document.getElementById("workspace-loading");
+        if (loading && !loading.hidden) {
+          loading.querySelector("strong").textContent =
+            "화면을 준비하지 못했습니다";
+          loading.querySelector("a").hidden = false;
+        }
+      });
+    </script>
+    <script defer src="/static/vendor/chart.umd.js"></script>
+    <script defer src="/static/js/workspace.js"></script>
+  </head>
+  <body>
+    <div id="workspace-loading" class="workspace-loading" role="status">
+      <i class="ph ph-circles-four"></i><strong>작업공간을 준비합니다</strong
+      ><span>AXPORT WORKSPACE</span><a href="/app" hidden>다시 시도</a>
+    </div>
+    <header class="desktop-header">
+      <a class="brand" href="/" aria-label="AXPORT 홈"
+        ><img src="/static/assets/axport-logo.png" alt="AXPORT"
+      /></a>
+      <div class="header-divider"></div>
+      <span class="workspace-label">나의 워크스페이스</span>
+      <span class="preview-label">UI PREVIEW</span>
+      <div class="header-right">
+        <span id="desktop-date"></span
+        ><button class="icon-btn" id="help-btn" aria-label="사용 안내">
+          <i class="ph ph-question"></i></button
+        ><button class="avatar" id="profile-btn" aria-label="사용자 안내">
+          AX
+        </button>
+      </div>
+    </header>
+    <main id="desktop" aria-label="분석 바탕화면">
+      <div class="desktop-heading">
+        <span class="eyebrow">YOUR EXPORT, IN PERSPECTIVE.</span>
+        <h1>더 넓은 시장을 향한<br />나만의 컨트롤 타워.</h1>
+        <p>기업의 데이터에서 다음 수출의 가능성까지.</p>
+      </div>
+      <div id="desktop-icons" aria-label="바탕화면 파일"></div>
+      <div class="desktop-note">
+        <i class="ph ph-hand-grabbing"></i> 아이콘은 드래그, 파일은 더블클릭
+      </div>
+      <section
+        id="analysis-window"
+        class="analysis-window"
+        aria-label="수출 분석 창"
+      >
+        <header id="window-handle" class="window-titlebar">
+          <div class="window-identity">
+            <i class="ph ph-chart-pie-slice"></i><span>수출 적합도 분석</span
+            ><span class="window-demo">예시 데이터</span>
+          </div>
+          <div class="window-controls">
+            <button id="minimize-btn" aria-label="창 최소화">
+              <i class="ph ph-minus"></i></button
+            ><button id="maximize-btn" aria-label="창 최대화">
+              <i class="ph ph-corners-out"></i></button
+            ><button id="close-window-btn" aria-label="창 닫기">
+              <i class="ph ph-x"></i>
+            </button>
+          </div>
+        </header>
+        <div class="window-body">
+          <aside class="window-sidebar">
+            <div class="sidebar-caption">WORKSPACE</div>
+            <button class="side-link active" data-action="overview">
+              <i class="ph ph-squares-four"></i>분석 대시보드
+            </button>
+            <button class="side-link" data-action="upload">
+              <i class="ph ph-upload-simple"></i>새 분석 만들기
+            </button>
+            <button class="side-link" data-action="files">
+              <i class="ph ph-folder-simple"></i>기업 데이터<span
+                id="file-count"
+                >1</span
+              >
+            </button>
+            <button class="side-link" data-action="report">
+              <i class="ph ph-file-text"></i>보고서 내보내기
+            </button>
+            <div class="sidebar-caption second">PREFERENCES</div>
+            <button class="side-link" data-action="weights">
+              <i class="ph ph-sliders-horizontal"></i>가중치 설정
+            </button>
+            <button class="side-link" data-action="reset-layout">
+              <i class="ph ph-layout"></i>창 배치 초기화
+            </button>
+            <div class="sidebar-bottom">
+              <span class="mini-chip"
+                ><i class="ph ph-flask"></i> 프론트엔드 시연</span
+              >
+              <p>실제 수출 판정은<br />진행되지 않습니다.</p>
+              <a href="/"
+                ><i class="ph ph-arrow-up-left"></i> 홈으로 돌아가기</a
+              >
+            </div>
+          </aside>
+          <div class="window-main">
+            <div class="context-bar">
+              <span
+                ><i class="ph ph-buildings"></i>
+                <strong id="company-context">AX 반도체</strong></span
+              ><span>HS <b id="hs-context">8542.31</b></span
+              ><span id="country-context">미국</span
+              ><button id="edit-context" aria-label="평가 조건 변경">
+                <i class="ph ph-pencil-simple"></i>
+              </button>
+            </div>
+            <div id="tab-content" tabindex="-1"></div>
+          </div>
+          <nav
+            class="bookmark-tabs"
+            aria-label="분석 근거 탭"
+            role="tablist"
+            aria-orientation="vertical"
+          >
+            <button
+              data-tab="overview"
+              id="tab-overview"
+              role="tab"
+              aria-selected="true"
+              class="selected"
+            >
+              <i class="ph ph-squares-four"></i><span>종합</span>
+            </button>
+            <button
+              data-tab="regulation"
+              id="tab-regulation"
+              role="tab"
+              aria-selected="false"
+            >
+              <i class="ph ph-shield-check"></i><span>규제</span>
+            </button>
+            <button
+              data-tab="market"
+              id="tab-market"
+              role="tab"
+              aria-selected="false"
+            >
+              <i class="ph ph-trend-up"></i><span>시장성</span>
+            </button>
+            <button
+              data-tab="price"
+              id="tab-price"
+              role="tab"
+              aria-selected="false"
+            >
+              <i class="ph ph-currency-circle-dollar"></i><span>가격</span>
+            </button>
+            <button
+              data-tab="logistics"
+              id="tab-logistics"
+              role="tab"
+              aria-selected="false"
+            >
+              <i class="ph ph-airplane-tilt"></i><span>물류</span>
+            </button>
+            <button
+              data-tab="stability"
+              id="tab-stability"
+              role="tab"
+              aria-selected="false"
+            >
+              <i class="ph ph-wave-sine"></i><span>안정성</span>
+            </button>
+          </nav>
+        </div>
+        <div
+          id="resize-handle"
+          role="separator"
+          aria-label="창 크기 조절"
+          tabindex="0"
+        >
+          <i class="ph ph-corners-out"></i>
+        </div>
+      </section>
+    </main>
+    <nav class="dock" aria-label="빠른 실행">
+      <button id="dock-analysis" class="dock-active" aria-label="분석 창 열기">
+        <i class="ph ph-chart-pie-slice"></i></button
+      ><button id="dock-upload" aria-label="엑셀 파일 추가">
+        <i class="ph ph-plus"></i></button
+      ><button id="dock-files" aria-label="기업 데이터 보기">
+        <i class="ph ph-folder-simple"></i></button
+      ><span class="dock-divider"></span
+      ><button id="dock-trash" aria-label="휴지통 열기">
+        <i class="ph ph-trash"></i><span id="trash-badge" hidden>0</span>
+      </button>
+    </nav>
+    <dialog id="upload-dialog" class="modal">
+      <div class="modal-title">
+        <div>
+          <span class="eyebrow">NEW ANALYSIS</span>
+          <h2>새로운 가능성을 분석하세요</h2>
+        </div>
+        <button class="icon-btn modal-close" aria-label="닫기">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+      <p class="modal-description">
+        기업 파일과 수출 조건을 선택하고 분석 화면을 미리 확인하세요.
+      </p>
+      <form id="analysis-form">
+        <label id="drop-zone" class="drop-zone" for="excel-input"
+          ><i class="ph ph-microsoft-excel-logo"></i
+          ><strong id="file-label">엑셀 파일을 끌어 놓거나 선택하세요</strong
+          ><span>.xlsx, .xls · 파일당 최대 20 MB</span
+          ><input id="excel-input" type="file" accept=".xlsx,.xls"
+        /></label>
+        <div class="upload-privacy">
+          <i class="ph ph-lock-key"></i>파일명만 이 화면에서 사용하며, 내용은
+          읽거나 전송하지 않습니다.
+        </div>
+        <label class="field"
+          >기업명<input
+            id="company-input"
+            value="AX 반도체"
+            maxlength="60"
+            required
+        /></label>
+        <div class="form-row">
+          <label class="field"
+            >HS CODE<input
+              id="hs-input"
+              value="854231"
+              placeholder="예: 854231"
+              inputmode="numeric"
+              required
+              maxlength="14"
+            /><small>숫자 6·8·10자리</small></label
+          ><label class="field"
+            >대상국<select id="country-input">
+              <option>미국</option>
+              <option>일본</option>
+              <option>독일</option>
+              <option>베트남</option>
+            </select></label
+          >
+        </div>
+        <p class="form-error" id="upload-error" role="alert"></p>
+        <div class="demo-notice">
+          화면 미리보기 · 입력 조건과 관계없이 예시 지표가 표시됩니다.
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="use-sample" class="button secondary">
+            샘플 파일 사용</button
+          ><button type="submit" class="button primary">
+            분석 화면 보기<i class="ph ph-arrow-right"></i>
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="weights-dialog" class="modal small">
+      <div class="modal-title">
+        <div>
+          <span class="eyebrow">YOUR PRIORITIES</span>
+          <h2>가중치 설정</h2>
+        </div>
+        <button class="icon-btn modal-close" aria-label="닫기">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+      <p class="modal-description">
+        중요하게 보는 항목의 비중을 조절해 보세요.
+      </p>
+      <div class="gate-note">
+        <i class="ph ph-shield-check"></i>규제 관문은 고정되며 가중치로 해제되지
+        않습니다.
+      </div>
+      <form id="weights-form">
+        <div id="weight-fields"></div>
+        <div class="weight-total">
+          가중치 합계 <strong id="weight-total">100%</strong>
+        </div>
+        <p id="weight-error" class="form-error" role="alert"></p>
+        <div class="demo-notice">
+          이 비율은 UI 확인용 예시이며 확정 채점 기준이 아닙니다.
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="restore-weights" class="button secondary">
+            기본값 복원</button
+          ><button type="submit" class="button primary">설정 적용</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="files-dialog" class="modal">
+      <div class="modal-title">
+        <div>
+          <span class="eyebrow">YOUR DATA</span>
+          <h2 id="files-title">기업 데이터</h2>
+        </div>
+        <button class="icon-btn modal-close" aria-label="닫기">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+      <p id="files-description" class="modal-description"></p>
+      <div id="files-list"></div>
+    </dialog>
+    <dialog id="help-dialog" class="modal small">
+      <div class="modal-title">
+        <h2>워크스페이스 사용 안내</h2>
+        <button class="icon-btn modal-close" aria-label="닫기">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+      <ul class="help-list">
+        <li>파일을 더블클릭하면 기업 정보와 분석 조건을 확인합니다.</li>
+        <li>
+          아이콘을 끌면 격자에 맞춰 정렬됩니다. 선택 후 방향키로도 옮길 수
+          있습니다.
+        </li>
+        <li>
+          파일을 휴지통에 놓거나 Delete 키를 누르면 휴지통으로 이동합니다.
+          휴지통에서 복원할 수 있습니다.
+        </li>
+        <li>창 상단을 끌어 이동하고 오른쪽 아래에서 크기를 조절합니다.</li>
+        <li>오른쪽 책갈피로 상세 근거를 확인합니다.</li>
+      </ul>
+      <div class="demo-notice">
+        모든 숫자는 디자인 검토용 예시입니다. 실제 판정·API 연결·파일 분석·계정
+        저장은 수행하지 않습니다.
+      </div>
+    </dialog>
+    <dialog id="report-dialog" class="modal report-modal">
+      <div class="modal-title">
+        <div>
+          <span class="eyebrow">EXPORT REPORT</span>
+          <h2>예시 분석 보고서</h2>
+        </div>
+        <button class="icon-btn modal-close" aria-label="닫기">
+          <i class="ph ph-x"></i>
+        </button>
+      </div>
+      <p class="modal-description">
+        현재 분석 조건과 가중치를 담은 화면 검토용 보고서입니다.
+      </p>
+      <iframe
+        id="report-preview"
+        title="예시 분석 보고서 미리보기"
+        sandbox="allow-modals allow-same-origin"
+      ></iframe>
+      <div class="modal-actions">
+        <span class="report-hint"
+          >HTML 파일을 브라우저로 열어 PDF로 인쇄할 수 있습니다.</span
+        ><a
+          id="report-download"
+          class="button primary"
+          download="AXPORT_예시분석보고서.html"
+          ><i class="ph ph-download-simple"></i>HTML 다운로드</a
+        >
+      </div>
+    </dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
