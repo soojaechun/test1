@@ -1637,3 +1637,17 @@ td .tag {
   background: #3d6fed;
   border-radius: 7px;
 }
+
+/* 2026-09-23: shared language selection; no changes to existing window geometry */
+.workspace-language-control {display:inline-flex;position:relative;align-items:center;gap:5px;flex-shrink:0;margin-right:12px;color:inherit;font-size:13px;white-space:nowrap;}
+.workspace-language-control>i {font-size:17px;pointer-events:none;}
+.workspace-language-control select {appearance:none;-webkit-appearance:none;max-width:106px;border:1px solid rgba(126,152,182,.35);border-radius:7px;min-height:36px;padding:0 21px 0 9px;background:rgba(255,255,255,.12);color:inherit;font:inherit;font-size:12px;cursor:pointer;}
+.workspace-language-control select option {color:#19324c;background:white;}
+.workspace-language-control .ph-caret-down {position:absolute;right:5px;font-size:12px;}
+@media(max-width:850px) { .workspace-language-control {margin-right:3px;} .workspace-language-control select {max-width:84px;padding:0 16px 0 5px;font-size:11px;} }
+
+@media(max-width:560px){.desktop-header .preview-label{display:none;}.workspace-language-control{margin-right:0;}}
+
+/* Local Japanese font supplied by the project owner; place the TTF at the URL below. */
+@font-face {font-family:"AXPORT Noto Sans JP";src:url("/static/assets/noto-sans-jp-regular.ttf") format("truetype");font-style:normal;font-weight:400;font-display:swap;}
+html[lang="ja"] body,html[lang="ja"] button,html[lang="ja"] input,html[lang="ja"] select,html[lang="ja"] textarea {font-family:"AXPORT Noto Sans JP","Noto Sans JP","Noto Sans KR Variable",sans-serif;font-synthesis:weight;}
