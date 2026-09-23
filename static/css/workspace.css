@@ -247,7 +247,7 @@ button:disabled {
   left: 145px;
   top: 39px;
   width: calc(100% - 225px);
-  height: calc(100% - 132px);
+  height: calc(100% - 68px);
   max-width: 1360px;
   min-width: 690px;
   min-height: 455px;
@@ -288,6 +288,11 @@ button:disabled {
 .window-identity i {
   color: var(--purple);
   font-size: 17px;
+}
+#sidebar-toggle {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
 }
 .window-demo {
   font-size: 9px;
@@ -720,76 +725,6 @@ button:disabled {
   display: grid;
   place-items: center;
 }
-#resize-handle i {
-  font-size: 14px;
-}
-.dock {
-  position: fixed;
-  left: 50%;
-  bottom: 16px;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 9px;
-  background: #ffffffb8;
-  border: 1px solid #ffffff;
-  padding: 9px 12px;
-  border-radius: 17px;
-  box-shadow: 0 8px 35px #48557419;
-  backdrop-filter: blur(18px);
-  z-index: 10;
-}
-.dock button {
-  width: 39px;
-  height: 39px;
-  background: #fff;
-  border: 1px solid #eef0f7;
-  border-radius: 10px;
-  color: #7585aa;
-  position: relative;
-  display: grid;
-  place-items: center;
-}
-.dock button:first-child {
-  color: #6c80cb;
-}
-.dock button:hover {
-  background: #eff3ff;
-  transform: translateY(-3px);
-}
-.dock button i {
-  font-size: 23px;
-}
-.dock-active::after {
-  content: "";
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: #6c80cb;
-  border-radius: 50%;
-  bottom: -6px;
-}
-.dock-divider {
-  height: 29px;
-  width: 1px;
-  background: #dae0ed;
-  align-self: center;
-  margin: 0 3px;
-}
-#trash-badge {
-  position: absolute;
-  right: -4px;
-  top: -4px;
-  background: #e773a1;
-  color: white;
-  font-size: 9px;
-  border-radius: 9px;
-  min-width: 15px;
-  padding: 1px 3px;
-}
-.dock .drop-hover {
-  background: #ffebf3;
-  outline: 2px solid var(--pink);
-}
 .detail-metrics {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1194,7 +1129,7 @@ td .tag {
   .analysis-window {
     left: calc(50% - 620px);
     top: 45px;
-    height: calc(100% - 145px);
+    height: calc(100% - 81px);
   }
   #tab-content {
     padding: 32px 38px;
@@ -1251,7 +1186,7 @@ td .tag {
     left: 16px !important;
     top: 20px !important;
     width: calc(100% - 32px) !important;
-    height: calc(100% - 105px) !important;
+    height: calc(100% - 41px) !important;
     min-height: 0 !important;
   }
   .window-sidebar {
@@ -1291,6 +1226,9 @@ td .tag {
     border-top: 1px solid var(--line);
     border-radius: 0 0 12px 0;
     overflow: auto;
+  }
+  .analysis-window.sidebar-collapsed .bookmark-tabs {
+    left: 0;
   }
   .bookmark-tabs button {
     flex: 1;
@@ -1358,19 +1296,13 @@ td .tag {
     top: 12px !important;
     left: 9px !important;
     width: calc(100% - 18px) !important;
-    height: calc(100% - 96px) !important;
+    height: calc(100% - 32px) !important;
   }
   .window-identity {
     font-size: 10px;
   }
   .window-demo {
     font-size: 8px;
-  }
-  .window-sidebar {
-    display: none;
-  }
-  .bookmark-tabs {
-    left: 0;
   }
   .context-bar {
     padding: 10px 13px;
@@ -1458,9 +1390,6 @@ td .tag {
   .file-row {
     flex-wrap: wrap;
   }
-  .dock {
-    bottom: 10px;
-  }
   .window-main {
     border-radius: 0;
   }
@@ -1535,7 +1464,7 @@ td .tag {
 @media (max-height: 760px) and (min-width: 851px) {
   .analysis-window {
     top: 20px;
-    height: calc(100% - 110px);
+    height: calc(100% - 46px);
   }
   #tab-content {
     padding-top: 18px;
@@ -1605,6 +1534,36 @@ td .tag {
   .bookmark-tabs button {
     flex-shrink: 0;
   }
+  .analysis-window.maximized .window-body {
+    padding-right: 62px;
+  }
+  .analysis-window.maximized .bookmark-tabs {
+    left: auto;
+    right: 0;
+  }
+}
+.analysis-window.maximized {
+  position: fixed;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  max-width: none;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  z-index: 20;
+}
+.analysis-window.maximized .window-titlebar {
+  border-radius: 0;
+  cursor: default;
+}
+.analysis-window.maximized #resize-handle {
+  display: none;
+}
+.analysis-window.maximized #maximize-btn {
+  display: grid;
 }
 .workspace-loading {
   position: fixed;
