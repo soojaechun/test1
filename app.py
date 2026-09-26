@@ -13,4 +13,7 @@ def workspace():
     return render_template('workspace.html')
 
 if __name__ == '__main__':
+    # Additive widget connection; existing routes and app.run remain unchanged.
+    from _axport_semiconductor_widgets.app_connection import connect_dashboard
+    connect_dashboard(app)
     app.run(host='127.0.0.1', port=5073, debug=False, load_dotenv=False)
