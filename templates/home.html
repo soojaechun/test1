@@ -12,9 +12,11 @@
   <link rel="stylesheet" href="/static/vendor/phosphor/regular/style.css">
   <link rel="stylesheet" href="/static/vendor/font/index.css">
   <link rel="stylesheet" href="/static/css/home.css?v=17">
+  <link rel="stylesheet" href="/static/css/junhee-contact.css?v=1"><!-- (junhee) Contact Us -->
 
   <script src="/static/js/axport-i18n.js?v=4" defer></script>
   <script src="/static/js/home.js?v=15" defer></script>
+  <script src="/static/js/junhee-contact.js?v=1" defer></script><!-- (junhee) Contact Us -->
   <link rel="stylesheet" href="/static/css/chatbot.css" />
   <script defer src="/static/js/chatbot-i18n.js"></script>
   <script defer src="/static/js/chatbot-demo.js"></script>
@@ -33,6 +35,7 @@
         <a href="#features">서비스 소개</a>
         <a href="#how-it-works">이용 방법</a>
         <a href="#workspace-story">워크스페이스</a>
+        <a href="#contact">Contact Us</a><!-- (junhee) -->
       </nav>
       <div class="header-actions">
         <div class="language-picker" id="language-picker">
@@ -50,7 +53,7 @@
       </div>
     </div>
     <nav id="mobile-nav" class="mobile-nav" aria-label="모바일 메뉴" hidden>
-      <a href="#features">서비스 소개</a><a href="#how-it-works">이용 방법</a><a href="#workspace-story">워크스페이스</a><a href="/app" data-launch-app>대시보드 시작하기</a>
+      <a href="#features">서비스 소개</a><a href="#how-it-works">이용 방법</a><a href="#workspace-story">워크스페이스</a><a href="#contact">Contact Us</a><a href="/app" data-launch-app>대시보드 시작하기</a>
     </nav>
   </header>
 
@@ -216,6 +219,34 @@
 </div>
 </div>
 </section>
+<!-- (junhee) 2026-09-26 Contact Us — 현업 의견·건의 접수. 스타일 static/css/junhee-contact.css, 동작 static/js/junhee-contact.js, 접수 POST /api/contact -->
+<section id="contact" class="junhee-contact section-space" aria-labelledby="contact-title">
+<div class="shell">
+<div class="section-heading contact-heading reveal">
+<div>
+<p class="eyebrow">CONTACT US</p>
+<h2 id="contact-title">Contact Us — 현업의 목소리를 들려주세요</h2>
+</div>
+<p class="section-description">반도체·무역·물류 현업에서 AXPORT를 써 보신 의견과 건의사항을 남겨 주세요. 다음 개선에 반영합니다.</p>
+</div>
+<form id="contact-form" class="contact-form reveal" novalidate>
+<div class="contact-grid">
+<label class="contact-field"><span>의견 유형 <em>필수</em></span><select name="type" required aria-required="true"><option value="">선택해 주세요</option><option value="의견">의견</option><option value="건의">건의</option><option value="오류 제보">오류 제보</option><option value="기타">기타</option></select></label>
+<label class="contact-field"><span>소속 분야 <em class="optional">선택</em></span><select name="field"><option value="">선택 안 함</option><option value="반도체 제조">반도체 제조</option><option value="무역·수출">무역·수출</option><option value="물류·포워딩">물류·포워딩</option><option value="기타">기타</option></select></label>
+<label class="contact-field"><span>이름 또는 닉네임 <em class="optional">선택</em></span><input name="name" type="text" maxlength="40" autocomplete="nickname" placeholder="40자 이내"></label>
+<label class="contact-field"><span>회신 받을 이메일 <em class="optional">선택</em></span><input name="email" type="email" autocomplete="email" inputmode="email" placeholder="name@example.com"></label>
+<label class="contact-field contact-field-full"><span>내용 <em>필수</em> <small id="contact-count" aria-live="polite">0 / 1000</small></span><textarea name="message" minlength="10" maxlength="1000" rows="6" required aria-required="true" placeholder="10자 이상 1000자 이하로 적어 주세요"></textarea></label>
+<label class="contact-consent contact-field-full"><input type="checkbox" name="consent"><span>개인정보(이메일) 수집·이용에 동의합니다. 회신 목적으로만 사용하고 프로젝트 종료 후 삭제합니다. <em>이메일을 적은 경우에만 필수</em></span></label>
+<div class="contact-hp" aria-hidden="true"><label>웹사이트<input name="website" type="text" tabindex="-1" autocomplete="off"></label></div>
+</div>
+<div class="contact-actions">
+<p id="contact-status" class="contact-status" role="status" aria-live="polite"></p>
+<button type="submit" class="button button-blue">보내기 <i class="ph ph-paper-plane-tilt" aria-hidden="true"></i></button>
+</div>
+<p class="contact-note">가상 데이터 시연 프로젝트의 의견 접수입니다. 접수 내용은 화면에 표시되지 않으며 1분에 3회까지 보낼 수 있습니다.</p>
+</form>
+</div>
+</section>
 <section class="bottom-cta-section">
 <div class="shell bottom-cta reveal">
 <div>
@@ -239,7 +270,7 @@
 </div>
 <div class="footer-right">
 <nav aria-label="하단 메뉴">
-<a href="#features">서비스 소개</a><a href="#how-it-works">이용 방법</a><a data-launch-app="" href="/app">워크스페이스</a>
+<a href="#features">서비스 소개</a><a href="#how-it-works">이용 방법</a><a data-launch-app="" href="/app">워크스페이스</a><a href="#contact">Contact Us</a>
 </nav>
 <span>© 2026 AXPORT · Frontend prototype</span>
 </div>

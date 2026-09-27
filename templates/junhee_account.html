@@ -1,0 +1,28 @@
+{#- (junhee) 2026-09-27 로그인한 계정 정보·로그아웃 창. workspace.html 에 include. 기존 .modal·.button 클래스만 사용 -#}
+{% if junhee_user %}
+<div id="junhee-account" hidden data-user-id="{{ junhee_user.id }}" data-email="{{ junhee_user.email }}" data-csrf="{{ junhee_csrf }}"></div>
+<dialog id="account-dialog" class="modal small">
+  <div class="modal-title">
+    <div>
+      <span class="eyebrow">ACCOUNT</span>
+      <h2>내 계정</h2>
+    </div>
+    <button class="icon-btn modal-close" aria-label="닫기">
+      <i class="ph ph-x"></i>
+    </button>
+  </div>
+  <p class="modal-description">{{ junhee_user.email }} 로 로그인했습니다.</p>
+  <div class="demo-notice">
+    바탕화면의 파일·폴더 정리와 파일별 분석 조건·분석 결과가 이 계정에 저장되어, 다시 로그인하면 그대로 불러옵니다.
+  </div>
+  <form method="post" action="/auth/logout">
+    <input type="hidden" name="csrf_token" value="{{ junhee_csrf }}" />
+    <div class="modal-actions">
+      <a class="button secondary" href="/">홈으로</a
+      ><button type="submit" class="button primary">
+        <i class="ph ph-sign-out"></i>로그아웃
+      </button>
+    </div>
+  </form>
+</dialog>
+{% endif %}

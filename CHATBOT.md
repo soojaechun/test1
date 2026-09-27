@@ -1,5 +1,9 @@
 # AXPORT 챗봇 — 독립 추가 파일 및 통합 안내
 
+> 2026-09-26 업데이트: 홈/작업공간 연결과 챗봇 전용 페르소나 및 선택적 LLM API 연동을 완료했습니다. 현재 설정은 [minjung/AXPORT_widget/INTEGRATION.md](minjung/AXPORT_widget/INTEGRATION.md)를 따르세요. 아래 내용은 최초 프론트엔드 인계 당시 기록입니다.
+>
+> 2026-09-27 현재: `AXPORT_CHAT_MODE=demo` 면 브라우저의 예시 답변(`static/js/chatbot-i18n.js`), `live` 면 서버 `/api/chat` 이 질문과 최근 대화를 OpenAI 에 보냅니다. 예시 답변 문구 일부(프로토타입·파일 미전송·재계산 안 됨 등)는 현재 기능과 달라 갱신이 필요합니다.
+
 ## 현재 상태
 
 기존 templates/home.html, templates/workspace.html, README.md는 수정 전 Git HEAD 내용으로 복원했습니다. app.py와 기존 홈·대시보드 CSS/JS도 변경하지 않았습니다.

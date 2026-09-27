@@ -8,7 +8,10 @@
     <link rel="stylesheet" href="/static/vendor/phosphor/regular/style.css" />
     <link rel="stylesheet" href="/static/vendor/font/index.css" />
     <link rel="stylesheet" href="/static/css/workspace.css?v=4" />
-    <link rel="stylesheet" href="/static/css/junhee-dashboard.css?v=2" />
+    <link rel="stylesheet" href="/static/css/junhee-dashboard.css?v=15" />
+    <!-- (junhee) 2026-09-26 바탕화면 위젯 덮어쓰기(스크롤바·잘림·글꼴) + 회사 파일 아이콘 → 위젯 연결. minjung 위젯 파일은 수정하지 않음 -->
+    <link rel="stylesheet" href="/static/css/junhee-widgets.css?v=9" />
+    <script defer src="/static/js/junhee-widgets-bridge.js?v=17"></script>
     <script>
       window.addEventListener("error", function (e) {
         console.error("AXPORT UI:", e.message);
@@ -21,9 +24,15 @@
       });
     </script>
     <script defer src="/static/vendor/chart.umd.js"></script>
-    <script defer src="/static/js/axport-i18n.js?v=2"></script>
-    <script defer src="/static/js/junhee-dashboard.js?v=3"></script>
-    <script defer src="/static/js/workspace.js?v=4"></script>
+    <script defer src="/static/js/axport-i18n.js?v=8"></script>
+    <script defer src="/static/js/junhee-dashboard.js?v=29"></script>
+    <script defer src="/static/js/workspace.js?v=25"></script>
+    <!-- (junhee) 2026-09-27 로그인 계정 창·세션 확인 (workspace.js 다음에 로드) -->
+    <script defer src="/static/js/junhee-auth.js?v=1"></script>
+    <!-- (junhee) 2026-09-27 계정별 저장 · 폴더 · 우클릭 메뉴 · 이름 바꾸기 · 삭제 확인 -->
+    <script defer src="/static/js/junhee-files.js?v=7"></script>
+    <!-- (junhee) 2026-09-27 기업 파일 → 서버 분석 엔진 -->
+    <script defer src="/static/js/junhee-analysis.js?v=5"></script>
     <link rel="stylesheet" href="/static/css/chatbot.css" />
     <script defer src="/static/js/chatbot-i18n.js"></script>
     <script defer src="/static/js/chatbot-demo.js"></script>
@@ -59,7 +68,7 @@
       </div>
       <div id="desktop-icons" aria-label="바탕화면 파일"></div>
       <div class="desktop-note">
-        <i class="ph ph-hand-grabbing"></i> 아이콘은 드래그, 파일은 더블클릭
+        <i class="ph ph-hand-grabbing"></i> 더블클릭은 엑셀 열기, 우클릭은 분석·정렬<!-- (junhee) 2026-09-27 -->
       </div>
       <section
         id="analysis-window"
@@ -97,6 +106,10 @@
             <button class="side-link active" data-action="overview">
               <i class="ph ph-squares-four"></i>분석 대시보드
             </button>
+            <!-- (junhee) 2026-09-27 다섯 영역의 모든 항목을 한 화면에. 동작은 workspace.js showAllItems -->
+            <button class="side-link" data-action="items">
+              <i class="ph ph-list-checks"></i>세부사항 (항목 전체 보기)
+            </button>
             <button class="side-link" data-action="upload">
               <i class="ph ph-upload-simple"></i>새 분석 만들기
             </button>
@@ -115,6 +128,10 @@
             </button>
             <button class="side-link" data-action="reset-layout">
               <i class="ph ph-layout"></i>창 배치 초기화
+            </button>
+            <!-- (junhee) 2026-09-26 불러온 회사 분석 결과를 지우는 버튼. 동작은 workspace.js 연결부 -->
+            <button class="side-link" data-action="reset-data">
+              <i class="ph ph-arrow-counter-clockwise"></i>데이터 초기화
             </button>
             <div class="sidebar-bottom">
               <span class="mini-chip"
@@ -231,8 +248,7 @@
           ><input id="excel-input" type="file" accept=".xlsx,.xls"
         /></label>
         <div class="upload-privacy">
-          <i class="ph ph-lock-key"></i>파일명만 이 화면에서 사용하며, 내용은
-          읽거나 전송하지 않습니다.
+          <i class="ph ph-lock-key"></i><!-- (junhee) 2026-09-27 문구: 서버 분석 엔진 연결 -->파일은 로그인한 계정의 분석 서버로 보내 분석하고, 결과를 계정에 저장합니다.
         </div>
         <label class="field"
           >기업명<input
@@ -243,26 +259,24 @@
         /></label>
         <div class="form-row">
           <label class="field"
-            >HS CODE<input
-              id="hs-input"
-              value="854231"
-              placeholder="예: 854231"
-              inputmode="numeric"
-              required
-              maxlength="14"
-            /><small>숫자 6·8·10자리</small></label
+            >HS CODE<select id="hs-input" required aria-label="HS 코드 선택">
+              <!-- (junhee) 2026-09-26 드롭다운. 등록 샘플이면 workspace.js 가 회사 파일의 HS6 목록으로 바꾼다 -->
+              <option value="854231">854231 · 프로세서·컨트롤러</option>
+              <option value="854232">854232 · 메모리</option>
+            </select><small>분석 엔진이 판단하는 HS6</small></label
           ><label class="field"
             >대상국<select id="country-input">
               <option value="US">미국</option>
               <option value="JP">일본</option>
               <option value="DE">독일</option>
               <option value="VN">베트남</option>
+              <option value="CN">중국</option><!-- (junhee) 2026-09-27 분석 엔진 후보국 -->
             </select></label
           >
         </div>
         <p class="form-error" id="upload-error" role="alert"></p>
         <div class="demo-notice">
-          화면 미리보기 · 입력 조건과 관계없이 예시 지표가 표시됩니다.
+          샘플과 업로드 파일 모두 분석 엔진의 참고 적합도로 표시합니다.
         </div>
         <div class="modal-actions">
           <button type="button" id="use-sample" class="button secondary">
@@ -327,7 +341,7 @@
         </button>
       </div>
       <ul class="help-list">
-        <li>파일을 더블클릭하면 기업 정보와 분석 조건을 확인합니다.</li>
+        <li>파일을 더블클릭하면 엑셀 파일이 열립니다. 분석은 우클릭의 분석하기나, 파일을 업로드 아이콘에 끌어 놓아 시작합니다.</li><!-- (junhee) 2026-09-27 -->
         <li>
           아이콘을 끌면 격자에 맞춰 정렬됩니다. 선택 후 방향키로도 옮길 수
           있습니다.
@@ -374,6 +388,8 @@
       </div>
     </dialog>
     <div id="toast" role="status" aria-live="polite"></div>
+    {# (junhee) 2026-09-27 계정 정보·로그아웃 창 #}
+    {% include "junhee_account.html" %}
     {% include "chatbot.html" %}
   </body>
 </html>

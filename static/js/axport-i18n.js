@@ -60,6 +60,149 @@
     "ja": "今すぐ確認しましょう"
   }
 });
+  // (junhee) 2026-09-26 Contact Us 문구 — 새 항목만 추가한다 (기존 항목은 덮어쓰지 않음)
+  for (const [k, v] of Object.entries({
+  "현업의 목소리를 들려주세요": {
+    "en": "Tell us how it works in the field",
+    "zh": "请分享一线使用意见",
+    "ja": "現場の声をお聞かせください"
+  },
+  "반도체·무역·물류 현업에서 AXPORT를 써 보신 의견과 건의사항을 남겨 주세요. 다음 개선에 반영합니다.": {
+    "en": "Share feedback and suggestions from your work in semiconductors, trade or logistics. We will use them for the next improvements.",
+    "zh": "请留下您在半导体、贸易、物流一线使用 AXPORT 的意见与建议，我们将在下一次改进中采纳。",
+    "ja": "半導体・貿易・物流の現場で AXPORT を使ったご意見・ご要望をお寄せください。次の改善に反映します。"
+  },
+  "의견 유형": {
+    "en": "Type",
+    "zh": "意见类型",
+    "ja": "種別"
+  },
+  "소속 분야": {
+    "en": "Your field",
+    "zh": "所属领域",
+    "ja": "ご所属分野"
+  },
+  "이름 또는 닉네임": {
+    "en": "Name or nickname",
+    "zh": "姓名或昵称",
+    "ja": "お名前またはニックネーム"
+  },
+  "회신 받을 이메일": {
+    "en": "Email for a reply",
+    "zh": "回复邮箱",
+    "ja": "返信用メール"
+  },
+  "선택해 주세요": {
+    "en": "Select",
+    "zh": "请选择",
+    "ja": "選択してください"
+  },
+  "선택 안 함": {
+    "en": "Not specified",
+    "zh": "不选择",
+    "ja": "選択しない"
+  },
+  "오류 제보": {
+    "en": "Bug report",
+    "zh": "错误报告",
+    "ja": "不具合報告"
+  },
+  "반도체 제조": {
+    "en": "Semiconductor manufacturing",
+    "zh": "半导体制造",
+    "ja": "半導体製造"
+  },
+  "무역·수출": {
+    "en": "Trade / export",
+    "zh": "贸易·出口",
+    "ja": "貿易・輸出"
+  },
+  "물류·포워딩": {
+    "en": "Logistics / forwarding",
+    "zh": "物流·货代",
+    "ja": "物流・フォワーディング"
+  },
+  "40자 이내": {
+    "en": "Up to 40 characters",
+    "zh": "40字以内",
+    "ja": "40文字以内"
+  },
+  "10자 이상 1000자 이하로 적어 주세요": {
+    "en": "Write between 10 and 1000 characters",
+    "zh": "请填写10至1000字",
+    "ja": "10文字以上1000文字以内で入力してください"
+  },
+  "개인정보(이메일) 수집·이용에 동의합니다. 회신 목적으로만 사용하고 프로젝트 종료 후 삭제합니다.": {
+    "en": "I agree to the collection and use of my email. It is used only to reply and deleted when the project ends.",
+    "zh": "我同意收集并使用我的邮箱，仅用于回复，项目结束后删除。",
+    "ja": "メールアドレスの収集・利用に同意します。返信目的にのみ使用し、プロジェクト終了後に削除します。"
+  },
+  "이메일을 적은 경우에만 필수": {
+    "en": "Required only if you entered an email",
+    "zh": "仅在填写邮箱时必填",
+    "ja": "メール入力時のみ必須"
+  },
+  "보내기": {
+    "en": "Send",
+    "zh": "发送",
+    "ja": "送信"
+  },
+  "가상 데이터 시연 프로젝트의 의견 접수입니다. 접수 내용은 화면에 표시되지 않으며 1분에 3회까지 보낼 수 있습니다.": {
+    "en": "This is a feedback form for a demo project with virtual data. Submissions are not shown on screen; up to 3 per minute.",
+    "zh": "这是虚拟数据演示项目的意见收集表单。提交内容不会显示在页面上，每分钟最多提交3次。",
+    "ja": "仮想データによるデモプロジェクトの意見受付です。送信内容は画面に表示されず、1分間に3回まで送信できます。"
+  },
+  "보내는 중입니다…": {
+    "en": "Sending…",
+    "zh": "发送中…",
+    "ja": "送信中…"
+  },
+  "보내 주셔서 감사합니다. 접수되었습니다.": {
+    "en": "Thank you. Your message has been received.",
+    "zh": "感谢您的反馈，已成功接收。",
+    "ja": "ありがとうございます。受け付けました。"
+  },
+  "잠시 후 다시 시도해 주세요. 같은 곳에서 1분에 3회까지만 보낼 수 있습니다.": {
+    "en": "Please try again later. Up to 3 messages per minute from the same place.",
+    "zh": "请稍后再试。同一来源每分钟最多发送3次。",
+    "ja": "しばらくしてから再度お試しください。同じ場所から1分間に3回までです。"
+  },
+  "보내지 못했습니다. 잠시 후 다시 시도해 주세요.": {
+    "en": "Could not send. Please try again later.",
+    "zh": "发送失败，请稍后再试。",
+    "ja": "送信できませんでした。しばらくしてから再度お試しください。"
+  },
+  "네트워크 오류로 보내지 못했습니다. 연결을 확인한 뒤 다시 시도해 주세요.": {
+    "en": "A network error prevented sending. Check your connection and try again.",
+    "zh": "因网络错误发送失败，请检查连接后重试。",
+    "ja": "ネットワークエラーで送信できませんでした。接続を確認して再度お試しください。"
+  },
+  "의견 유형을 선택해 주세요.": {
+    "en": "Please select a type.",
+    "zh": "请选择意见类型。",
+    "ja": "種別を選択してください。"
+  },
+  "이름 또는 닉네임은 40자 이내로 적어 주세요.": {
+    "en": "Name or nickname must be 40 characters or fewer.",
+    "zh": "姓名或昵称请控制在40字以内。",
+    "ja": "お名前またはニックネームは40文字以内で入力してください。"
+  },
+  "이메일 형식을 확인해 주세요.": {
+    "en": "Please check the email format.",
+    "zh": "请检查邮箱格式。",
+    "ja": "メールアドレスの形式を確認してください。"
+  },
+  "내용은 10자 이상 1000자 이하로 적어 주세요.": {
+    "en": "The message must be between 10 and 1000 characters.",
+    "zh": "内容需在10至1000字之间。",
+    "ja": "内容は10文字以上1000文字以内で入力してください。"
+  },
+  "이메일을 적으셨다면 개인정보 수집·이용 동의가 필요합니다.": {
+    "en": "If you entered an email, consent to collection and use is required.",
+    "zh": "填写邮箱时需要同意个人信息收集与使用。",
+    "ja": "メールを入力した場合は、個人情報の収集・利用への同意が必要です。"
+  }
+})) if (!entries[k]) entries[k] = v;
   const supported = ["ko","en","zh","ja"];
   const locales = {ko:"ko-KR",en:"en-US",zh:"zh-CN",ja:"ja-JP"};
   function normalize(code){const short=String(code||"").toLowerCase().split("-")[0];return supported.includes(short)?short:"ko";}
@@ -154,6 +297,76 @@
     return "<!doctype html>\n"+doc.documentElement.outerHTML;
   }
   window.AXPI18n={t,setLanguage,translateDOM,translateHTML,get language(){return language;},get locale(){return locales[language];},get supported(){return supported.slice();}};
+  // (junhee) 2026-09-27 워크스페이스 사이드바 번역 추가. 일본어 '창 배치 초기화'는 사이드바 폭을 넘어 잘려서 짧은 표현으로 덮어쓴다(기존 항목은 고치지 않음).
+  Object.assign(entries, {
+    "창 배치 초기화": {en:"Reset window layout", zh:"重置窗口布局", ja:"配置をリセット"},
+    "데이터 초기화": {en:"Reset data", zh:"重置数据", ja:"データを初期化"},
+    "ANALYSIS · 분석 조건": {en:"ANALYSIS · Conditions", zh:"ANALYSIS · 分析条件", ja:"ANALYSIS · 分析条件"},
+    "목적국": {en:"Destination", zh:"目的国", ja:"仕向国"},
+    "기간": {en:"Period", zh:"期间", ja:"期間"},
+    "회사 파일을 열면 선택할 수 있습니다": {en:"Available after opening a company file", zh:"打开企业文件后可选择", ja:"企業ファイルを開くと選択できます"},
+    "적용": {en:"Applied", zh:"应用", ja:"適用"},
+    "전체 HS": {en:"All HS", zh:"全部 HS", ja:"全HS"},
+    "최근 12개월": {en:"Last 12 months", zh:"最近12个月", ja:"直近12か月"},
+    "최근 6개월": {en:"Last 6 months", zh:"最近6个月", ja:"直近6か月"},
+    "기업 분석 데이터 업로드": {en:"Company analysis upload", zh:"企业分析数据上传", ja:"企業分析データのアップロード"},
+    "기업 파일 업로드": {en:"Company file upload", zh:"企业文件上传", ja:"企業ファイルのアップロード"},
+    "종합 적합도": {en:"Overall fit", zh:"综合适合度", ja:"総合適合度"},
+    "세부사항 (항목 전체 보기)": {en:"Details (all items)", zh:"详情（全部项目）", ja:"詳細（全項目）"},
+    "세부사항 · 규제 관문 항목 전체": {en:"Details · All regulation items", zh:"详情 · 全部法规项目", ja:"詳細 · 規制の全項目"},
+    "세부사항 · 시장성 항목 전체": {en:"Details · All market items", zh:"详情 · 全部市场项目", ja:"詳細 · 市場性の全項目"},
+    "세부사항 · 가격 항목 전체": {en:"Details · All price items", zh:"详情 · 全部价格项目", ja:"詳細 · 価格の全項目"},
+    "세부사항 · 물류 항목 전체": {en:"Details · All logistics items", zh:"详情 · 全部物流项目", ja:"詳細 · 物流の全項目"},
+    "세부사항 · 안정성 항목 전체": {en:"Details · All stability items", zh:"详情 · 全部稳定性项目", ja:"詳細 · 安定性の全項目"},
+    "세부사항 · 항목 전체 보기": {en:"Details · All items", zh:"详情 · 全部项目", ja:"詳細 · 全項目"},
+    "분석 엔진이 판단하는 HS6": {en:"HS6 codes the engine can assess", zh:"分析引擎可判断的 HS6", ja:"分析エンジンが判定するHS6"},
+    // (2026-09-27 검토 반영) 대상국·HS 선택지, 바탕화면 우클릭 메뉴·확인 창
+    "중국": {en:"China", zh:"中国", ja:"中国"},
+    "미국 (US)": {en:"United States (US)", zh:"美国 (US)", ja:"米国 (US)"},
+    "중국 (CN)": {en:"China (CN)", zh:"中国 (CN)", ja:"中国 (CN)"},
+    "일본 (JP)": {en:"Japan (JP)", zh:"日本 (JP)", ja:"日本 (JP)"},
+    "독일 (DE)": {en:"Germany (DE)", zh:"德国 (DE)", ja:"ドイツ (DE)"},
+    "베트남 (VN)": {en:"Vietnam (VN)", zh:"越南 (VN)", ja:"ベトナム (VN)"},
+    "집적회로 (8542)": {en:"Integrated circuits (8542)", zh:"集成电路 (8542)", ja:"集積回路 (8542)"},
+    "반도체 소자 (8541)": {en:"Semiconductor devices (8541)", zh:"半导体器件 (8541)", ja:"半導体デバイス (8541)"},
+    "반도체 제조장비 (8486)": {en:"Semiconductor equipment (8486)", zh:"半导体制造设备 (8486)", ja:"半導体製造装置 (8486)"},
+    "8542.31 · 프로세서·컨트롤러": {en:"8542.31 · Processors·controllers", zh:"8542.31 · 处理器·控制器", ja:"8542.31 · プロセッサ・コントローラ"},
+    "8542.32 · 메모리": {en:"8542.32 · Memory", zh:"8542.32 · 存储器", ja:"8542.32 · メモリ"},
+    "8542.33 · 증폭기": {en:"8542.33 · Amplifiers", zh:"8542.33 · 放大器", ja:"8542.33 · 増幅器"},
+    "8542.39 · 기타 집적회로": {en:"8542.39 · Other ICs", zh:"8542.39 · 其他集成电路", ja:"8542.39 · その他の集積回路"},
+    "8542.90 · 집적회로 부분품": {en:"8542.90 · IC parts", zh:"8542.90 · 集成电路零件", ja:"8542.90 · 集積回路の部分品"},
+    "8541.10 · 다이오드": {en:"8541.10 · Diodes", zh:"8541.10 · 二极管", ja:"8541.10 · ダイオード"},
+    "8541.21 · 트랜지스터(1W 미만)": {en:"8541.21 · Transistors (<1 W)", zh:"8541.21 · 晶体管（小于1W）", ja:"8541.21 · トランジスタ（1W未満）"},
+    "8541.29 · 기타 트랜지스터": {en:"8541.29 · Other transistors", zh:"8541.29 · 其他晶体管", ja:"8541.29 · その他のトランジスタ"},
+    "8541.30 · 사이리스터·다이액·트라이액": {en:"8541.30 · Thyristors·diacs·triacs", zh:"8541.30 · 晶闸管·双向触发二极管·双向晶闸管", ja:"8541.30 · サイリスタ・ダイアック・トライアック"},
+    "8541.41 · 발광다이오드(LED)": {en:"8541.41 · LEDs", zh:"8541.41 · 发光二极管(LED)", ja:"8541.41 · 発光ダイオード(LED)"},
+    "8541.49 · 기타 광반도체 소자": {en:"8541.49 · Other photosensitive devices", zh:"8541.49 · 其他光敏半导体器件", ja:"8541.49 · その他の光半導体デバイス"},
+    "8541.51 · 반도체 기반 변환기(센서)": {en:"8541.51 · Semiconductor transducers (sensors)", zh:"8541.51 · 半导体换能器（传感器）", ja:"8541.51 · 半導体トランスデューサ（センサー）"},
+    "8541.59 · 기타 반도체 소자": {en:"8541.59 · Other semiconductor devices", zh:"8541.59 · 其他半导体器件", ja:"8541.59 · その他の半導体デバイス"},
+    "8541.60 · 압전 결정 소자": {en:"8541.60 · Piezo-electric crystals", zh:"8541.60 · 压电晶体", ja:"8541.60 · 圧電結晶素子"},
+    "8541.90 · 반도체 소자 부분품": {en:"8541.90 · Semiconductor device parts", zh:"8541.90 · 半导体器件零件", ja:"8541.90 · 半導体デバイスの部分品"},
+    "8486.10 · 보울·웨이퍼 제조기기": {en:"8486.10 · Boule·wafer machines", zh:"8486.10 · 晶锭·晶圆制造设备", ja:"8486.10 · ブール・ウエハー製造装置"},
+    "8486.20 · 반도체 소자·집적회로 제조기기": {en:"8486.20 · Device·IC manufacturing machines", zh:"8486.20 · 器件·集成电路制造设备", ja:"8486.20 · デバイス・集積回路製造装置"},
+    "8486.30 · 평판디스플레이 제조기기": {en:"8486.30 · Flat panel display machines", zh:"8486.30 · 平板显示器制造设备", ja:"8486.30 · フラットパネル製造装置"},
+    "8486.40 · 마스크 제작·조립·운반 기기": {en:"8486.40 · Mask·assembly·handling machines", zh:"8486.40 · 掩模制作·组装·搬运设备", ja:"8486.40 · マスク製作・組立・搬送装置"},
+    "8486.90 · 제조기기 부분품": {en:"8486.90 · Machine parts", zh:"8486.90 · 设备零件", ja:"8486.90 · 装置の部分品"},
+    "바꾸면 다시 계산": {en:"recalculates on change", zh:"更改后重新计算", ja:"変更すると再計算"},
+    "열기": {en:"Open", zh:"打开", ja:"開く"},
+    "분석하기": {en:"Analyze", zh:"分析", ja:"分析する"},
+    "엑셀 열기": {en:"Open in Excel", zh:"用 Excel 打开", ja:"Excelで開く"},
+    "이름 바꾸기": {en:"Rename", zh:"重命名", ja:"名前を変更"},
+    "삭제": {en:"Delete", zh:"删除", ja:"削除"},
+    "새 폴더": {en:"New folder", zh:"新建文件夹", ja:"新しいフォルダー"},
+    "아이콘 정렬": {en:"Arrange icons", zh:"排列图标", ja:"アイコンを整列"},
+    "영구 삭제": {en:"Delete permanently", zh:"永久删除", ja:"完全に削除"},
+    "삭제하시겠습니까?": {en:"Delete?", zh:"要删除吗？", ja:"削除しますか？"},
+    "취소": {en:"Cancel", zh:"取消", ja:"キャンセル"},
+    "확인": {en:"OK", zh:"确定", ja:"OK"},
+    "결측치가 있는 파일입니다": {en:"This file has missing values", zh:"此文件有缺失值", ja:"欠損値のあるファイルです"},
+    "그래도 진행": {en:"Continue anyway", zh:"仍然继续", ja:"このまま続行"},
+    "더블클릭은 엑셀 열기, 우클릭은 분석·정렬": {en:"Double-click opens Excel · Right-click to analyze or arrange", zh:"双击打开 Excel · 右键分析或排列", ja:"ダブルクリックでExcelを開く · 右クリックで分析・整列"},
+    "파일을 더블클릭하면 엑셀 파일이 열립니다. 분석은 우클릭의 분석하기나, 파일을 업로드 아이콘에 끌어 놓아 시작합니다.": {en:"Double-click a file to open it in Excel. To analyze, right-click and choose Analyze, or drag the file onto the upload icon.", zh:"双击文件即可用 Excel 打开。分析请右键选择“分析”，或将文件拖到上传图标上。", ja:"ファイルをダブルクリックするとExcelで開きます。分析は右クリックの「分析」か、ファイルをアップロードアイコンにドラッグして開始します。"}
+  });
   document.querySelectorAll("#axp-language").forEach(select=>select.addEventListener("change",e=>setLanguage(e.target.value)));
   setLanguage(language,false);
   new MutationObserver(scheduleTranslation).observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["aria-label","title","placeholder","alt"]});

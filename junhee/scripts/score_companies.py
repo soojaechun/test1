@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# v0.1 샘플 전용 — 2026-09-26 이후 사용하지 않음 (build_company_items.py 로 대체)
 """더미 기업 엑셀 2개 + junhee/data/raw 공개자료로 시연용 점수를 계산한다.
 
 산식은 junhee/rules/demo_scoring.md 와 동일하다. 가상 데이터 · 시연용 산식이며 확정 채점 기준이 아니다.
@@ -403,11 +404,22 @@ def score_stability(c, ym):
     cv = statistics.pstdev(vals) / statistics.mean(vals) * 100
     cvs = clip(100 - 2 * cv)
     score = 0.5 * conc + 0.5 * cvs
+    # 표시용 보조값 (점수 미반영): 거래가 있는 달을 시간순으로 놓고 전월 대비 -20% 이하인 달을 '급감'으로 센다.
+    months_sorted = sorted(totals)
+    drops = []
+    for i in range(1, len(months_sorted)):
+        prev_v, cur_v = totals[months_sorted[i - 1]], totals[months_sorted[i]]
+        mom = (cur_v / prev_v - 1) * 100 if prev_v > 0 else None
+        if mom is not None and mom <= -20:
+            drops.append({"month": ym_str(months_sorted[i]), "mom_pct": round(mom, 1), "value_usd": round(cur_v, 2)})
     return {
         "score": r1(score), "state": "ok",
         "note": f"거래처·목적국 집중도 HHI {h:.2f} · 월별 수출액 변동계수 {cv:.0f}% (기업 내부 거래 안정성, 국가위험 아님)",
         "inputs": {"hhi_customer": round(h_cust, 4), "hhi_country": round(h_ctry, 4), "hhi_mean": round(h, 4),
                    "cv_pct": round(cv, 2), "months_with_sales": len(totals), "conc": r1(conc), "cv_score": r1(cvs),
+                   "drop_count": len(drops),
+                   "drop_rate_pct": round(len(drops) / (len(months_sorted) - 1) * 100, 1) if len(months_sorted) > 1 else None,
+                   "drops": drops, "drop_rule": "전월 대비 -20% 이하 (표시용, 점수 미반영)",
                    "sources": ["수출실적 시트", "거래처 시트"]},
     }
 
@@ -487,6 +499,8 @@ def evaluate(company_id, name_ko, name_en, file_name):
         "hs_share": {k: round(v / sum(by_hs.values()), 3) for k, v in by_hs.items()},
         "country_share": {k: round(v / sum(by_ctry.values()), 3) for k, v in by_ctry.items()},
         "rows": {"actuals_total": c["rows_total"], "actuals_valid": c["rows_valid"], "logistics": len(c["logistics"])},
+        # 표시용: 추적 창(최근 12개월) 월별 수출액. 거래가 있는 달만 (안정성 CV 와 같은 집합). 점수 미반영.
+        "monthly_sales": [{"month": ym_str(m), "value_usd": round(v, 2)} for m, v in sorted(monthly_totals(c["actuals"], as_of).items())],
         "overall": overall, "factors": factors, "highlights": highlights,
     }
 

@@ -1,5 +1,12 @@
 # junhee — 대시보드 요약 실제 데이터 연결
 
+> **현재 상태 (2026-09-27 배포 QA)** — 아래 기록 중 일부는 이전 단계 설명이다. 지금은 다음이 기준이다.
+> - 모든 파일(바탕화면 가상 샘플·업로드)은 서버 분석 엔진(`junhee/server/engine`, 참고 적합도 v1)으로 계산한다(`workspace.js` 의 `ENGINE_ONLY`). 브라우저 v0.3 산식(`rules/demo_scoring.md`, 35·30·20·15)은 쓰지 않는 옛 경로다.
+> - 종합 점수 = 엔진 배점 시장성 40·가격 20·물류 10·안정성 10(80→100 환산), 근거 없는 항목은 정책 기준 50점 + 근거 반영률. 35·30·20·15 는 가중치 설정 창의 화면용 기본값이며, 바꾸면 '사용자 가중치 참고점수'(엔진 등급 아님)가 표시된다.
+> - 점수의 안정성 = UN Comtrade 36개월 월간 수입 변동계수·급감 빈도(배점 10). `config/stability_method.json`(환율 변동성 v1.0)은 엔진 점수에 쓰이지 않고, 환율은 참고 표시만 한다(팀 확정 문서와 실행 코드가 다름 — 정리 필요).
+> - `data/samples/uploads/` 에는 사용자가 올린 실제 기업 파일이 저장된다(git 제외, 공개 static 아님).
+> - 챗봇은 `AXPORT_CHAT_MODE=demo` 면 예시 답변, `live` 면 서버 LLM. AXPORT 는 수출허가 여부를 최종 판정하지 않는다.
+
 다른 조원과 겹치지 않도록 새 파일은 모두 이 폴더에 둔다.
 프로젝트 파일 중에는 `templates/workspace.html`(연결 태그·기준일 span), `static/js/workspace.js`(연결부), `.gitignore`, 새 폴더 `static/data/`·`static/samples/`·`static/css|js/junhee-*` 를 손댔다. main 병합 절차는 `junhee/MERGE_GUIDE.md`.
 
@@ -112,3 +119,76 @@ HS 는 `HS_LIST = ["854231", "854232"]` 두 개를 본다 (샘플 회사가 메�
 - 각 카드에 출처·기준일을 표시하고, `data_class` 를 그대로 표시한다(가상데이터면 "가상데이터").
 - 요약 자료의 대상국·HS 와 화면 조건이 다르면 하단에 주의 문구를 낸다. 안정성 카드만 목적국별 결과로 바뀐다.
 - 보고서 표의 5개 영역 값도 같은 요약값을 쓴다. 상세(책갈피) 탭은 아직 예시 데이터다.
+
+## 2026-09-26 회사 데이터 교체 (handoff-v1)
+
+팀 공유 문서 `junhee/docs/dashboard_items_team_handoff.txt` 기준으로 회사 데이터를 점수형(v0.1 샘플)에서 **항목형(handoff-v1)** 으로 바꿨다. 작업 규칙은 `junhee/WORK_RULES_0926.md`. 점수는 평가 기준 확정 전이라 계산·표시하지 않는다.
+
+- 삭제: `static/data/companies/{hanbit,daesung,index}.json`, `static/samples/한빛반도체_수출데이터_v0.1.xlsx`, `static/samples/대성일렉트로닉스_수출데이터_v0.1.xlsx`, `junhee/data/processed/companies/*` (v0.1 산출물). 백업은 `../_merge_backup/2026-09-26/`.
+- 사용 중지(파일은 남김, 맨 위에 주석): `score_companies.py`, `augment_samples.py`, `make_sample_companies.py`.
+- 새 입력: `junhee/data/samples/한빛반도체_수출데이터_v0.2.xlsx`, `대성일렉트로닉스_수출데이터_v0.2.xlsx`, `새벽반도체_수출데이터_v0.1.xlsx` (시트: 기업정보·제품정보·거래처·수출실적·물류·월별집계 + 근거/결측목록). 스크립트는 '근거' 시트를 읽지 않는다(실제 기업명 포함).
+
+실행 순서:
+
+```
+python junhee/scripts/build_company_items.py   # samples/*.xlsx + raw 공개자료 → processed/companies/{hanbit,daesung,saebyeok}.json, index.json
+python junhee/scripts/publish_static.py        # 검증(허용 status·실제 기업명 없음·SHA 일치) 후 static/data/companies/, static/samples/ 로 복사
+```
+
+JSON 구조 (`schema: "handoff-v1"`):
+
+```
+{ company_id, company_name, company_name_en, file_name, file_sha256, schema, data_class: "가상 데이터 · 시연용", generated_at,
+  score: { status: "미확인", note },                       // 점수 없음
+  common: { period{from,to}, products[{id,name,family,input_hsk,analysis_hs6,hs_status,note}], hs_unknown_products, analysis_hs6,
+            countries[{name,iso2,export_share,amount_usd}], main_country, main_hs6, currency,
+            data_quality{ rows_total, rows_after_dedup, duplicates_removed, cancelled_zero_rows, rows_valid, rows_excluded_from_totals,
+                          excluded_by_reason{금액·통화·거래일·목적국·제품ID·거래처ID·순중량·수량 빈칸}, missing_months, rows_with_hs_unknown_product } },
+  per_country: { "<국가명>": { regulation[], market[], price[], logistics[], stability[] } } }
+item = { key, label, status, value, unit, period, as_of, source, basis, note, rows? (+ 항목별 부가 키) }
+status ∈ 확인됨 | 자료 부족 | 미확인 | 검색 결과 없음 | 검색 불가 · 실제 0 은 status 확인됨 + value 0
+```
+
+항목별 출처와 '미확인' 사유:
+
+| 영역 | key | 출처 | 비고 |
+|---|---|---|---|
+| 규제 | export_control_candidates | HSK연계표_20260901.xlsx (입력HSK ↔ HSKCD 정확 대조, CNTRLNO) | 후보 표시, 해당 여부 판정 아님. HSK 빈칸 제품은 '검색 불가' |
+| 규제 | import_regulation_records | KOTRA 수입규제 현황 CSV (규제시행국 ISO2 + HS 컬럼 앞자리 일치) | 0건이면 '검색 결과 없음'(규제 없음 판정 아님). 독일은 DE 코드로 검색, 파일에 'EU' 코드는 없음 |
+| 규제 | csl_search | ITA CSL (법인명 정규화 후 name·alt_names 정확 일치) | 법인명 없는 거래처는 '검색 불가', 주소 없으면 '명칭만 검색' 표시 |
+| 시장성 | destination_imports, korea_share, growth_yoy, growth_3m_yoy, cagr_3y | — | **미확인**: 목적국 수입통계 API 연동 전 |
+| 시장성 | korea_exports_to_destination | WTO 관세조치 파일 imports 열(USD, 최신 가용치) | 조치일마다 같은 값이라 연도별 변화는 자료 부족. 파일 없는 나라(베트남)는 '자료 부족' |
+| 시장성 | wsts | WSTS Monthly Data (Americas·Europe·Japan·Asia Pacific·Worldwide, 1000 US$) | 최근 13개월 + 전년동월비 |
+| 시장성 | company_exports | 회사 수출실적 시트(유효 행) | 연도별·월별, 행이 없는 달은 null |
+| 가격 | trade_unit_price | — | **미확인**: 무역통계 API 연동 전 |
+| 가격 | company_unit_price | 회사 수출실적(금액 합 ÷ 순중량 합, 둘 다 있는 행) | 제품별·연도별, 실제 판매가 아님 |
+| 가격 | baseline_unit_price | — | 자료 부족(한국 전체 수출단가 미확보) |
+| 가격 | tariff_reference | WTO C###_C410.csv best_avlbl 조치일별 이력 | 참고치, 확정 세율 아님. 독일은 U918(EU) |
+| 가격 | fx_reference | processed/stability.json per_currency (FRED H.10 → 월평균, 13개월) | 결제통화는 기업정보 '금액 통화'. 빈칸(새벽)은 '미확인' |
+| 가격 | price_index | processed/price.json export_price_index (한국은행, 컴퓨터·전자·광학기기) | 반도체 개별 가격 아님 |
+| 가격 | freight_reference | 관세청 hwpx 월별 표 (해상수출·해상수입·항공수입 구분) | 항로 없는 나라(인도·멕시코·캐나다)는 '자료 부족' |
+| 물류 | cargo_flights, flight_counts, vessel_records | — | **미확인**: 인천공항·항만 API 연동 전 |
+| 물류 | query_conditions | 회사 물류 시트(운송수단·출발지코드·도착지코드별 건수, 빈칸 건수) | 조회 조건만, 직항·배송시간 확정 아님 |
+| 안정성 | destination_monthly_imports, cv, sharp_drops | — | **미확인**: 목적국 수입통계 API 연동 전 |
+| 안정성 | company_export_volatility | 회사 월별 수출액(자료 있는 달만 CV, 두 달 다 있을 때만 전월비, −20% 이하 급감) | 보조, 미래 손실 확률 아님 |
+| 안정성 | fx_volatility | processed/stability.json per_country (산식 v1.0) | 목적국 결제통화 기준 |
+| 안정성 | wsts_volatility | WSTS 최근 13개월 전월비 절대값 평균·급감 횟수(권역별) | 보조 |
+
+결측 처리(새벽반도체 검증): 완전 중복 1행 제거, 취소반품 Y 2건은 실제 0 으로 세고 유효 실적에서 제외, 금액·통화·거래일·목적국 빈칸 24행은 합계에서 제외, 제품ID·거래처ID·순중량·수량 빈칸은 해당 계산에서만 제외, 빈 달(2024-07, 2025-02)은 null. 엑셀 '결측목록' 시트의 건수와 일치함을 확인했다.
+
+## 2026-09-26 홈 Contact Us (현업 의견·건의 접수, 프롬프트 ④)
+
+- 홈(`/`) 상단·모바일·하단 메뉴에 `Contact Us` 링크, `#contact` 섹션(bottom CTA 바로 위). 스타일 `static/css/junhee-contact.css`, 동작 `static/js/junhee-contact.js` (home.css·home.js 는 수정하지 않음). 번역은 `static/js/axport-i18n.js` 에 새 문구만 추가(기존 항목 유지, 'Contact Us' 는 모든 언어에서 그대로).
+- 접수 서버: `app.py` 의 `POST /api/contact` 1개. JSON 검증(의견 유형 필수, 내용 10~1000자, 이메일 형식, 이메일이 있으면 동의 필수, 이름 40자), 숨김 입력(honeypot)이 채워지면 저장하지 않고 성공처럼 응답, 같은 IP 1분 3회 초과(검증 실패 포함 모든 요청을 셈) 시 429. 응답은 `{ok:true}` 만 돌려주고 내용을 HTML 로 렌더링하지 않는다.
+- 저장: `instance/contact_messages.jsonl` 한 줄 = 1건(시각·유형·분야·이름·이메일·내용). `instance/` 는 `.gitignore` 에 넣었다(개인정보).
+- **시연용 한계**: Render 무료 환경은 재배포·재시작 때 `instance/` 파일이 사라진다. 계속 받으려면 구글 폼·노션 등 외부 저장으로 바꿔야 한다.
+- 로컬에서 모인 의견을 CSV 로: `python junhee/scripts/export_contact.py` → `instance/contact_messages.csv` (UTF-8 BOM). 결과도 저장소에 넣지 않는다.
+
+## 2026-09-26 밤 상세 탭 index3 형태 복원 · 기간/HS 필터 · 업로드 가이드 (junhee-dashboard.js v3)
+
+- **상세 탭 5개**는 index3 형태(상태 상자 + KPI 4칸 + 3:2 차트/표 패널 + 안내 상자)로 되돌렸고, 헤더 오른쪽 **'항목 전체 보기' 토글**을 켜면 handoff-v1 항목 카드 전체가 아래에 붙는다(localStorage `jd_show_items`, 탭을 옮겨도 유지).
+- **기간·HS 필터**는 공통 정보 막대의 드롭다운(전체 기간 / 최근 12·6개월 / 연도별 / 직접 설정 시작~종료 월, 전체 HS / 회사 HS6 목록). 바꾸면 회사 값(수출액·kg 단가·변동·조회 조건·통제번호 후보·관세·한국 수출액)과 점수 5개·종합·전월 대비·6개월 추세를 **브라우저에서 다시 계산**한다. 산식은 `demo_scoring.md` v0.2 를 JS 로 옮긴 것이고, 기본 필터(전체 기간·전체 HS)에서는 회사 JSON 의 `score` 블록과 같은 값이 나오는지 jsdom 스모크로 확인한다(15개 회사·목적국 조합 일치). 이를 위해 `build_company_items.py` 가 회사 JSON 에 `rows_agg`(월·목적국·제품·거래처별 금액/순중량 합), `logistics_agg`, `public_series.wsts_worldwide`(2021-01~ 세계 출하액·전년동월비 4자리), `products[].has_control_candidates` 를 넣는다. 공개자료 항목(WSTS·환율·물가지수·운임·KOTRA·CSL)은 기간 필터와 무관하게 파일 그대로.
+- 정보 막대 맨 앞에 **표시 중인 엑셀 파일명** 칩, '기업 데이터' 창의 해당 파일 행에 **'분석 완료 · 대시보드에 표시 중'** 표시. 컨텍스트 바 자료기간은 필터 적용 시 '2024년 2024-01~2024-12' 처럼 바뀐다.
+- **업로드 창**: HS CODE 입력이 드롭다운(`<select id="hs-input">`, workspace.html 1곳)으로 바뀌었다. 등록 샘플이면 '전체 HS (회사 제품 전체)' + 회사 HS6 목록으로 채우고, 고른 HS 가 대시보드 HS 필터와 컨텍스트 바(`HS 전체` 또는 코드)에 그대로 적용된다. 등록되지 않은 파일은 기본 854231/854232. 창 왼쪽 아래 **'업로드 가이드'** 버튼 → 모듈이 만드는 `#jd-guide-dialog`(필요 시트·열, 결측 처리 원칙, 등록 샘플 목록).
+- 모듈 API 추가: `hsListOf(id)`, `setFilters({period,hs,from,to})`, `filters()`, `period()`, `calc()`, `openGuide()`; `configure({onFilter})` 로 workspace.js 가 컨텍스트 바를 맞추고 현재 탭을 다시 그린다. 레이아웃: `.jd-layout` 은 카드 내용보다 작아지지 않게(`min-height:auto`, 카드 행 `minmax(max-content,1fr)`) 해서 정보 막대가 두 줄이면 창이 스크롤된다.
+- 캐시 버스트 css v=8 / junhee js v=9 / workspace js v=9. 검증: 스모크(점수 일치·필터·토글·보고서·가이드) + Playwright QA(`junhee/qa/0926/06_*.png`, 콘솔 오류 0). 미반영: 새 문구(드롭다운 라벨·가이드)의 i18n 항목.

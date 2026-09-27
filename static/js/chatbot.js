@@ -9,9 +9,18 @@
   const latest = $('.axchat-latest'), badge = $('.axchat-badge'), status = $('.axchat-status');
   const handle = $('.axchat-resize'), provider = window.AXPORTChatDemo;
   const i18n = window.AXPORTChatI18n;
+  const live = root.dataset.chatMode === 'live';
+  const liveText = {
+    ko: {preview:'반도체 전문 어드바이저 · AI 연결 모드', replyLabel:'AXPORT AI · AI 분석', arrived:'답변이 도착했습니다.', hint:'반도체 경영·재무·SCM·무역을 물어보세요. 질문과 최근 대화가 AI에 전송됩니다.', notConfigured:'AI 연결 설정이 필요합니다. 서버의 API 키와 모델 설정을 확인해 주세요.'},
+    en: {preview:'Semiconductor advisor · AI mode', replyLabel:'AXPORT AI · AI analysis', arrived:'Your answer has arrived.', hint:'Ask about semiconductor business, finance, SCM or trade. Your question and recent conversation are sent to AI.', notConfigured:'AI is not configured. Check the server API key and model settings.'},
+    ja: {preview:'半導体専門アドバイザー · AIモード', replyLabel:'AXPORT AI · AI分析', arrived:'回答が届きました。', hint:'半導体の経営・財務・SCM・貿易についてご相談ください。質問と最近の会話はAIに送信されます。', notConfigured:'AIの接続設定が必要です。サーバーのAPIキーとモデル設定を確認してください。'},
+    'zh-CN': {preview:'半导体专业顾问 · AI模式', replyLabel:'AXPORT AI · AI分析', arrived:'回答已送达。', hint:'欢迎咨询半导体经营、财务、供应链和贸易。问题和近期对话将发送给AI。', notConfigured:'请检查服务器的API密钥和模型设置。'},
+  };
+  let history = [], controller = null;
   let locale = i18n.normalize(document.documentElement.lang || navigator.language);
   let hasOpened = false, statusKey = '';
-  const t = key => i18n.catalog[locale].ui[key];
+  const textFor = (key, language) => (live && liveText[language]?.[key]) || i18n.catalog[language].ui[key];
+  const t = key => textFor(key, locale);
   function localized(node, key) {
     node.dataset.chatText = key; node.textContent = t(key); return node;
   }
@@ -105,6 +114,7 @@
   }
   function close() {
     generation++; pending = false; input.value = ''; composing = false;
+    controller?.abort(); controller = null; history = [];
     messages.replaceChildren(); welcome.hidden = false; suggestions.hidden = false;
     desired = {width:400, height:560}; following = true; unread = false; announce('');
     minimize(); savedScroll = 0; layout();
@@ -120,9 +130,11 @@
     if (pending) return;
     pending = true; sync();
     const token = generation;
+    const requestLocale = answer.dataset.requestLocale || locale;
+    answer.dataset.requestLocale = requestLocale;
     answer.dataset.question = question;
     delete answer.dataset.demoComplete;
-    answer.lang = locale;
+    answer.lang = requestLocale;
     answer.replaceChildren();
     const loading = document.createElement('div'); loading.className = 'axchat-loading';
     const spinner = document.createElement('span'); spinner.className = 'axchat-spinner'; spinner.setAttribute('aria-hidden','true');
@@ -130,16 +142,41 @@
     announce('loading');
     if (opened && following) bottom();
     let failed = false;
+    const activeController = new AbortController();
+    controller = activeController;
+    const timeout = live ? setTimeout(() => activeController.abort(), 55000) : null;
     try {
-      await provider.respond(question, locale);
+      let result;
+      if (live) {
+        const response = await fetch('/api/chat', {
+          method:'POST', headers:{'Content-Type':'application/json'}, signal:activeController.signal,
+          body:JSON.stringify({question, language:requestLocale, history}),
+        });
+        result = await response.json();
+        if (!response.ok || result.mode !== 'live' || typeof result.answer !== 'string') {
+          const error = new Error('Chat unavailable'); error.code = result.code; throw error;
+        }
+      } else await provider.respond(question, requestLocale);
       if (token !== generation) return;
-      answer.dataset.demoComplete = 'true';
-      renderAnswer(answer);
-    } catch {
+      if (live) {
+        answer.lang = requestLocale;
+        const label = document.createElement('small'); label.textContent = textFor('replyLabel', requestLocale);
+        const content = document.createElement('div'); content.textContent = result.answer;
+        answer.replaceChildren(label, content);
+        history.push({role:'user', content:question}, {role:'assistant', content:result.answer});
+        while (history.length > 12 || history.reduce((sum, item) => sum + item.content.length, 0) > 24000) history.splice(0, 2);
+      } else {
+        answer.dataset.demoComplete = 'true';
+        renderAnswer(answer);
+      }
+    } catch (error) {
       if (token !== generation) return;
-      failed = true; answer.replaceChildren(localized(document.createElement('span'), 'error'));
+      failed = true; answer.replaceChildren(localized(document.createElement('span'), error.code === 'not_configured' ? 'notConfigured' : 'error'));
       const retry = document.createElement('button'); retry.type = 'button'; retry.className = 'axchat-retry'; localized(retry, 'retry');
       retry.addEventListener('click', () => { if (!pending) request(question, answer); }); answer.append(retry);
+    } finally {
+      if (timeout !== null) clearTimeout(timeout);
+      if (controller === activeController) controller = null;
     }
     if (token !== generation) return;
     pending = false; announce(failed ? 'failed' : 'arrived');
@@ -149,7 +186,7 @@
   }
   function submit(text) {
     const question = text.trim();
-    if (!question || pending) return;
+    if (!question || question.length > 4000 || pending) return;
     welcome.hidden = true; suggestions.hidden = true;
     bubble('user', question); input.value = '';
     const answer = bubble('answer');

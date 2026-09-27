@@ -1,8 +1,8 @@
-<div class="axchat" data-no-translate data-page="{{ 'workspace' if request.path == '/app' else 'home' }}">
+<div class="axchat" data-no-translate data-chat-mode="{{ axport_chat_mode|default('demo') }}" data-page="{{ 'workspace' if request.path == '/app' else 'home' }}">
   <section id="axchat-panel" class="axchat-panel" role="region" aria-labelledby="axchat-title" hidden>
     <button class="axchat-resize" type="button" aria-label="대화창 크기 조절: 방향키 사용" title="드래그 또는 방향키로 크기 조절"></button>
     <header class="axchat-header">
-      <div><strong id="axchat-title">AXPORT AI</strong></div>
+      <div><strong id="axchat-title">AXPORT AI</strong><small data-chat-text="preview">예시 응답 · AI 미연결</small></div>
       <button type="button" class="axchat-minimize" aria-label="대화 유지하고 접기"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M4 10h12" /></svg></button>
       <button type="button" class="axchat-close" aria-label="대화 종료 및 초기화"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="m5 5 10 10M15 5 5 15" /></svg></button>
     </header>
@@ -17,7 +17,7 @@
     </div>
     <div class="axchat-latest" hidden><button type="button">새 답변 보기 ↓</button></div>
     <form class="axchat-form">
-      <textarea rows="2" aria-label="질문 입력" placeholder="궁금한 점을 입력하세요" autocomplete="off"></textarea>
+      <textarea rows="2" maxlength="4000" aria-label="질문 입력" placeholder="궁금한 점을 입력하세요" autocomplete="off"></textarea>
       <button type="submit" aria-label="질문 전송" disabled>전송</button>
     </form>
     <span class="axchat-status" role="status" aria-live="polite"></span>
