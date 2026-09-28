@@ -23,7 +23,9 @@
   // ---- 1) 배치 맞춤 ------------------------------------------------------------
   function boardLeft() {
     // 끌고 있는 아이콘(workspace.js 가 style z-index 를 넣음)은 빼고 격자에 놓인 아이콘만 잰다
-    const icons = $$("#desktop-icons .desktop-icon").filter((i) => !i.style.zIndex);
+    // (junhee) 2026-09-28 기본 아이콘 두 열(시스템 아이콘 열 · 파일 열, workspace.js 격자 18 + 열×112px)만 잰다.
+    // 사용자가 그보다 오른쪽으로 옮긴 아이콘 때문에 위젯 영역이 밀려 줄어들지 않게 한다(아이콘은 위젯 위층에 그대로 놓인다).
+    const icons = $$("#desktop-icons .desktop-icon").filter((i) => !i.style.zIndex && i.offsetLeft < 18 + 2 * 112);
     if (!icons.length) return;
     const deskLeft = ($("#desktop") || document.body).getBoundingClientRect().left;
     const right = Math.max(...icons.map((i) => i.getBoundingClientRect().right)) - deskLeft;
@@ -93,7 +95,7 @@
     if (visible(card) && inRect(card.getBoundingClientRect(), x, y)) return "upload";
     const b = board();
     if (visible(b) && $$("[data-sx-widget]", b).some((w) => visible(w) && inRect(w.getBoundingClientRect(), x, y))) return "board";
-    if (b && (!card || card.hidden) && b.getClientRects().length && inRect(b.getBoundingClientRect(), x, y)) return "board"; // 위젯을 숨긴 경우: 아무 일도 하지 않고 원래 칸으로
+    // (junhee) 2026-09-28 위젯을 닫아 둔 빈 영역에도 아이콘을 자유롭게 놓는다(보이는 위젯 카드 위에 놓을 때만 원래 칸으로). 이전: 업로드 위젯이 숨겨지면 위젯 영역 전체를 막음
     return null;
   }
   const hsDot = (hs) => String(hs || "").replace(/^(\d{4})(\d+)$/, "$1.$2");

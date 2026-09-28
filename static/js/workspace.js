@@ -196,8 +196,17 @@
   };
   const openDialog = (id) => {
     const dlg = $(id);
-    if (!dlg.open) dlg.showModal();
+    if (dlg.open) return;
+    // (junhee) 2026-09-28 업로드 창은 비모달로 연다: 모달은 창 밖(바탕화면)을 조작할 수 없게 만들어 파일 아이콘을 끌어 넣을 수 없었다.
+    // 반투명 배경은 클릭을 막지 않는 막(CSS body.jd-upload-open)으로 대신하고, 파일 아이콘은 그 위에 둔다.
+    if (dlg.id === "upload-dialog") { dlg.classList.add("jd-nonmodal"); document.body.classList.add("jd-upload-open"); dlg.show(); dlg.focus(); return; }
+    dlg.showModal();
   };
+  $("#upload-dialog").addEventListener("close", () => { document.body.classList.remove("jd-upload-open"); $("#drop-zone").classList.remove("drag-over"); });
+  document.addEventListener("keydown", (e) => { // (junhee) 비모달 창은 Esc 로 닫히지 않으므로 직접 닫는다(다른 모달 창이 위에 있으면 그 창이 먼저)
+    const up = $("#upload-dialog");
+    if (e.key === "Escape" && up.open && up.classList.contains("jd-nonmodal") && !document.querySelector("dialog:modal")) up.close();
+  });
   const readUI = () => {
     try {
       return JSON.parse(localStorage.getItem("axport-ui-layout-v1") || "null");
@@ -536,6 +545,8 @@
         return;
       moved = true;
       markTargets(ev);
+      const up = $("#upload-dialog"); // (junhee) 2026-09-28 파일 아이콘을 열린 업로드 창 위로 끌면 끌어 놓기 칸을 강조
+      if (up.open) { $("#drop-zone").classList.toggle("drag-over", files.includes(f) && overTarget(ev, up)); icons.style.zIndex = "1001"; } // 끄는 동안만 아이콘 층을 업로드 창 위로
       el.style.zIndex = "6";
       el.style.left =
         Math.max(
@@ -549,6 +560,7 @@
         ) + "px";
     };
     const cleanup = () => {
+      icons.style.zIndex = ""; // (junhee) 2026-09-28 끄는 동안 올린 아이콘 층을 원래대로
       el.removeEventListener("pointermove", move);
       el.removeEventListener("pointerup", end);
       el.removeEventListener("pointercancel", cancel);
@@ -570,6 +582,12 @@
         );
       };
       markTargets(null);
+      $("#drop-zone").classList.remove("drag-over");
+      if (files.includes(f) && $("#upload-dialog").open && inRect($("#upload-dialog"))) {
+        drawIcons(); // (junhee) 2026-09-28 열린 업로드 창에 놓으면: 아이콘은 제자리로, 그 파일(과 저장된 조건)을 업로드 창에 넣는다
+        analyzeFile(id);
+        return;
+      }
       const dropFolder = window.JunheeFiles ? JunheeFiles.folderAt(ev.clientX, ev.clientY, id) : null; // (junhee) 파일을 폴더 아이콘 위에 놓으면 폴더 안으로
       if (window.JunheeFiles && JunheeFiles.folder(id) && inRect($('[data-id="trash"]', icons))) {
         drawIcons(); // (junhee) 폴더를 휴지통에 놓으면 확인 후 이동
@@ -595,6 +613,7 @@
     };
     const cancel = () => {
       cleanup();
+      $("#drop-zone").classList.remove("drag-over"); // (junhee) 2026-09-28
       drawIcons();
     };
     el.addEventListener("pointermove", move);
@@ -1536,21 +1555,45 @@
       let html = `<!doctype html><html lang="${window.AXPI18n?.language || "ko"}"><meta charset="utf-8"><title>AXPORT 예시 분석 보고서</title><style>body{font-family:system-ui,'Malgun Gothic',sans-serif;max-width:850px;margin:50px auto;padding:24px;color:#24344f;line-height:1.8}h1{font-size:30px}h2{margin-top:35px;font-size:20px}table{width:100%;border-collapse:collapse;font-size:13px}td,th{padding:12px;text-align:left;border-bottom:1px solid #e5e9f1}th{background:#f5f7fb}.note{background:#eef2ff;padding:18px;border-radius:8px;color:#526a9c}@media print{body{margin:0;padding:10px}h2{break-after:avoid}table{break-inside:avoid}}</style><body><p>AXPORT / EXPORT INTELLIGENCE</p><h1>수출 분석 보고서</h1><div class="note">화면 검토용 예시 데이터 · 실제 수출 판정 미실행<br>파일 내용·외부 API·규정 데이터는 연결되지 않았습니다.</div><p>기업: ${esc(context.company)}<br>HS: ${esc(formatHS(context.hs))} · 대상국: ${esc(countryLabel(context.country))}<br>파일: ${esc(context.file)}<br>생성일: ${new Date().toLocaleString(window.AXPI18n?.locale || "ko-KR")}<br>가중치: ${customWeights ? "사용자 설정" : "기본값"} · UI 예시 v1</p><h2>5개 영역 요약</h2><table><tr><th>영역</th><th>표시 결과</th><th>적용 비중</th></tr>${reportRows.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</table><h2>규제 관문</h2><p>전략물자·최종사용자·수출허가·원산지 증빙은 모두 미검토입니다. 가중치로 규제 관문을 해제하지 않습니다.</p>${details}<p>출처: AXPORT 프론트엔드 시연 데이터. 실제 근거·시행일·규칙 버전은 미연결입니다.</p></body></html>`;
       // (junhee) handoff-v1: 항목·status 표 보고서 (점수 행 없음, 예시 수치 없음). 회사 선택 전에는 안내만 담는다.
       if (window.JunheeDashboard) html = JunheeDashboard.reportHTML({ generated: new Date().toLocaleString(window.AXPI18n?.locale || "ko-KR") }) || html;
-      html = window.AXPI18n?.translateHTML(html) || html;
+      // (junhee) 2026-09-28 엔진 문서는 juyeon 보고서 틀(junhee-report.js)로 만든다. 틀이 스스로 번역하므로 AXPI18n 번역은 건너뛴다.
+      const scenario = Object.fromEntries(["sale", "cost", "extras", "tax"].map((key) => [key, document.getElementById("report-" + key)?.value?.trim() ?? ""]));
+      const framed = window.JunheeReport ? JunheeReport.render({ generated: new Date().toLocaleString(window.AXPI18n?.locale || "ko-KR"), scenario }) : null;
+      html = framed || window.AXPI18n?.translateHTML(html) || html;
       const link = $("#report-download");
       if (link.dataset.blobUrl) URL.revokeObjectURL(link.dataset.blobUrl);
       const blob = new Blob([html], { type: "text/html;charset=utf-8" }),
         url = URL.createObjectURL(blob);
       link.href = url;
       link.dataset.blobUrl = url;
-      $("#report-preview").srcdoc = html;
+      // (junhee) 2026-09-28 미리보기(iframe sandbox, 스크립트 불가)에는 보고서 안 계산 스크립트·onclick 을 빼고 넣는다. 다운로드 HTML 에는 그대로 있다.
+      $("#report-preview").srcdoc = framed ? html.replace(/<script>[\s\S]*?<\/script>/g, "").replace(/ onclick="[^"]*"/g, "") : html;
       openDialog("#report-dialog");
+      window.AXPORTReportL10n?.localizeDialog(); // (junhee) 2026-09-28 보고서 창(시나리오·인쇄 버튼) 번역
     } catch {
       toast("보고서를 만들지 못했습니다. 다시 시도해 주세요.");
     } finally {
       if (button) button.disabled = false;
     }
   }
+  // (junhee) 2026-09-28 juyeon 보고서 창: 시나리오를 보고서에 반영 · 인쇄 창(PDF 저장). juyeon/static/js/workspace.js 그대로
+  document.getElementById("report-scenario-apply")?.addEventListener("click", () => {
+    const get = (name) => document.getElementById("report-" + name)?.value?.trim() ?? "";
+    const vals = [get("sale"),get("extras"),get("tax")];
+    if (vals.some(x => x === "") || vals.some(x => !Number.isFinite(Number(x)) || Number(x)<0) || Number(vals[0])<=0) {
+      return toast(window.AXPORTReportL10n?.translate("판매단가(0 초과), 부대비용, 관세 가정값을 올바르게 입력해 주세요. 원가는 선택 사항입니다.",window.AXPI18n?.language||"ko") || "판매단가(0 초과), 부대비용, 관세 가정값을 올바르게 입력해 주세요. 원가는 선택 사항입니다.");
+    }
+    const cost=get("cost");
+    if (cost!=="" && (!Number.isFinite(Number(cost)) || Number(cost)<0)) return toast(window.AXPORTReportL10n?.translate("제품 원가는 0 이상의 숫자로 입력해 주세요.",window.AXPI18n?.language||"ko") || "제품 원가는 0 이상의 숫자로 입력해 주세요.");
+    report();
+    toast(window.AXPORTReportL10n?.translate("시나리오를 반영했습니다. 지금 PDF로 저장하면 결과가 포함됩니다.",window.AXPI18n?.language||"ko") || "시나리오를 반영했습니다. 지금 PDF로 저장하면 결과가 포함됩니다.");
+  });
+  // 다운로드한 HTML은 독립 실행되며, 이 버튼은 내장 미리보기를 브라우저 PDF 인쇄로 연결한다.
+  document.getElementById("report-print")?.addEventListener("click", () => {
+    const frame = document.getElementById("report-preview");
+    if (!frame || !frame.contentWindow) return toast(window.AXPORTReportL10n?.translate("보고서 미리보기를 먼저 생성해 주세요.",window.AXPI18n?.language||"ko") || "보고서 미리보기를 먼저 생성해 주세요.");
+    frame.contentWindow.focus();
+    frame.contentWindow.print();
+  });
   document.addEventListener("click", (e) => {
     const b = e.target.closest("[data-action]");
     if (!b) return;

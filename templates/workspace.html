@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/static/css/junhee-dashboard.css?v=15" />
     <!-- (junhee) 2026-09-26 바탕화면 위젯 덮어쓰기(스크롤바·잘림·글꼴) + 회사 파일 아이콘 → 위젯 연결. minjung 위젯 파일은 수정하지 않음 -->
     <link rel="stylesheet" href="/static/css/junhee-widgets.css?v=9" />
-    <script defer src="/static/js/junhee-widgets-bridge.js?v=17"></script>
+    <script defer src="/static/js/junhee-widgets-bridge.js?v=19"></script>
     <script>
       window.addEventListener("error", function (e) {
         console.error("AXPORT UI:", e.message);
@@ -24,19 +24,25 @@
       });
     </script>
     <script defer src="/static/vendor/chart.umd.js"></script>
-    <script defer src="/static/js/axport-i18n.js?v=8"></script>
-    <script defer src="/static/js/junhee-dashboard.js?v=29"></script>
-    <script defer src="/static/js/workspace.js?v=25"></script>
+    <script defer src="/static/js/axport-i18n.js?v=10"></script>
+    <script defer src="/static/js/junhee-dashboard.js?v=33"></script>
+    <script defer src="/static/js/workspace.js?v=30"></script>
     <!-- (junhee) 2026-09-27 로그인 계정 창·세션 확인 (workspace.js 다음에 로드) -->
-    <script defer src="/static/js/junhee-auth.js?v=1"></script>
+    <script defer src="/static/js/junhee-auth.js?v=2"></script>
     <!-- (junhee) 2026-09-27 계정별 저장 · 폴더 · 우클릭 메뉴 · 이름 바꾸기 · 삭제 확인 -->
     <script defer src="/static/js/junhee-files.js?v=7"></script>
     <!-- (junhee) 2026-09-27 기업 파일 → 서버 분석 엔진 -->
     <script defer src="/static/js/junhee-analysis.js?v=5"></script>
-    <link rel="stylesheet" href="/static/css/chatbot.css" />
+    <!-- (junhee) 2026-09-28 juyeon 신규 기능: 세계 시계 추가·삭제 · ⚙️위젯 메뉴 · 테마(axport-workspace-tools) · 보고서 틀·다국어(axport-report-l10n · junhee-report) -->
+    <script defer src="/static/js/axport-report-l10n.js?v=1"></script>
+    <script defer src="/static/js/junhee-report-i18n.js?v=5"></script>
+    <script defer src="/static/js/junhee-report.js?v=3"></script>
+    <script defer src="/static/js/axport-workspace-tools.js?v=4"></script>
+    <link rel="stylesheet" href="/static/css/axport-workspace-tools.css?v=14" />
+    <link rel="stylesheet" href="/static/css/chatbot.css?v=2" />
     <script defer src="/static/js/chatbot-i18n.js"></script>
     <script defer src="/static/js/chatbot-demo.js"></script>
-    <script defer src="/static/js/chatbot.js"></script>
+    <script defer src="/static/js/chatbot.js?v=2"></script>
   </head>
   <body>
     <div id="workspace-loading" class="workspace-loading" role="status">
@@ -358,7 +364,7 @@
         저장은 수행하지 않습니다.
       </div>
     </dialog>
-    <dialog id="report-dialog" class="modal report-modal">
+    <dialog id="report-dialog" class="modal report-modal" data-no-translate>
       <div class="modal-title">
         <div>
           <span class="eyebrow">EXPORT REPORT</span>
@@ -371,6 +377,19 @@
       <p class="modal-description">
         현재 분석 조건과 가중치를 담은 화면 검토용 보고서입니다.
       </p>
+      <!-- (junhee) 2026-09-28 juyeon 보고서 창: 수익성 시나리오(선택) -->
+      <div id="report-scenario" style="margin:10px 0 14px;padding:13px 16px;background:#f3f9fb;border:1px solid #d3e7ec;border-radius:12px;">
+        <strong style="display:block;margin-bottom:3px;color:#124064;">수익성 시나리오 (선택)</strong>
+        <p style="margin:0 0 9px;color:#61788a;font-size:12px;">판매단가, 부대비용과 관세를 입력하면 원가를 몰라도 손익분기 원가를 계산합니다. 아래 ‘보고서에 반영’을 누르면 PDF 미리보기도 갱신됩니다.</p>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;">
+          <label style="font-size:11px;">판매단가 (USD/개)<input id="report-sale" type="number" min="0" step="0.01" placeholder="예: 100" style="display:block;width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;" /></label>
+          <label style="font-size:11px;">원가 (선택)<input id="report-cost" type="number" min="0" step="0.01" placeholder="모르면 비워두기" style="display:block;width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;" /></label>
+          <label style="font-size:11px;">부대비용 (USD/개)<input id="report-extras" type="number" min="0" step="0.01" placeholder="예: 12" style="display:block;width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;" /></label>
+          <label style="font-size:11px;">관세 가정 (%)<input id="report-tax" type="number" min="0" step="0.1" placeholder="예: 0" style="display:block;width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;" /></label>
+        </div>
+        <button type="button" class="button secondary" id="report-scenario-apply" style="margin-top:10px;">시나리오를 보고서에 반영</button>
+        <small style="display:block;margin-top:6px;color:#61788a;">회사 원가를 자동 추정하지 않습니다. 입력값은 가정이며 관세 실제 납부 주체는 계약조건에 따라 달라집니다.</small>
+      </div>
       <iframe
         id="report-preview"
         title="예시 분석 보고서 미리보기"
@@ -378,8 +397,8 @@
       ></iframe>
       <div class="modal-actions">
         <span class="report-hint"
-          >HTML 파일을 브라우저로 열어 PDF로 인쇄할 수 있습니다.</span
-        ><a
+          >인쇄 창에서 ‘PDF로 저장’을 선택하면 PDF 파일로 저장됩니다.</span
+        ><button type="button" id="report-print" class="button secondary"><i class="ph ph-printer"></i>인쇄 창 열기 (PDF 저장 가능)</button><a
           id="report-download"
           class="button primary"
           download="AXPORT_예시분석보고서.html"

@@ -134,6 +134,55 @@ class Flow(unittest.TestCase):
         self.assertEqual(r.status_code, 401)
         self.assertIn('이메일 인증 여부', r.get_data(as_text=True))
 
+    def login(self):
+        self.provider.sign_in.return_value = dict(TOKENS)
+        self.c.post('/auth/login', data={'csrf_token': self.token(), 'email': USER['email'], 'password': 'Passw0rd!x'})
+        html = self.c.get('/app').get_data(as_text=True)
+        self.assertIn('id="password-form"', html)
+        return csrf(html)
+
+    def test_change_password_immediately(self):
+        url = '/api/auth/password'
+        body = {'password': 'NewPassw0rd!', 'password_confirm': 'NewPassw0rd!'}
+        self.assertEqual(self.c.post(url, json=body, headers={'X-CSRF-Token': self.token()}).status_code, 401)
+        t = self.login()
+        self.assertEqual(self.c.post(url, json=body).status_code, 403)  # CSRF 없음
+        r = self.c.post(url, json={**body, 'password_confirm': 'other'}, headers={'X-CSRF-Token': t})
+        self.assertEqual((r.status_code, r.get_json()['error']), (400, 'password_mismatch'))
+        r = self.c.post(url, json={'password': 'short', 'password_confirm': 'short'}, headers={'X-CSRF-Token': t})
+        self.assertEqual((r.status_code, r.get_json()['error']), (400, 'password_length'))
+        self.provider.update_password.assert_not_called()
+        self.provider.update_password.return_value = USER
+        r = self.c.post(url, json=body, headers={'X-CSRF-Token': t})
+        self.assertEqual(r.status_code, 200)
+        self.provider.update_password.assert_called_once_with('access-1', 'NewPassw0rd!')  # 메일 인증 없이 바로
+        self.assertEqual(self.c.get('/api/auth/session').status_code, 200)  # 로그인 유지
+        self.provider.update_password.side_effect = self.acc.AuthError('same_password', 400)
+        r = self.c.post(url, json=body, headers={'X-CSRF-Token': t})
+        self.assertEqual((r.status_code, r.get_json()['error']), (400, 'same_password'))
+        self.assertIn('다른 비밀번호', r.get_json()['message'])
+
+    def test_update_password_error_codes(self):
+        from junhee.server.auth_core import SupabaseAuth, _Response
+        auth = SupabaseAuth('https://example-project.supabase.co', 'sb_publishable_test')
+        cases = [(422, {'error_code': 'same_password'}, 'same_password'),
+                 (422, {'error_code': 'weak_password'}, 'weak_password'),
+                 (401, {'error_code': 'reauthentication_needed'}, 'reauthentication_needed'),
+                 (401, {'code': 'bad_jwt'}, 'invalid_session'),
+                 (422, {}, 'password_update_failed'),
+                 (429, {}, 'rate_limited'),
+                 (500, {}, 'unavailable')]
+        for status, payload, code in cases:
+            res = _Response(status, {}, __import__('json').dumps(payload).encode())
+            with mock.patch.object(auth, '_send', return_value=res) as send:
+                with self.assertRaises(self.acc.AuthError) as ctx:
+                    auth.update_password('tok', 'NewPassw0rd!')
+                self.assertEqual(ctx.exception.code, code)
+                self.assertEqual(send.call_args[0][:2], ('PUT', '/user'))
+        ok = _Response(200, {}, b'{"id": "u"}')
+        with mock.patch.object(auth, '_send', return_value=ok):
+            self.assertEqual(auth.update_password('tok', 'NewPassw0rd!'), {'id': 'u'})
+
     def test_invalid_confirm_link(self):
         r = self.c.get('/auth/confirm?token_hash=zz&type=email')
         r = self.c.get(r.headers['Location'])

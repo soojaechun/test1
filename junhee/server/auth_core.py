@@ -79,6 +79,14 @@ class SupabaseAuth:
                 raise AuthError('otp_expired', 400)
             if response.status_code in (400, 401, 403, 404, 422):
                 raise AuthError('invalid_confirmation', 400)
+        elif context == 'password':
+            # reauthentication_needed: Supabase 'Secure password change' 가 켜져 있고 로그인한 지 24시간이 지난 경우
+            if code in ('weak_password', 'same_password', 'reauthentication_needed'):
+                raise AuthError(code, 400)
+            if response.status_code in (401, 403):
+                raise AuthError('invalid_session', 401)
+            if response.status_code in (400, 404, 422):
+                raise AuthError('password_update_failed', 400)
         else:
             if code in ('weak_password', 'email_address_invalid', 'email_exists', 'user_already_exists', 'user_not_found'):
                 raise AuthError(code, 400)
@@ -151,6 +159,10 @@ class SupabaseAuth:
 
     def get_user(self, access_token):
         return self._request('GET', '/user', token=access_token)
+
+    def update_password(self, access_token, password):
+        """(2026-09-29) 로그인한 사용자의 비밀번호를 바로 바꾼다(메일 인증 없음). 현재 세션은 유지된다."""
+        return self._request('PUT', '/user', data={'password': password}, token=access_token, error_context='password')
 
     def refresh(self, refresh_token):
         return self._request('POST', '/token?grant_type=refresh_token', data={'refresh_token': refresh_token})

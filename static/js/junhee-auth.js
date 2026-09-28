@@ -97,6 +97,35 @@
   // workspace.js 가 붙인 '계정 연결 없는 미리보기' 안내 대신 계정 창을 연다 (workspace.js 다음에 로드됨)
   const openAccount = () => $("#account-dialog")?.showModal();
   if (avatar) avatar.onclick = openAccount;
+
+  // (2026-09-29) 계정 창의 비밀번호 변경: 메일 인증 없이 바로 바뀌고 지금 로그인은 유지된다.
+  const pwForm = $("#password-form");
+  if (pwForm) {
+    const pw = $("#new-password"), pw2 = $("#new-password-confirm"), status = $("#password-status"), btn = $("#password-submit");
+    const show = (text, ok) => {
+      status.hidden = !text;
+      status.textContent = text || "";
+      status.className = ok ? "demo-notice" : "form-error"; // 기존 클래스만 사용(성공=안내 상자, 실패=오류 글자)
+    };
+    const reset = () => { pw.value = ""; pw2.value = ""; show(""); };
+    $("#account-dialog")?.addEventListener("close", reset);
+    pwForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (pw.value.length < 8 || pw.value.length > 128) return show("비밀번호는 8자 이상 128자 이하로 입력해 주세요.");
+      if (pw.value !== pw2.value) return show("새 비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+      btn.disabled = true;
+      show("");
+      try {
+        const data = await api("/api/auth/password", { method: "POST", json: { password: pw.value, password_confirm: pw2.value } });
+        pw.value = ""; pw2.value = "";
+        show((data && data.message) || "비밀번호를 바꿨습니다.", true);
+      } catch (err) {
+        show((err.data && err.data.message) || "비밀번호를 바꾸지 못했습니다. 잠시 후 다시 시도해 주세요.");
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
   // 다른 탭에서 로그아웃했거나 세션이 만료되면 알아챈다
   setInterval(() => {
     if (document.visibilityState === "visible") api("/api/auth/session").catch(() => {});

@@ -32,7 +32,8 @@ _EMAIL = re.compile(r"[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]{1,64}@[A-Za-z0-9](?:[A-Za-
 MAIL_COOLDOWN_SECONDS = 60
 # (2026-09-27 배포 QA) 로그인·가입 요청 제한(IP 별, 프로세스 메모리). Supabase 호출이 모두 서버 IP 하나로 나가므로 앱에서 먼저 막는다.
 # 발표장처럼 여러 사람이 같은 IP(NAT)를 쓰는 경우를 막지 않도록 넉넉히 둔다(대입·메일 남용만 막는 수준).
-AUTH_LIMITS = {'junhee_accounts.login': (60, 300), 'junhee_accounts.signup': (20, 600), 'junhee_accounts.resend': (20, 600)}
+AUTH_LIMITS = {'junhee_accounts.login': (60, 300), 'junhee_accounts.signup': (20, 600), 'junhee_accounts.resend': (20, 600),
+               'junhee_accounts.change_password': (10, 600)}
 
 bp = Blueprint('junhee_accounts', __name__)
 
@@ -178,6 +179,11 @@ def _bp_guard():
         return _page(503, setup_error=_ext()['problem'])
     if request.method == 'POST' and request.endpoint in AUTH_LIMITS:
         wait = _auth_limited(request.endpoint)
+        if wait and request.path.startswith('/api/'):
+            response = jsonify(error='rate_limited')
+            response.status_code = 429
+            response.headers['Retry-After'] = str(wait)
+            return response
         if wait:
             tab = 'login' if request.endpoint == 'junhee_accounts.login' else 'signup'
             message = '요청이 많습니다. 잠시 후 다시 시도해 주세요.'
@@ -358,6 +364,38 @@ def auth_session():
     if user is None:
         return jsonify(error='authentication_required'), 401
     return jsonify(user=user)
+
+
+@bp.post('/api/auth/password')
+def change_password():
+    """(2026-09-29) 계정 창의 비밀번호 변경. 로그인 세션만 확인하고 메일 인증 없이 바로 바꾼다. 현재 로그인은 유지."""
+    user = current_user()
+    if user is None:
+        if g.get('junhee_auth_unavailable'):
+            return jsonify(error='auth_unavailable'), 503
+        return jsonify(error='authentication_required'), 401
+    data = request.get_json(silent=True)
+    data = data if isinstance(data, dict) else {}
+    password, confirmation = data.get('password'), data.get('password_confirm')
+    if not isinstance(password, str) or not isinstance(confirmation, str):
+        return jsonify(error='invalid_request', message='새 비밀번호를 입력해 주세요.'), 400
+    if password != confirmation:
+        return jsonify(error='password_mismatch', message='새 비밀번호와 비밀번호 확인이 일치하지 않습니다.'), 400
+    if not 8 <= len(password) <= 128:
+        return jsonify(error='password_length', message='비밀번호는 8자 이상 128자 이하로 입력해 주세요.'), 400
+    try:
+        _ext()['provider'].update_password(access_token(), password)
+    except AuthError as exc:
+        messages = {
+            'weak_password': '비밀번호가 보안 조건을 충족하지 않습니다. 더 길게, 대문자·소문자·숫자·기호를 섞어 다시 입력해 주세요.',
+            'same_password': '지금 쓰는 비밀번호와 다른 비밀번호를 입력해 주세요.',
+            'reauthentication_needed': '로그인한 지 오래되어 바로 바꿀 수 없습니다. 로그아웃 후 다시 로그인한 뒤 바꿔 주세요.',
+            'invalid_session': '로그인이 만료되었습니다. 다시 로그인해 주세요.',
+            'rate_limited': '요청이 많습니다. 잠시 후 다시 시도해 주세요.',
+            'password_update_failed': '비밀번호를 바꾸지 못했습니다. 입력 내용을 확인해 주세요.',
+        }
+        return jsonify(error=exc.code, message=messages.get(exc.code, '인증 서버에 연결하지 못했습니다. 잠시 후 다시 시도해 주세요.')), exc.status
+    return jsonify(ok=True, message='비밀번호를 바꿨습니다. 다음 로그인부터 새 비밀번호를 쓰세요.')
 
 
 # ---------- 연결 ----------

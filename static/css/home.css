@@ -1716,22 +1716,23 @@ html[lang="ja"] body,html[lang="ja"] button,html[lang="ja"] input,html[lang="ja"
 @keyframes demo-ring-fill{0%,14%{stroke-dashoffset:270.18}43%,89%{stroke-dashoffset:59.44}95%,100%{stroke-dashoffset:270.18}}
 @keyframes demo-score-fade{0%,42%{opacity:0;transform:translate(-50%,-33%) scale(.92)}49%,89%{opacity:1;transform:translate(-50%,-40%) scale(1)}95%,100%{opacity:0;transform:translate(-50%,-33%) scale(.92)}}
 @keyframes demo-bookmark-fan{0%,48%{opacity:0;transform:translate3d(-22px,0,0) rotate(-2deg)}55%,89%{opacity:1;transform:translate3d(0,0,0) rotate(0deg)}95%,100%{opacity:0;transform:translate3d(-22px,0,0) rotate(-2deg)}}
-.step-card.is-demo-running .demo-cursor{animation:demo-cursor-path 10s cubic-bezier(.42,0,.18,1) infinite;}
-.step-card.is-demo-running .demo-file{animation:demo-file-flight 10s cubic-bezier(.28,.68,.21,1) infinite;}
-.step-card.is-demo-running .demo-upload-meter span{animation:demo-meter-fill 10s ease-in-out infinite;}
-.step-card.is-demo-running .demo-upload-check{animation:demo-check-pop 10s cubic-bezier(.2,.7,.2,1) infinite;}
-.step-card.is-demo-running .demo-typed--code{animation:demo-type-1 10s steps(7,end) infinite;}
-.step-card.is-demo-running .demo-typed--country{animation:demo-type-2 10s steps(2,end) infinite;}
-.step-card.is-demo-running .demo-typed--term{animation:demo-type-3 10s steps(3,end) infinite;}
-.step-card.is-demo-running .demo-score-progress{animation:demo-ring-fill 10s cubic-bezier(.45,.1,.16,1) infinite;}
-.step-card.is-demo-running .demo-score-center{animation:demo-score-fade 10s ease-in-out infinite;}
-.step-card.is-demo-running .demo-bookmark{animation:demo-bookmark-fan 10s cubic-bezier(.17,.65,.17,1) infinite;animation-delay:calc(var(--tab)*.43s);}
+/* (2026-09-28 사용자 요청) STEP 카드 데모: 10s → 7.5s(75%), 탭 간격 .43s → .32s */
+.step-card.is-demo-running .demo-cursor{animation:demo-cursor-path 7.5s cubic-bezier(.42,0,.18,1) infinite;}
+.step-card.is-demo-running .demo-file{animation:demo-file-flight 7.5s cubic-bezier(.28,.68,.21,1) infinite;}
+.step-card.is-demo-running .demo-upload-meter span{animation:demo-meter-fill 7.5s ease-in-out infinite;}
+.step-card.is-demo-running .demo-upload-check{animation:demo-check-pop 7.5s cubic-bezier(.2,.7,.2,1) infinite;}
+.step-card.is-demo-running .demo-typed--code{animation:demo-type-1 7.5s steps(7,end) infinite;}
+.step-card.is-demo-running .demo-typed--country{animation:demo-type-2 7.5s steps(2,end) infinite;}
+.step-card.is-demo-running .demo-typed--term{animation:demo-type-3 7.5s steps(3,end) infinite;}
+.step-card.is-demo-running .demo-score-progress{animation:demo-ring-fill 7.5s cubic-bezier(.45,.1,.16,1) infinite;}
+.step-card.is-demo-running .demo-score-center{animation:demo-score-fade 7.5s ease-in-out infinite;}
+.step-card.is-demo-running .demo-bookmark{animation:demo-bookmark-fan 7.5s cubic-bezier(.17,.65,.17,1) infinite;animation-delay:calc(var(--tab)*.32s);}
 @keyframes demo-caret-first{0%,10%,29%,100%{opacity:0}13%,18%,24%,27%{opacity:1}15%,21%,26%{opacity:0}}
 @keyframes demo-caret-second{0%,32%,51%,100%{opacity:0}35%,42%,48%{opacity:1}39%,45%{opacity:0}}
 @keyframes demo-caret-third{0%,53%,70%,100%{opacity:0}56%,62%,67%{opacity:1}59%,65%{opacity:0}}
-.step-card.is-demo-running .demo-form-row:nth-child(1) .demo-form-caret{animation:demo-caret-first 10s linear infinite;}
-.step-card.is-demo-running .demo-form-row:nth-child(2) .demo-form-caret{animation:demo-caret-second 10s linear infinite;}
-.step-card.is-demo-running .demo-form-row:nth-child(3) .demo-form-caret{animation:demo-caret-third 10s linear infinite;}
+.step-card.is-demo-running .demo-form-row:nth-child(1) .demo-form-caret{animation:demo-caret-first 7.5s linear infinite;}
+.step-card.is-demo-running .demo-form-row:nth-child(2) .demo-form-caret{animation:demo-caret-second 7.5s linear infinite;}
+.step-card.is-demo-running .demo-form-row:nth-child(3) .demo-form-caret{animation:demo-caret-third 7.5s linear infinite;}
 @media(max-width:1120px){
  .shell,.site-header .header-inner,.site-header.is-scrolled .header-inner{width:calc(100% - 56px);}
  .step-card{padding:26px 20px;}
@@ -1928,7 +1929,7 @@ html[lang="ja"] body,html[lang="ja"] button,html[lang="ja"] input,html[lang="ja"
   opacity: 0;
   /* Fixed cover layout: image proportions do not change while the mask opens. */
   filter: saturate(.88) contrast(1.05);
-  transition: opacity 1080ms cubic-bezier(.22, 1, .36, 1);
+  transition: opacity 810ms cubic-bezier(.22, 1, .36, 1); /* (2026-09-28) 1080ms → 810ms (75%) */
   will-change: opacity;
 }
 .criteria-stage__image.is-current { opacity: 1; }
@@ -1959,7 +1960,7 @@ html[lang="ja"] body,html[lang="ja"] button,html[lang="ja"] input,html[lang="ja"
   border-right: 1px solid rgba(230,240,255,.16);
   border-radius: 0;
   outline-offset: -4px;
-  transition: background 350ms ease;
+  transition: background 263ms ease; /* (2026-09-28) 350ms → 263ms (75%) */
 }
 .criteria-pane:last-child { border-right: 0; }
 .criteria-pane:hover,.criteria-pane:focus-visible,.criteria-pane.is-current {
@@ -1990,25 +1991,25 @@ html[lang="ja"] body,html[lang="ja"] button,html[lang="ja"] input,html[lang="ja"
 @media (prefers-reduced-motion: no-preference) {
   html.criteria-motion-ready .criteria-heading {
     opacity: 0; transform: translateY(52px);
-    transition: opacity 680ms ease,transform 760ms cubic-bezier(.2,.75,.2,1);
+    transition: opacity 510ms ease,transform 570ms cubic-bezier(.2,.75,.2,1); /* (2026-09-28) 680/760ms → 75% */
   }
   /*
    * Stable photo reveal: the stage is always 100% wide and only a rounded
    * clipping mask expands from the middle. No scaleX / squeezed photographs.
-   * Duration 1.7 s for a slower, smoother cinematic opening.
+   * Duration 1.7 s for a slower, smoother cinematic opening. (2026-09-28 사용자 요청: 75% 1.275 s)
    */
   html.criteria-motion-ready .criteria-stage {
     clip-path: inset(0 44% 0 44% round 22px);
     opacity: .97;
-    transition: clip-path 1700ms cubic-bezier(.16, .88, .20, 1),
-                opacity 1000ms ease;
+    transition: clip-path 1275ms cubic-bezier(.16, .88, .20, 1),
+                opacity 750ms ease;
     pointer-events: none;
   }
   html.criteria-motion-ready .criteria-pane {
     opacity: 0; transform: translateY(52px);
-    transition: opacity 750ms cubic-bezier(.22, 1, .36, 1),
-                transform 930ms cubic-bezier(.22, 1, .36, 1),
-                background 350ms ease;
+    transition: opacity 563ms cubic-bezier(.22, 1, .36, 1),
+                transform 698ms cubic-bezier(.22, 1, .36, 1),
+                background 263ms ease;
   }
   html.criteria-motion-ready .criteria-section.is-visible .criteria-heading {
     opacity: 1; transform: none;
@@ -2017,16 +2018,16 @@ html[lang="ja"] body,html[lang="ja"] button,html[lang="ja"] input,html[lang="ja"
     clip-path: inset(0 0 0 0 round 22px);
     opacity: 1;
     pointer-events: auto;
-    transition-delay: 340ms, 340ms;
+    transition-delay: 255ms, 255ms;
   }
   html.criteria-motion-ready .criteria-section.is-visible .criteria-pane {
     opacity: 1; transform: none;
   }
-  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(1) { transition-delay: 1910ms,1910ms,0ms; }
-  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(2) { transition-delay: 2020ms,2020ms,0ms; }
-  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(3) { transition-delay: 2130ms,2130ms,0ms; }
-  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(4) { transition-delay: 2240ms,2240ms,0ms; }
-  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(5) { transition-delay: 2350ms,2350ms,0ms; }
+  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(1) { transition-delay: 1433ms,1433ms,0ms; }
+  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(2) { transition-delay: 1515ms,1515ms,0ms; }
+  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(3) { transition-delay: 1598ms,1598ms,0ms; }
+  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(4) { transition-delay: 1680ms,1680ms,0ms; }
+  html.criteria-motion-ready .criteria-section.is-visible .criteria-pane:nth-child(5) { transition-delay: 1763ms,1763ms,0ms; }
 }
 @media(max-width:1000px) {
   .criteria-section { padding: 90px 0; }

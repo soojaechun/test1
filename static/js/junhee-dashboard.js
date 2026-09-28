@@ -742,18 +742,59 @@
       <div class="jd-point"><div class="jd-point-head"><span><i class="ph ph-compass"></i>핵심 포인트</span><button type="button" class="jd-link" data-open-tab="market">상세 리포트 보기 →</button></div><p>${point}</p></div>
     </section>`;
   }
+  // (junhee) 2026-09-28 카드 한 줄 요약(큰 점수 아래). 예전 카드 아래 줄(엔진 설명 전체)을 짧게 줄인 것.
+  // 4개 언어 문장을 data-l-* 로 함께 두고 언어가 바뀌면 통째로 바꾼다(낱말 번역으로 섞이지 않게 data-no-translate).
+  const SUM_LANGS = ["ko", "en", "zh", "ja"];
+  const sumTx = (s, l) => (l === "ko" || !window.JunheeReportI18n ? s : JunheeReportI18n.tx(String(s), l));
+  const GATE_L = { "검토 필요": ["Review required", "需要审查", "要確認"], "보류": ["On hold", "暂缓", "保留"] };
+  function cardSummary(a, f, o, state) {
+    const per = {};
+    if (state === "empty") return "";
+    if (a.key === "regulation" && isEngine()) {
+      const ec = itemOf("regulation", "export_control_candidates"), im = itemOf("regulation", "import_regulation_records"), cs = itemOf("regulation", "csl_search");
+      const codes = ec && String(ec.unit || "").match(/통제번호 (\d+)개/), g = (o && o.gate && o.gate.label) || "검토 필요";
+      const okv = (it) => it && it.status === "확인됨" && it.value != null;
+      SUM_LANGS.forEach((l, ix) => {
+        const gl = ix ? (GATE_L[g] || [g, g, g])[ix - 1] : g;
+        const p1 = okv(ec) ? [`HSK 후보 ${ec.value}개${codes ? `(통제번호 ${codes[1]})` : ""}`, `${ec.value} HSK candidates${codes ? ` (${codes[1]} control nos.)` : ""}`, `HSK候选 ${ec.value}个${codes ? `（管制编号 ${codes[1]}）` : ""}`, `HSK候補 ${ec.value}件${codes ? `（統制番号 ${codes[1]}）` : ""}`][ix] : ["HSK 후보 미확인", "HSK candidates unconfirmed", "HSK候选未确认", "HSK候補 未確認"][ix];
+        const p2 = okv(im) ? [`수입규제 ${im.value}건`, `import restrictions ${im.value}`, `进口限制 ${im.value}件`, `輸入規制 ${im.value}件`][ix] : ["수입규제 미확인", "import restrictions unconfirmed", "进口限制未确认", "輸入規制 未確認"][ix];
+        const p3 = okv(cs) ? [`거래처 일치 ${cs.value}건`, `party matches ${cs.value}`, `交易方匹配 ${cs.value}件`, `取引先一致 ${cs.value}件`][ix] : ["거래처 미확인", "parties unconfirmed", "交易方未确认", "取引先 未確認"][ix];
+        per[l] = [gl, p1, p2, p3].join(" · ");
+      });
+    } else if (state === "ok" && isEngine()) {
+      const d = engD(a.key), comps = (d.components || []).filter((c) => fin(c.score));
+      if (!comps.length) return "";
+      const best = comps.reduce((x, y) => (y.score > x.score ? y : x)), worst = comps.reduce((x, y) => (y.score < x.score ? y : x));
+      const mark = (c, ix) => (c.status === "ASSUMED" ? ["(기준)", " (policy)", "（基准）", "（基準）"][ix] : "");
+      SUM_LANGS.forEach((l, ix) => {
+        const cov = [`근거 ${num(d.coverage_pct, 0)}%`, `Evidence ${num(d.coverage_pct, 0)}%`, `依据 ${num(d.coverage_pct, 0)}%`, `根拠 ${num(d.coverage_pct, 0)}%`][ix];
+        const one = (c) => `${sumTx(c.label, l)} ${num(c.score, 0)}${mark(c, ix)}`;
+        per[l] = best === worst || comps.length < 2 ? `${cov} · ${one(best)}`
+          : `${cov} · ${["강점", "Strength", "强项", "強み"][ix]} ${one(best)} · ${["보완", "Improve", "待补", "補完"][ix]} ${one(worst)}`;
+      });
+    } else if (state === "ok" && f && f.line) {
+      SUM_LANGS.forEach((l) => (per[l] = f.line)); // 엔진 문서가 아니면(예전 샘플) 기존 설명 문장
+    } else return "";
+    const lang = (window.AXPI18n && AXPI18n.language) || "ko", text = per[lang] || per.ko;
+    return `<div class="jd-card-sum" data-no-translate title="${esc(text)}"${SUM_LANGS.map((l) => ` data-l-${l}="${esc(per[l] || per.ko)}"`).join("")}>${esc(text)}</div>`;
+  }
+  window.addEventListener("axp:language-changed", (e) => {
+    const l = (e.detail && e.detail.language) || (window.AXPI18n && AXPI18n.language) || "ko";
+    document.querySelectorAll(".jd-card-sum").forEach((el) => { const t = el.getAttribute("data-l-" + l) || el.getAttribute("data-l-ko") || ""; el.textContent = t; el.title = t; });
+  });
   function cardHTML(a, v) {
     const o = v ? v.overview : null, f = o ? o.factors.find((x) => x.key === a.key) : null, K = CARD[a.key];
     const state = !v ? "empty" : f && f.state === "ok" ? "ok" : "insufficient";
     let main;
-    if (state === "ok") main = `<div><div class="jd-score"><strong class="jd-num" data-key="${a.key}" data-to="${f.score}" data-decimals="0">${(+f.score).toFixed(0)}</strong><small>/ 100</small></div><div class="jd-delta-line">${deltaHTML(f.delta, K.ink, true)}</div></div>${sparkSVG(a.key, f.series)}`;
-    else if (state === "insufficient") main = `<div><div class="jd-score insufficient">자료 부족</div><div class="jd-need">필요 자료: ${esc(isEngine() ? ENGINE_NEEDED[a.key] : NEEDED[a.key])}</div></div>`;
+    const sum = cardSummary(a, f, o, state); // (junhee) 2026-09-28 한 줄 요약: 점수·그래프 줄 바로 아래 카드 전체 폭(전월 대비 값이 없으면 '–' 줄 대신)
+    if (state === "ok") main = `<div><div class="jd-score"><strong class="jd-num" data-key="${a.key}" data-to="${f.score}" data-decimals="0">${(+f.score).toFixed(0)}</strong><small>/ 100</small></div>${f.delta == null && sum ? "" : `<div class="jd-delta-line">${deltaHTML(f.delta, K.ink, true)}</div>`}</div>${sparkSVG(a.key, f.series)}`;
+    else if (state === "insufficient") main = `<div><div class="jd-score insufficient">자료 부족</div><div class="jd-need">필요 자료: ${esc(isEngine() ? ENGINE_NEEDED[a.key] : NEEDED[a.key])}</div>${sum}</div>`;
     else main = `<div><div class="jd-score empty"><strong>—</strong><small>/ 100</small></div></div>`;
     const note = f ? esc(f.line) : a.empty;
     return `<article class="jd-card jd-card-${a.key}" style="--c:${K.tile};--c2:${K.eb};--ink:${K.ink};--dots:${K.dots};--line:${K.line};--bg:${a.bg}" data-state="${state}">
       <div><div class="jd-card-head"><span class="jd-tile"><i class="ph ph-${a.icon}"></i></span><div><small>${a.en}</small><h4>${a.ko2}</h4></div><i class="ph ph-dots-three jd-card-dots" aria-hidden="true"></i></div>
-      <div class="jd-card-main">${main}</div></div>
-      <div class="jd-card-foot"><span class="jd-note" title="${note}">${note}</span><button type="button" class="jd-more" data-open-tab="${a.key}">더보기 →</button></div>
+      <div class="jd-card-main">${main}</div>${state === "ok" ? sum : ""}</div>
+      <div class="jd-card-foot">${state === "empty" ? `<span class="jd-note" title="${note}">${note}</span>` : ""}<button type="button" class="jd-more" data-open-tab="${a.key}">더보기 →</button></div>
     </article>`;
   }
   function panelHTML() {
@@ -1267,6 +1308,21 @@
     const delay = (flag) => (ctx) => { if (ctx.type !== "data" || ctx[flag]) return 0; ctx[flag] = true; return ctx.index * step; };
     return { x: { type: "number", easing: "linear", duration: step, from: NaN, delay: delay("xStarted") }, y: { type: "number", easing: "easeOutQuad", duration: step * 3, from: prevY, delay: delay("yStarted") } };
   }
+  // (junhee) 2026-09-28 물류 운송비 차트용: 점은 제자리에 두고 그리는 영역을 왼쪽→오른쪽으로 일정한 속도로 드러낸다(ms 동안).
+  // 점이 적고 세로축이 0에서 시작하지 않아 점마다 위아래로 크게 튀던(뻑뻑하던) 모션을, 다른 차트의 선 그리기 속도·길이(약 1.2초)에 맞춘다.
+  function revealPlugin(ms) {
+    return {
+      id: "jdReveal",
+      install(chart) {
+        chart.$jdReveal = 0;
+        const t0 = performance.now();
+        const tick = (t) => { if (!chart.canvas || !chart.ctx) return; chart.$jdReveal = Math.min(1, (t - t0) / ms); chart.draw(); if (chart.$jdReveal < 1) rafs.push(requestAnimationFrame(tick)); };
+        rafs.push(requestAnimationFrame(tick));
+      },
+      beforeDatasetsDraw(chart) { if (!(chart.$jdReveal < 1)) return; const a = chart.chartArea; chart.ctx.save(); chart.ctx.beginPath(); chart.ctx.rect(a.left - 6, a.top - 12, (a.right - a.left + 12) * chart.$jdReveal, a.bottom - a.top + 24); chart.ctx.clip(); },
+      afterDatasetsDraw(chart) { if (chart.$jdReveal < 1) chart.ctx.restore(); },
+    };
+  }
   const growBars = () => (calm() ? false : { duration: 900, easing: "easeOutQuart", delay: (ctx) => (ctx.type === "data" && ctx.mode === "default" ? ctx.dataIndex * 90 + ctx.datasetIndex * 60 : 0) });
   function pulse(data, col) {
     let last = -1;
@@ -1278,43 +1334,47 @@
   function engOpts(n, extra) {
     return i3Opts((o, font) => { o.animations = drawInLine(n); o.plugins.legend.labels.filter = (it) => it.text !== "최신 관측"; o.interaction = { intersect: false, mode: "index" }; return extra ? extra(o, font) : o; });
   }
+  // (junhee) 2026-09-28 차트 안 글자(캔버스라 화면 번역기가 닿지 않음)를 현재 언어로. 언어를 바꾸면 workspace.js 가 탭을 다시 그려 차트도 다시 만든다.
+  // '최신 관측'은 범례·툴팁 걸러내기 조건이라 번역하지 않는다.
+  const cT = (s) => (window.AXPI18n && AXPI18n.language !== "ko" && s != null ? AXPI18n.t(String(s)) : s);
   function engineChart(id) {
     if (!isEngine() || !id || id.indexOf("eng-") !== 0) return null;
     const parts = id.split("-"), key = parts[1], name = parts[2], d = engD(key), ch = d.charts || {}, col = color(key);
     if (name === "imports") {
       const rows = ch.imports || [], data = rows.map((r) => (r.v == null ? null : r.v / 1e6));
-      return { type: "line", data: { labels: rows.map((r) => ymShort(r.m)), datasets: [areaLine("대세계 수입액 (USD M)", data, col), pulse(data, col)] },
-        options: engOpts(rows.length, (o, font) => { o.scales.y.title = { display: true, text: "USD M", font }; o.plugins.tooltip.filter = (c) => c.dataset.label !== "최신 관측"; o.plugins.tooltip.callbacks = { label: (c) => `${c.dataset.label}: ${c.parsed.y == null ? "자료 없음" : num(c.parsed.y, 1)}` }; return o; }) };
+      return { type: "line", data: { labels: rows.map((r) => ymShort(r.m)), datasets: [areaLine(cT("대세계 수입액 (USD M)"), data, col), pulse(data, col)] },
+        options: engOpts(rows.length, (o, font) => { o.scales.y.title = { display: true, text: "USD M", font }; o.plugins.tooltip.filter = (c) => c.dataset.label !== "최신 관측"; o.plugins.tooltip.callbacks = { label: (c) => `${c.dataset.label}: ${c.parsed.y == null ? cT("자료 없음") : num(c.parsed.y, 1)}` }; return o; }) };
     }
     if (name === "fx") {
       const rows = ch.fx || [], data = rows.map((r) => r.v);
-      return { type: "line", data: { labels: rows.map((r) => String(r.d || "").slice(5)), datasets: [areaLine("원/달러", data, col), pulse(data, col)] },
+      return { type: "line", data: { labels: rows.map((r) => String(r.d || "").slice(5)), datasets: [areaLine(cT("원/달러"), data, col), pulse(data, col)] },
         options: engOpts(rows.length, (o, font) => { o.scales.y.title = { display: true, text: "KRW/USD", font }; o.scales.y.beginAtZero = false; o.plugins.tooltip.filter = (c) => c.dataset.label !== "최신 관측"; return o; }) };
     }
     if (name === "freight") {
       const routes = Object.entries(ch.freight || {}), months = [...new Set(routes.flatMap((e) => e[1].map((r) => r.m)))].sort(), tints = [col, PALETTE2[key] || "#94a3b8", "#64748b", "#0ea5e9"];
-      const sets = routes.map((e, i) => { const by = Object.fromEntries(e[1].map((r) => [r.m, r.v])); return areaLine(e[0], months.map((m) => (m in by ? by[m] : null)), tints[i % tints.length]); });
+      const sets = routes.map((e, i) => { const by = Object.fromEntries(e[1].map((r) => [r.m, r.v])); return areaLine(cT(e[0]), months.map((m) => (m in by ? by[m] : null)), tints[i % tints.length]); });
       if (sets.length) sets.push(pulse(sets[0].data, tints[0]));
-      return { type: "line", data: { labels: months.map(ymShort), datasets: sets }, options: engOpts(months.length, (o, font) => { o.scales.y.title = { display: true, text: "천원/2TEU", font }; o.scales.y.beginAtZero = false; o.plugins.tooltip.filter = (c) => c.dataset.label !== "최신 관측"; return o; }) };
+      const reveal = calm() ? null : revealPlugin(1200); // (junhee) 2026-09-28 다른 차트와 같은 부드러운 그리기
+      return { type: "line", data: { labels: months.map(ymShort), datasets: sets }, plugins: reveal ? [reveal] : [], options: engOpts(months.length, (o, font) => { o.scales.y.title = { display: true, text: cT("천원/2TEU"), font }; o.scales.y.beginAtZero = false; o.plugins.tooltip.filter = (c) => c.dataset.label !== "최신 관측"; if (reveal) o.animations = { x: false, y: false }; return o; }) };
     }
     if (name === "growth") {
       const g = ch.growth || [];
-      return { type: "bar", data: { labels: g.map((x) => (x.v == null ? [x.label, "자료 부족"] : x.label)), datasets: [{ label: "성장률 %", data: g.map((x) => x.v), backgroundColor: g.map((x) => (x.v != null && x.v < 0 ? "#f43f5e" : col)), borderRadius: 7, maxBarThickness: 34 }] },
+      return { type: "bar", data: { labels: g.map((x) => (x.v == null ? [cT(x.label), cT("자료 부족")] : cT(x.label))), datasets: [{ label: cT("성장률 %"), data: g.map((x) => x.v), backgroundColor: g.map((x) => (x.v != null && x.v < 0 ? "#f43f5e" : col)), borderRadius: 7, maxBarThickness: 34 }] },
         options: i3Opts((o) => { o.animation = growBars(); o.plugins.legend.display = false; return o; }) };
     }
     if (name === "changes") {
       const c = ch.changes || [];
-      return { type: "bar", data: { labels: c.map((x) => ymShort(x.m)), datasets: [{ label: "전월 대비 %", data: c.map((x) => x.v), backgroundColor: c.map((x) => (x.drop ? "#e11d48" : col + "99")), borderRadius: 3 }] },
+      return { type: "bar", data: { labels: c.map((x) => ymShort(x.m)), datasets: [{ label: cT("전월 대비 %"), data: c.map((x) => x.v), backgroundColor: c.map((x) => (x.drop ? "#e11d48" : col + "99")), borderRadius: 3 }] },
         options: i3Opts((o) => { o.animation = growBars(); o.plugins.legend.display = false; return o; }) };
     }
     if (name === "counts") {
       const c = ch.counts || [];
-      return { type: "bar", data: { labels: c.map((x) => x.label), datasets: [{ label: "후보 수", data: c.map((x) => x.v), backgroundColor: c.map((x, i) => [col, PALETTE2[key], "#fb7185", "#94a3b8"][i % 4]), borderRadius: 7, maxBarThickness: 40 }] },
+      return { type: "bar", data: { labels: c.map((x) => cT(x.label)), datasets: [{ label: cT("후보 수"), data: c.map((x) => x.v), backgroundColor: c.map((x, i) => [col, PALETTE2[key], "#fb7185", "#94a3b8"][i % 4]), borderRadius: 7, maxBarThickness: 40 }] },
         options: i3Opts((o) => { o.indexAxis = "y"; o.animation = growBars(); o.plugins.legend.display = false; o.scales.x.grid = { color: "#F1F5F9" }; o.scales.y.grid = { display: false }; return o; }) };
     }
     if (name === "components") {
       const comps = d.components || [], tone = { ASSUMED: "#cbd5e1", COMPANY_REPORTED: PALETTE2[key] || col };
-      return { type: "bar", data: { labels: comps.map((x) => x.label), datasets: [{ label: "항목 점수 (0~100)", data: comps.map((x) => x.score), backgroundColor: comps.map((x) => tone[x.status] || col), borderRadius: 6, maxBarThickness: 18 }] },
+      return { type: "bar", data: { labels: comps.map((x) => cT(x.label)), datasets: [{ label: cT("항목 점수 (0~100)"), data: comps.map((x) => x.score), backgroundColor: comps.map((x) => tone[x.status] || col), borderRadius: 6, maxBarThickness: 18 }] },
         options: i3Opts((o) => { o.indexAxis = "y"; o.animation = growBars(); o.plugins.legend.display = false; o.scales.x = { min: 0, max: 100, grid: { color: "#F1F5F9" }, ticks: o.scales.x.ticks }; o.scales.y.grid = { display: false }; return o; }) };
     }
     return null;

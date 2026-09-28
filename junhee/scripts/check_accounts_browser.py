@@ -29,6 +29,8 @@ from junhee.server.auth_core import AuthError  # noqa: E402
 from junhee.server.workspace_store import WorkspaceError  # noqa: E402
 
 EMAIL, PASSWORD = 'tester@example.com', 'Passw0rd!x'
+NEW_PASSWORD = 'NewPassw0rd!y'  # (2026-09-29) 계정 창 비밀번호 변경 뒤 로그인에 씀
+STATE = {'password': PASSWORD}
 
 
 class FakeSupabase:
@@ -63,6 +65,15 @@ class FakeSupabase:
 
     def sign_out(self, token):
         return None
+
+    def update_password(self, token, password):
+        u = self.users.get(token.split(':', 1)[1]) if token.startswith('tok:') else None
+        if not u:
+            raise AuthError('invalid_session', 401)
+        if u['password'] == password:
+            raise AuthError('same_password', 400)
+        u['password'] = password
+        return {'id': u['id'], 'email': u['email']}
 
 
 class MemoryRepo:
@@ -142,7 +153,7 @@ def blank_point(page):
 def login(page):
     page.goto(BASE + '/app')
     page.fill('#login-dialog input[name=email]', EMAIL)
-    page.fill('#login-dialog input[name=password]', PASSWORD)
+    page.fill('#login-dialog input[name=password]', STATE['password'])
     page.click('#login-dialog button[type=submit]')
     page.wait_for_selector('#desktop-icons .desktop-icon')
     page.wait_for_function('window.JunheeFiles && window.AXWorkspace')
@@ -284,10 +295,24 @@ def main():
         check('이름 바꾼 샘플 분석(엔진)', company == '가온반도체' and page.evaluate("JunheeDashboard.current().score_source") == 'engine', company)
         page.wait_for_timeout(1500)  # 저장 대기
 
-        # 9) 로그아웃 → 다시 로그인
+        # 8-1) (2026-09-29) 계정 창에서 비밀번호 변경 → 메일 인증 없이 바로 바뀜
         page.click('#profile-btn')
         page.wait_for_selector('#account-dialog[open]')
-        page.click('#account-dialog button[type=submit]')
+        page.fill('#new-password', NEW_PASSWORD)
+        page.fill('#new-password-confirm', 'Mismatch0!')
+        page.click('#password-submit')
+        check('비밀번호 변경: 확인 불일치 안내', '일치하지 않습니다' in page.inner_text('#password-status'))
+        page.fill('#new-password-confirm', NEW_PASSWORD)
+        page.click('#password-submit')
+        page.wait_for_selector('#password-status.demo-notice')
+        check('비밀번호 변경: 바로 적용', fake.users[EMAIL]['password'] == NEW_PASSWORD and '바꿨습니다' in page.inner_text('#password-status'))
+        check('비밀번호 변경: 입력칸 비움', page.input_value('#new-password') == '' and page.input_value('#new-password-confirm') == '')
+        page.screenshot(path=str(OUT / 'accounts-06b-password-changed.png'))
+        STATE['password'] = NEW_PASSWORD
+
+        # 9) 로그아웃 → 다시 로그인(새 비밀번호)
+        page.wait_for_selector('#account-dialog[open]')
+        page.click('#account-dialog form[action="/auth/logout"] button[type=submit]')
         page.wait_for_selector('#login-dialog')
         check('로그아웃 → 로그인 화면', '로그아웃되었습니다' in page.inner_text('#login-dialog'))
         login(page)
@@ -398,7 +423,7 @@ def main():
         page.wait_for_timeout(1500)
         page.click('#profile-btn')
         page.wait_for_selector('#account-dialog[open]')
-        page.click('#account-dialog button[type=submit]')
+        page.click('#account-dialog form[action="/auth/logout"] button[type=submit]')
         page.wait_for_selector('#login-dialog')
         login(page)
         page.wait_for_function("document.getElementById('company-context').textContent === '한울메모리'", timeout=20000)

@@ -216,6 +216,9 @@
     if(entries[key]?.[language])return entries[key][language];
     // A few labels are constructed at runtime (e.g. "비중 30%").
     if(!/[가-힣]/.test(key))return raw;
+    // (junhee) 2026-09-28 분석 대시보드·엔진 문구는 숫자·문장 단위 번역표(junhee-report-i18n.js)를 먼저 쓴다(낱말 치환으로 섞인 문장 방지). 표에 없으면 기존 방식
+    const ext=window.JunheeReportI18n?window.JunheeReportI18n.tx(key,language):null;
+    if(ext&&ext!==key)return ext;
     let translated=raw;
     Object.keys(entries).filter(k=>k.length>=3 && entries[k]?.[language] && k!==raw).sort((a,b)=>b.length-a.length).forEach(k=>{
       if(translated.includes(k))translated=translated.split(k).join(entries[k][language]);
@@ -296,7 +299,16 @@
     doc.documentElement.lang=language;
     return "<!doctype html>\n"+doc.documentElement.outerHTML;
   }
-  window.AXPI18n={t,setLanguage,translateDOM,translateHTML,get language(){return language;},get locale(){return locales[language];},get supported(){return supported.slice();}};
+  // (junhee) 2026-09-28 juyeon 신규 기능(위젯 메뉴·보고서 번역)이 쓰는 번역 등록 함수(juyeon/static/js/axport-i18n.js 의 register).
+  // 기존 번역은 덮어쓰지 않고 없는 문구·언어만 더한다(기존 화면 번역 유지).
+  function register(additions){
+    for(const [key,val] of Object.entries(additions||{})){
+      if(Array.isArray(val)) entries[key]={en:val[0],zh:val[1],ja:val[2],...entries[key]};
+      else if(val && typeof val==='object') entries[key]={...val,...entries[key]};
+    }
+    scheduleTranslation();
+  }
+  window.AXPI18n={t,setLanguage,translateDOM,translateHTML,register,get language(){return language;},get locale(){return locales[language];},get supported(){return supported.slice();}};
   // (junhee) 2026-09-27 워크스페이스 사이드바 번역 추가. 일본어 '창 배치 초기화'는 사이드바 폭을 넘어 잘려서 짧은 표현으로 덮어쓴다(기존 항목은 고치지 않음).
   Object.assign(entries, {
     "창 배치 초기화": {en:"Reset window layout", zh:"重置窗口布局", ja:"配置をリセット"},

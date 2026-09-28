@@ -8,7 +8,7 @@
  $('.desktop-header').insertBefore($('#sx-clocks'),$('.header-right'));
  $('#analysis-window').hidden=true;
  const ids=['upload','fx','news','weather'],key='axsx.team.widgets.v1',mobile=matchMedia('(max-width:900px)');
- let state={hidden:[],positions:null},editing=true,selection=null,drag=null,z=2,requestId=0;
+ let state={hidden:[],positions:null},editing=false,selection=null,drag=null,z=2,requestId=0;
  const data={};
  const language=()=>window.AXPI18n?.language || 'ko';
  const t=k=>(window.AXSX_TEXT[language()] || window.AXSX_TEXT.ko)[k] || k;
@@ -22,9 +22,9 @@
  const e=k=>(extra[language()]||extra.ko)[k];
  const node=(tag,cls,txt)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(txt!=null)n.textContent=txt;return n;};
  const fmt=(v,d=0)=>new Intl.NumberFormat(window.AXPI18n?.locale||'ko-KR',{minimumFractionDigits:d,maximumFractionDigits:d}).format(v);
- try{const old=JSON.parse(localStorage.getItem(key));if(old){editing=old.editing!==false;state.hidden=Array.isArray(old.hidden)?[...new Set(old.hidden.filter(id=>ids.includes(id)))]:[];if(old.positions&&typeof old.positions==='object'){state.positions={};for(const id of ids){const p=old.positions[id];if(p&&['x','y','w','base'].every(k=>Number.isFinite(p[k]))&&p.w>0&&p.base>0)state.positions[id]={...p,y:Math.max(0,Math.min(3000,p.y))};}}}}catch{}
+ try{const old=JSON.parse(localStorage.getItem(key));if(old){editing=false;state.hidden=Array.isArray(old.hidden)?[...new Set(old.hidden.filter(id=>ids.includes(id)))]:[];if(old.positions&&typeof old.positions==='object'){state.positions={};for(const id of ids){const p=old.positions[id];if(p&&['x','y','w','base'].every(k=>Number.isFinite(p[k]))&&p.w>0&&p.base>0)state.positions[id]={...p,y:Math.max(0,Math.min(3000,p.y))};}}}}catch{}
  function save(){state.editing=editing;try{localStorage.setItem(key,JSON.stringify(state));}catch{}}
- function clock(){const now=new Date();$$('[data-sx-zone]').forEach(el=>{const zone=el.dataset.sxZone;const parts=new Intl.DateTimeFormat('en-GB',{timeZone:zone,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZoneName:'shortOffset'}).formatToParts(now);const p=Object.fromEntries(parts.map(x=>[x.type,x.value]));$('time',el).textContent=`${p.hour}:${p.minute}:${p.second}`;const offset=p.timeZoneName;$('small',el).textContent=zone==='Asia/Seoul'?'KST':zone==='Asia/Shanghai'?'CST':zone==='Europe/London'?(offset==='GMT'?'GMT':'BST'):(offset==='GMT-4'?'EDT':'EST');});}
+ function clock(){const now=new Date();$$('[data-sx-zone]').forEach(el=>{const zone=el.dataset.sxZone;const parts=new Intl.DateTimeFormat('en-GB',{timeZone:zone,hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZoneName:'shortOffset'}).formatToParts(now);const p=Object.fromEntries(parts.map(x=>[x.type,x.value]));$('time',el).textContent=`${p.hour}:${p.minute}:${p.second}`;const offset=p.timeZoneName;$('small',el).textContent=parts.find(x=>x.type==='timeZoneName')?.value||offset||'';});}
  function translate(){
   $$('[data-sx-t]').forEach(el=>el.textContent=t(el.dataset.sxT));$$('[data-sx-extra]').forEach(el=>el.textContent=e(el.dataset.sxExtra));
   $$('[data-sx-delete]').forEach(b=>b.setAttribute('aria-label',`${t(titles[b.dataset.sxDelete])} · ${t('hide')}`));

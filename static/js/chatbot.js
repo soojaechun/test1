@@ -62,7 +62,15 @@
   const safe = document.createElement('span'); safe.className = 'axchat-safe'; root.append(safe);
   let generation = 0, pending = false, composing = false, opened = false;
   let desired = { width:400, height:560 }, savedScroll = 0, following = true, unread = false, drag = null;
-  const mobile = () => matchMedia('(max-width:767px), (pointer:coarse)').matches;
+  const movable = root.dataset.page === 'workspace';
+  const CHAT_POS_KEY = 'axport.workspace.chat.position.v1';
+  let chatPosition = null;
+  if (movable) {try {const saved=JSON.parse(localStorage.getItem(CHAT_POS_KEY));if(Number.isFinite(saved?.x)&&Number.isFinite(saved?.y))chatPosition=saved;}catch{}}
+  let chatMove = null, skipLauncherClick = false, skipClickUntil = 0;
+  let panelPosition = null;
+  if(movable){try{const old=JSON.parse(localStorage.getItem(CHAT_POS_KEY));if(Number.isFinite(old?.panelX)&&Number.isFinite(old?.panelY))panelPosition={x:old.panelX,y:old.panelY};}catch{}}
+  const saveChatPosition=()=>{if(movable&&chatPosition){try{localStorage.setItem(CHAT_POS_KEY,JSON.stringify({...chatPosition,...(panelPosition?{panelX:panelPosition.x,panelY:panelPosition.y}:{})}));}catch{}}};
+  const mobile = () => matchMedia('(max-width:767px)').matches;
   const nearBottom = () => body.scrollHeight - body.scrollTop - body.clientHeight <= 40;
   function sync() {
     send.disabled = pending || !input.value.trim();
@@ -91,9 +99,17 @@
     const w = Math.min(mobile() ? 400 : desired.width, availableW);
     const h = Math.min(mobile() ? 560 : desired.height, availableH);
     panel.classList.toggle('axchat-compact', h < 520);
-    launcher.style.left = `${left + width - edgeRight - size}px`;
-    launcher.style.top = `${top + height - edgeBottom - size}px`;
-    Object.assign(panel.style, {left:`${left + width - edgeRight - w}px`, top:`${top + height - edgeBottom - size - 12 - h}px`, width:`${w}px`, height:`${h}px`});
+    const launchX = movable && chatPosition ? Math.max(left+edgeLeft, Math.min(chatPosition.x, left+width-edgeRight-size)) : left+width-edgeRight-size;
+    const launchY = movable && chatPosition ? Math.max(top+topClearance,Math.min(chatPosition.y,top+height-edgeBottom-size)) : top+height-edgeBottom-size;
+    if(movable&&chatPosition)chatPosition={x:launchX,y:launchY};
+    launcher.style.left = `${launchX}px`;
+    launcher.style.top = `${launchY}px`;
+    const defaultPanelLeft = movable ? Math.max(left+edgeLeft,Math.min(launchX+size-w, left+width-edgeRight-w)) : left+width-edgeRight-w;
+    const defaultPanelTop = movable ? Math.max(top+topClearance,Math.min(launchY-h-12,top+height-edgeBottom-h)) : top+height-edgeBottom-size-12-h;
+    const panelLeft = movable && panelPosition ? Math.max(left+edgeLeft,Math.min(panelPosition.x,left+width-edgeRight-w)) : defaultPanelLeft;
+    const panelTop = movable && panelPosition ? Math.max(top+topClearance,Math.min(panelPosition.y,top+height-edgeBottom-h)) : defaultPanelTop;
+    if(movable&&panelPosition)panelPosition={x:panelLeft,y:panelTop};
+    Object.assign(panel.style, {left:`${panelLeft}px`, top:`${panelTop}px`, width:`${w}px`, height:`${h}px`});
     if (opened && following) bottom();
     return {availableW, availableH};
   }
@@ -193,7 +209,52 @@
     // request sets pending synchronously, before the first await.
     request(question, answer); bottom();
   }
-  launcher.addEventListener('click', () => opened ? minimize() : open());
+  // Desktop: drag the launcher or the opened chat titlebar to move the *entire* widget.
+  // Window-level listeners retain drag even when the pointer crosses cards and charts.
+  if(movable){
+    const head=$('.axchat-header');
+    const startMove=(e,source)=>{
+      if(mobile()||e.button!==0||(source==='header'&&e.target.closest('button,.axchat-resize')))return;
+      const launchRect=launcher.getBoundingClientRect();
+      const panelRect=panel.getBoundingClientRect();
+      chatMove={id:e.pointerId,source,clientX:e.clientX,clientY:e.clientY,
+        launchX:launchRect.left,launchY:launchRect.top,
+        panelX:panelRect.left,panelY:panelRect.top,moved:false};
+      root.classList.add('axchat-moving');
+      try{e.currentTarget.setPointerCapture(e.pointerId);}catch{}
+      e.preventDefault();
+    };
+    const move=e=>{
+      if(!chatMove||e.pointerId!==chatMove.id)return;
+      const dx=e.clientX-chatMove.clientX,dy=e.clientY-chatMove.clientY;
+      if(!chatMove.moved&&Math.hypot(dx,dy)<5)return;
+      chatMove.moved=true;
+      e.preventDefault();
+      chatPosition={x:chatMove.launchX+dx,y:chatMove.launchY+dy};
+      if(opened)panelPosition={x:chatMove.panelX+dx,y:chatMove.panelY+dy};
+      layout();
+    };
+    const finish=e=>{
+      if(!chatMove||e.pointerId!==chatMove.id)return;
+      const didMove=chatMove.moved;
+      const origin=chatMove.source;
+      chatMove=null;root.classList.remove('axchat-moving');
+      if(didMove){
+        saveChatPosition();
+        if(origin==='launcher'){skipLauncherClick=true;skipClickUntil=performance.now()+500;}
+      }
+    };
+    [[launcher,'launcher'],[head,'header']].forEach(([el,source])=>{
+      if(!el)return;
+      el.addEventListener('pointerdown',e=>startMove(e,source));
+      el.addEventListener('pointermove',move);
+      for(const name of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(name,finish);
+    });
+    window.addEventListener('pointermove',move,{capture:true});
+    window.addEventListener('pointerup',finish,{capture:true});
+    window.addEventListener('pointercancel',finish,{capture:true});
+  }
+  launcher.addEventListener('click', (e) => {if(skipLauncherClick){const wasRecent=performance.now()<skipClickUntil;skipLauncherClick=false;if(wasRecent){e.preventDefault();return;}}opened ? minimize() : open();});
   $('.axchat-minimize').addEventListener('click', minimize);
   $('.axchat-close').addEventListener('click', close);
   form.addEventListener('submit', e => { e.preventDefault(); submit(input.value); });
